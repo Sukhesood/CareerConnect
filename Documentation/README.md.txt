@@ -51,7 +51,14 @@ System Features
 
 ** Technologies used **:
 
-Architecture:
-Programming language:
-external libraries used :
+Architecture: Model View Controller(MVC)
+Programming language: Java, Javascript
+Framework: Springboot
+Database: MySQL
+Tools:
+External libraries used :
+
+
+**Our team**
+1. 
 
