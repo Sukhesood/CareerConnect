@@ -1,0 +1,95 @@
+#1 Do you have a recommendation to better arrange work items in our sprint on github. We are not able to create hierarchical work items, only issues. 
+I feel like this does not represent correctly the breakdown of tasks
+
+
+A: Yes. If you're using GitHub Issues + Projects and can't create true parent/child work items, I would avoid trying to force the hierarchy into the issue structure. Instead, use Issues for atomic work and another mechanism to represent the breakdown.
+
+A good structure is:
+
+EPIC / FEATURE
+│
+├── Task A
+│   ├── Subtask A1
+│   └── Subtask A2
+│
+├── Task B
+│   ├── Subtask B1
+│   └── Subtask B2
+│
+└── Task C
+
+Since GitHub doesn't give you that hierarchy natively in your setup, I would use Milestones + labels + issue naming.
+
+| Level                       | GitHub element             | Example                             |
+| --------------------------- | -------------------------- | ----------------------------------- |
+| Feature / major deliverable | **Milestone**              | `Authentication System`             |
+| Work item                   | **Issue**                  | `Implement login endpoint`          |
+| Smaller task                | **Checklist inside Issue** | `Validate password`, `Generate JWT` |
+| Sprint                      | **Project iteration**      | `Sprint 1`                          |
+| Type                        | **Label**                  | `backend`, `frontend`, `testing`    |
+
+
+#1.1 can milestone be the parent of issues?
+
+Yes — but not exactly in a parent/child sense.
+
+In GitHub, a Milestone can group multiple Issues, but it is not technically a parent Issue.
+
+For example:
+
+Milestone: Authentication
+│
+├── Issue #12 — Create user database
+├── Issue #13 — Implement login API
+├── Issue #14 — Create login UI
+└── Issue #15 — Add authentication tests
+
+The Issues are associated with the milestone, and GitHub can show milestone progress based on those Issues.
+
+However, you cannot normally do:
+
+Issue #13 — Implement login API
+    ├── Issue #16 — Create endpoint
+    ├── Issue #17 — Validate credentials
+    └── Issue #18 — Generate JWT
+
+using a Milestone as the parent of #16–18. A milestone is essentially a collection/grouping, not a hierarchical parent.
+
+If your goal is a real WBS hierarchy
+
+For example, if your sprint looks like:
+
+Sprint 1
+│
+├── Authentication
+│   ├── Backend
+│   │   ├── Login endpoint
+│   │   └── JWT
+│   └── Frontend
+│       ├── Login page
+│       └── Error handling
+│
+└── Database
+    ├── User schema
+    └── Repository
+
+then Milestones alone won't represent this correctly.
+
+GitHub's better solution, if available in your Projects configuration, is sub-issues:
+
+Authentication
+├── Backend
+│   ├── Login endpoint
+│   └── JWT
+└── Frontend
+    ├── Login page
+    └── Error handling
+
+If your GitHub setup doesn't have sub-issues, then I'd use Issues + task checklists + labels rather than making every level a milestone.
+
+If you show me the exact hierarchy/work breakdown you're trying to put into your Sprint 1 (like the graph you showed me earlier), I can suggest a GitHub 
+structure that preserves that hierarchy as closely as possible.
+
+
+Review: This chat was to give me visibility on how the work item system work in Github compared to another software like Azure DevOps. The elements brought up 
+will be used to better organize the issues.
