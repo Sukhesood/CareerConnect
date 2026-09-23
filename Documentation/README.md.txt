@@ -60,5 +60,9 @@ External libraries used :
 
 
 **Our team**
-1. 
-
+    NAME                  ROLE                        QUALIFICATIONS/SKILLS
+ELOUAN BESNIER
+MARIA HERRERA
+SUKHJIT SINGH
+RABIH EL MAROUK
+MARK KOUKA
