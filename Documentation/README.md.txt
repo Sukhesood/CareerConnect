@@ -21,26 +21,18 @@ linked github and other project presentation site for automatic overview)
 ** Proposed feature **:
 System Features
 ·        User registration, authentication, and profile management.
-
 ·        Resume upload and management.
-
 ·        Job posting management for recruiters.
-
 ·        Job search and filtering capabilities.
-
 ·        Job application submission.
-
 ·        Application status tracking (Applied, Interview, Offered, Rejected).
-
 ·        Application history dashboard.
-
 ·        Notifications and reminders for application deadlines.
-
 ·        Saved jobs and favourites.
-
-·        AI-assisted resume feedback or job matching suggestions (optional advanced feature).
-
-·        Teams are encouraged to design creative and meaningful AI-based functionality that enhances the application.
+·        AI generated cover letter as default when applying as job seeker.
+·        AI review of information and projects linked in the job application.
+·        ?fetching application from other website?
+·        Port to apply through the website on other job seeking page with integrated tracker.
 
 **************************to review and improve
 
