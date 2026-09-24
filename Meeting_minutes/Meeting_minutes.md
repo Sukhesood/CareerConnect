@@ -2,8 +2,9 @@
 
 ## Meeting-2026-09-27
 
-** Attendees: ** add team members who were present
-** Absent: ** add team memebers who were absent 
+**Attendees:** add team members who were present
+
+**Absent:** add team memebers who were absent 
 
 ### Purpose
 
@@ -14,5 +15,5 @@
 |---|---|---|
 | blah blah| Maria | Sept 26 | 
 
-### Next Meetingg 
-** Date: ** add date
+### Next Meeting 
+**Date:** add date
