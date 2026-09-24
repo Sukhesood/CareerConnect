@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - CareerConnect</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: #1a73e8; color: white; padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
+        .main-content { flex: 1; display: flex; justify-content: center; align-items: center; padding: 40px 20px; }
+        .form-card { background: white; padding: 35px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); width: 100%; max-width: 400px; }
+        h2 { text-align: center; color: #333; margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: #444; font-size: 14px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        input:focus { border-color: #1a73e8; outline: none; }
+        .error { color: #d93025; font-size: 12px; text-align: center; margin-bottom: 12px; }
+        button { width: 100%; background: #1a73e8; color: white; border: none; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #1557b0; }
+        .footer-link { text-align: center; margin-top: 20px; font-size: 14px; color: #555; }
+        .footer-link a { color: #1a73e8; text-decoration: none; font-weight: bold; }
+        .footer-link a:hover { text-decoration: underline; }
+        footer { background: #202124; color: #bdc1c6; text-align: center; padding: 20px; font-size: 13px; }
+        footer .footer-links { margin-bottom: 8px; }
+        footer .footer-links a { color: #8ab4f8; text-decoration: none; margin: 0 10px; }
+        footer .footer-links a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>CareerConnect</h1>
+    </header>
+
+    <!-- Main Form Area -->
+    <div class="main-content">
+        <div class="form-card">
+            <h2>Welcome Back</h2>
+            
+            <div th:if="${loginError}" class="error" th:text="${loginError}"></div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <label>Email ID:</label>
+                    <input type="email" name="email" required placeholder="user@example.com" />
+                </div>
+
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" name="password" required placeholder="••••••••" />
+                </div>
+
+                <button type="submit">Login</button>
+            </form>
+
+            <div class="footer-link">
+                First time user? <a th:href="@{/register}">Create an account</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <a href="#">About Us</a> | 
+            <a href="#">Contact Support</a> | 
+            <a href="#">Privacy Policy</a> | 
+            <a href="#">Terms of Service</a>
+        </div>
+        <div>&copy; 2026 CareerConnect. SOEN 341 Project.</div>
+    </footer>
+
+</body>
+</html>
