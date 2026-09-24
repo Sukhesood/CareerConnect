@@ -1,7 +1,7 @@
 ** Description of the project **:
 
-CareerConnect is a web-based application built for both job seekers and recruter by centralizing job offers in a single page, allowing easier tracking and
-application process for the applicant and better filtering and visibility for recruter.
+CareerConnect is a web-based application built for both job seekers and recruiters centralizing job offers in a single page, allowing the applicant for an easier tracking and
+application process and better filtering and visibility for recruiter.
 
 
 ** Problem the project is solving **:
