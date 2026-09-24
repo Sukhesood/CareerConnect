@@ -32,7 +32,7 @@ System Features
 - AI generated cover letter as default when applying as job seeker.
 - AI review of information and projects linked in the job application.
 - fetching application from other open database
-- Port to apply through the website on other job seeking page with integrated tracker.
+- Method for seeker to add job application from other website to the tracking through manual input.
 
 
 # Setup instruction :
