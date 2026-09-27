@@ -1,19 +1,42 @@
 # Meeting Minutes
 
-## Meeting-2026-09-27
+## Meeting 2026-09-24
 
-**Attendees:** add team members who were present
+**Attendees:** 
 
-**Absent:** add team memebers who were absent 
+**Absent:** 
 
 ### Purpose
 
-### Output
+
+### Discussion / Decisions
+- 
 
 ### Next steps
 | Task | Assigned to | Due date |
-|---|---|---|
-| blah blah| Maria | Sept 26 | 
+|------|-------------|----------|
+|      |             |          |
 
-### Next Meeting 
-**Date:** add date
+### Next meeting
+**Date:** Sept 27, 1:00 pm
+
+---
+
+## Meeting 2026-09-27 (1:00 pm)
+
+**Attendees:** 
+**Absent:** 
+
+### Purpose
+
+
+### Discussion / Decisions
+- 
+
+### Next steps
+| Task | Assigned to | Due date |
+|------|-------------|----------|
+|      |             |          |
+
+### Next meeting
+**Date:**
