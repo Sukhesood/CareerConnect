@@ -33,6 +33,7 @@ System Features
 - AI review of information and projects linked in the job application.
 - fetching application from other open database
 - Method for seeker to add job application from other website to the tracking through manual input.
+- Chat message available between recruiter and seeker
 
 
 # Setup instruction :
@@ -47,10 +48,10 @@ System Features
 ## Technologies used :
 
 **Architecture**: Model View Controller(MVC)
-**Programming language**: Java, Javascript
+**Programming language**: Java, Javascript, HTML
 **Framework**: Springboot
 **Database**: MySQL
-**Tools**:
+
 
 ## Architecture overview :
 ```
@@ -65,18 +66,18 @@ CareerConnect/
 
 ## Organisational coding methodology :
 
-We decided to follow blablabla because...
+We follow the basic principle of Agile developpement, with its use of branching, pull request and work items.
 
 
 ## Our team :
 
-|      Name       |     Role      |     Skills    | 
-| --------------- | ------------- | ------------- | 
-| ELOUAN BESNIER  | Content Cell  | Content Cell  | 
-| MARIA HERRERA   | Content Cell  | Content Cell  | 
-| SUKHJIT SINGH   | Content Cell  | Content Cell  | 
-| RABIH EL MAROUK | Content Cell  | Content Cell  | 
-| MARK KOUKA      | Content Cell  | Content Cell  | 
+|      Name       |  
+| --------------- | 
+| ELOUAN BESNIER  | 
+| MARIA HERRERA   | 
+| SUKHJIT SINGH   | 
+| RABIH EL MAROUK | 
+| MARK KOUKA      | 
 
 
 
