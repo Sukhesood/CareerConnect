@@ -2,15 +2,17 @@
 
 ## Meeting 2026-09-24
 
-**Attendees:** 
+**Attendees:** Elouan Rabih Maria Mark Sukhjit
 
-**Absent:** 
+**Absent:** None
 
 ### Purpose
+Break down the Sprint 1 requirements for CareerConnect and divide the work among team members.
 
-
-### Discussion / Decisions
-- 
+### Output
+- Task divided among members
+- Reviewed Sprint 1 requirements
+- Agreed to meet Sept 27
 
 ### Next steps
 | Task | Assigned to | Due date |
@@ -24,14 +26,19 @@
 
 ## Meeting 2026-09-27 (1:00 pm)
 
-**Attendees:** 
-**Absent:** 
+**Attendees:** Elouan Rabih Maria Mark Sukhjit
+
+**Absent:** None
 
 ### Purpose
+Review Sprint 1 progress and confirm each member's tasks.
 
-
-### Discussion / Decisions
-- 
+### Output
+- Each member gave a status update on their Sprint 1 task
+- Confirmed everyone is on track for the Sprint 1 deadline
+- Clarified how the login and resume upload features connect
+- No changes to task assignments
+- Agreed to meetOct 1
 
 ### Next steps
 | Task | Assigned to | Due date |
@@ -39,4 +46,4 @@
 |      |             |          |
 
 ### Next meeting
-**Date:**
+**Date:** Oct 1
