@@ -36,9 +36,15 @@ System Features
 - Chat message available between recruiter and seeker
 
 
-# Setup instruction :
+# Setup instruction: 
 
-## Tools needed :
+Join the github repo:  
+
+https://github.com/Sukhesood/CareerConnect  
+
+## Tools needed: 
+
+Git, github, VS Code,  
 
 ## External libraries:
 
@@ -51,7 +57,8 @@ System Features
 **Programming language**: Java, Javascript, HTML
 **Framework**: Springboot
 **Database**: MySQL
-
+**Artefacts**: Docker 
+**Collaboration**: Discord, Git and GitHub
 
 ## Architecture overview :
 ```
