@@ -1,4 +1,4 @@
-Using java, spring boot, hibernate orm, my sql and mvc model how to make a login page , registration , dashboard and profile page.
+Using java, spring boot, hibernate orm, my sql and mvc model help me to make a login page , registration , dashboard and profile page.
 Gemini Response:Step 1: Project Dependencies (pom.xml)
 Create a Spring Boot project (via Spring Initializr) with Java 17+ and add the following dependencies:
 
@@ -404,3 +404,4 @@ Run the Spring Boot application from your IDE or terminal using Maven:
 Bash
 mvn spring-boot:run
 Open your browser and navigate to: http://localhost:8080/
+ Review: Gemini help me to write code but i always know how java, spring boot, database connectivity, Mvc model. In future I will use spring security, okta, websockets for real time communication and authentication.
