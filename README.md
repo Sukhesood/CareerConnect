@@ -54,7 +54,7 @@ Git, github, VS Code,
 ## Technologies used :
 
 **Architecture**: Model View Controller(MVC)
-**Programming language**: Java, Javascript, HTML
+**Programming language**: Java, HTML
 **Framework**: Springboot
 **Database**: MySQL
 **Artefacts**: Docker 
