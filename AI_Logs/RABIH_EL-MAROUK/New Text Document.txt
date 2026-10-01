@@ -1,0 +1,48 @@
+AI Usage Log, Sprint 1
+SOEN 341 Software Process: CareerConnect
+Team member: Rabih El Marouk   |   AI tool: Claude (Anthropic)
+
+Task 1.1: Analyze project requirements and Sprint 1 deliverables
+Purpose of AI Use: Requirements analysis and project planning
+
+AI-Suggested Content:
+•	Summarized the CareerConnect project and the Sprint 1 deliverables from screenshots of the project description.
+•	Recommended deciding the required Generative AI feature and the original team feature early, since they affect the architecture.
+•	Recommended choosing the tech stack first, then working in order: repository setup, team process (branching, pull requests, Definition of Done), user stories and sprint plan, then code.
+•	Pointed out that user stories (3.0) and sprint planning (3.0) are 40% of the Sprint 1 grade, while the demo is 1.0.
+•	Explained that the AI log is individual (one PDF per member per sprint) and advised logging as we go.
+•	Advised doing the required 10 AI-generated user stories in a separate, dedicated chat, and keeping the team-generated stories fully separate and written by the team.
+•	Flagged that the "Detailed Log of Each Team Member Contribution" (0.5) is in the rubric but not the activities table, and that the instructor needs access to the repository.
+Task 1.2: Plan the Resume Upload feature (Issue #8)
+Purpose of AI Use: System design and task planning
+
+AI-Suggested Content:
+•	Listed design requirements: server-side validation of file type and size, storing files on disk with the details (owner, filename, size, date) in the database, renaming files on save, and owner-only access.
+•	Suggested including management actions (view, replace, remove), not only upload, to match "resume upload and management".
+•	Suggested keeping resumes as PDFs so the text can be used later by an AI feature.
+•	Explained that the feature depends on the login feature, and suggested a temporary placeholder for the current user so work could start without waiting, to be replaced once login is merged.
+•	Recommended coordinating with the login teammate on the user table and how logged-in users are identified.
+Task 1.3: Review GitHub Issue #8 and repository setup
+Purpose of AI Use: Requirements refinement and review
+
+AI-Suggested Content:
+•	Confirmed the acceptance criteria were specific and testable.
+•	Noted that "Uploaded resume appears on user's profile" depends on the profile feature; a standalone "My resume" page can cover it in Sprint 1.
+•	Suggested splitting the issue into sub-issues (database table, upload endpoint, validation, UI page, replace/remove) for the task breakdown, and adding labels and an assignee.
+•	Flagged that the repository did not yet contain a Spring Boot base project, and that the team should create one shared skeleton on main.
+•	Flagged that the README is in the Documentation folder instead of the repository root, so it does not show on the GitHub front page.
+Task 1.4: Generate code for the Resume Upload feature
+Purpose of AI Use: Code generation
+AI-Suggested Content:
+•	Generated Spring Boot code for the feature: Resume entity, ResumeRepository, ResumeService (validation, saving, replacing, deleting), ResumeController (REST endpoints for upload, view info, view PDF, delete), an exception handler for error messages, and a temporary CurrentUserProvider placeholder.
+•	Generated a resume.html page (upload, view, replace, remove, error messages), the upload settings for application.properties, and a MySQL table script.
+•	Validation in the code: PDF only (checked by the file's content, not just the extension) and a 5 MB limit, both in the browser and on the server.
+•	Suggested the Git workflow: feature branch, commit referencing #8, pull request with "Closes #8", and a teammate review.
+ 
+Appendix: Prompts used
+The prompts below were sent in a single conversation covering Tasks 1.1 to 1.4. The full AI responses are available at the chat link.
+Prompt 1: i have a project to do with classmates and we are allowed the help of AI so i will send screenshots for context of the project
+Prompt 2: (Shared screenshots of the SOEN 341 project description, Sprint 1 activities, AI usage log requirements, submission instructions and rubric.)
+Prompt 3: ok my task is to work on the implementation of the second feature which is resume upload
+Prompt 4: so can i not do any work for it until the user login is downloaded
+Prompt 5: (Shared a screenshot of GitHub Issue #8.) okay i created a new issue for the resume upload feature i now want to start the code for it can help me out with it
