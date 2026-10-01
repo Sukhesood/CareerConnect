@@ -44,10 +44,10 @@ https://github.com/Sukhesood/CareerConnect
 
 ## Tools needed: 
 
-Git, github, VS Code,  
+Git, github, VS Code, Eclipse IDE
 
 ## External libraries:
-
+Thymeleaf, Apache Tomcat, Spring Boot
 
 # Technical description : 
 
