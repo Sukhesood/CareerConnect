@@ -62,13 +62,37 @@ Thymeleaf, Apache Tomcat, Spring Boot
 
 ## Architecture overview :
 ```
-CareerConnect/
-├── backend/                 
-│   └── app/
-│       └── main.py         
-│
-└── frontend/               
-    └── src/
+career_connect_app/
+├── src/
+│    └── main/
+│       └── java/
+│            └── sprint1.demo/
+│                ├── Controller
+│                ├── model
+│                ├── repository
+│                ├── service
+│                └── CareerConnectApplication
+├── target/
+│    ├── classes/
+│        ├── Sprint1/
+│            └── demo/
+│                ├── Controller
+│                ├── model
+│                ├── repository
+│                ├── service
+│                └── CareerConnectApplication
+│        ├── templates/
+│            ├── dashboard.html
+│            ├── login.html
+│            ├── profil.html
+│            └── register.html
+│        ├── application.properties
+│        └── application-local.properties
+│     └── generated-sources/
+│         └── annotations
+├── view/
+│     └── index.html                
+└── pom.xml
 ```
 
 ## Organisational coding methodology :
@@ -78,13 +102,13 @@ We follow the basic principle of Agile developpement, with its use of branching,
 
 ## Our team :
 
-|      Name       |  
-| --------------- | 
-| ELOUAN BESNIER  | 
-| MARIA HERRERA   | 
-| SUKHJIT SINGH   | 
-| RABIH EL MAROUK | 
-| MARK KOUKA      | 
+|      Name       |  Roles         |     Skills
+| --------------- |  ------------- | -----------------
+| ELOUAN BESNIER  | Scrum master   | Agile, programming, SDLC
+| MARIA HERRERA   | Team member    | Minutes tracking, files organization
+| SUKHJIT SINGH   | Team member    | Programming, testing, database managment
+| RABIH EL MAROUK | Team member    | Programming, planning
+| MARK KOUKA      | Team member    | Programming, admission critera definition
 
 
 
