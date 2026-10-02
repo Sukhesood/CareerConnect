@@ -72,24 +72,6 @@ career_connect_app/
 │                ├── repository
 │                ├── service
 │                └── CareerConnectApplication
-├── target/
-│    ├── classes/
-│        ├── Sprint1/
-│            └── demo/
-│                ├── Controller
-│                ├── model
-│                ├── repository
-│                ├── service
-│                └── CareerConnectApplication
-│        ├── templates/
-│            ├── dashboard.html
-│            ├── login.html
-│            ├── profil.html
-│            └── register.html
-│        ├── application.properties
-│        └── application-local.properties
-│     └── generated-sources/
-│         └── annotations
 ├── view/
 │     └── index.html                
 └── pom.xml
