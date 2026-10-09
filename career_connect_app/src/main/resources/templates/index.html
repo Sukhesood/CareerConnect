@@ -45,10 +45,9 @@
         .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--blue-deep); }
         .brand img { height: 38px; width: auto; display: block; }
         .brand span { font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
-        nav { display: flex; align-items: center; gap: 22px; }
-        nav a { white-space: nowrap; }
-        nav a.link { text-decoration: none; font-weight: 600; color: var(--ink-soft); }
-        nav a.link:hover { color: var(--blue-deep); }
+        .nav-links { display: flex; align-items: center; gap: 20px; }
+        .nav-links a { text-decoration: none; color: var(--ink); font-weight: 500; font-size: 14px; }
+        .nav-links a:hover { color: var(--blue-mid);  }
 
         .btn {
             display: inline-block; text-decoration: none; font-weight: 800; font-size: 16px;
@@ -59,6 +58,8 @@
         .btn-primary:hover { background: #244e7e; border-color: #244e7e; }
         .btn-outline { background: transparent; color: var(--blue-deep); }
         .btn-outline:hover { background: var(--blue-light); }
+
+
 
         /* ---------- Hero ---------- */
         .hero { padding: 72px 0 80px; }
@@ -152,10 +153,15 @@
                 <img th:src="@{/images/logo-mark.png}" alt="">
                 <span>CareerConnect</span>
             </a>
-            <nav aria-label="Main">
-                <a class="link" th:href="@{/login}">Log in</a>
+
+            <div th:if="${!isAuth}">
+                <a class="btn btn-outline" th:href="@{/login}">Log in</a>
                 <a class="btn btn-primary" th:href="@{/register}">Create account</a>
-            </nav>
+            </div>
+            <div th:if="${isAuth}" class="nav-links">
+                <a th:href="@{/profile}">My profile</a>
+                <a th:href="@{/dashboard}">Dashboard</a>
+            </div>
         </div>
     </header>
 
