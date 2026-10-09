@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CareerConnect - Every job opening in one place</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
+    <style>
+        :root {
+            --ink: #14253b;          /* main text */
+            --ink-soft: #4a5b72;     /* secondary text */
+            --blue-deep: #2f5f96;    /* logo "CAREER" blue */
+            --blue-mid: #5c86b8;     /* logo figures */
+            --blue-light: #dfe9f5;   /* panels */
+            --paper: #f7f9fc;        /* page background */
+            --line: #d3deec;
+            --white: #ffffff;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Trebuchet MS", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--ink);
+            background: var(--paper);
+            line-height: 1.6;
+        }
+
+        a { color: var(--blue-deep); }
+        a:focus-visible, button:focus-visible {
+            outline: 3px solid var(--blue-mid);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+        /* ---------- Header ---------- */
+        header { background: var(--white); border-bottom: 1px solid var(--line); }
+        .header-inner {
+            display: flex; align-items: center; justify-content: space-between;
+            height: 72px;
+        }
+        .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--blue-deep); }
+        .brand img { height: 38px; width: auto; display: block; }
+        .brand span { font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
+        nav { display: flex; align-items: center; gap: 22px; }
+        nav a { white-space: nowrap; }
+        nav a.link { text-decoration: none; font-weight: 600; color: var(--ink-soft); }
+        nav a.link:hover { color: var(--blue-deep); }
+
+        .btn {
+            display: inline-block; text-decoration: none; font-weight: 800; font-size: 16px;
+            padding: 12px 24px; border-radius: 8px; border: 2px solid var(--blue-deep);
+            transition: background 0.15s, color 0.15s;
+        }
+        .btn-primary { background: var(--blue-deep); color: var(--white); }
+        .btn-primary:hover { background: #244e7e; border-color: #244e7e; }
+        .btn-outline { background: transparent; color: var(--blue-deep); }
+        .btn-outline:hover { background: var(--blue-light); }
+
+        /* ---------- Hero ---------- */
+        .hero { padding: 72px 0 80px; }
+        .hero-grid {
+            display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: center;
+        }
+        .hero h1 {
+            font-size: clamp(36px, 5.2vw, 58px); line-height: 1.08; font-weight: 800;
+            letter-spacing: -1.5px; margin: 0 0 20px; color: var(--ink);
+        }
+        .hero p.lead { font-size: 19px; color: var(--ink-soft); max-width: 34em; margin: 0 0 32px; }
+        .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; }
+        .hero-logo {
+            background: var(--blue-light); border-radius: 28px; padding: 40px 32px;
+            display: flex; justify-content: center;
+        }
+        .hero-logo img { width: 100%; max-width: 340px; height: auto; display: block; }
+
+        /* ---------- Two audiences ---------- */
+        .audiences { background: var(--white); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 72px 0; }
+        .audiences h2, .tracking h2 { font-size: 32px; letter-spacing: -0.6px; line-height: 1.2; margin: 0 0 40px; max-width: 18em; }
+        .split { display: grid; grid-template-columns: 1fr 1fr; }
+        .split > div { padding: 0 40px; }
+        .split > div:first-child { padding-left: 0; border-right: 1px solid var(--line); }
+        .split > div:last-child { padding-right: 0; }
+        .split h3 { margin: 0 0 6px; font-size: 22px; color: var(--blue-deep); }
+        .split p.who { margin: 0 0 18px; color: var(--ink-soft); }
+        .split ul { margin: 0; padding-left: 20px; }
+        .split li { margin-bottom: 10px; }
+        .split li::marker { color: var(--blue-mid); }
+
+        /* ---------- Application tracking (a real sequence) ---------- */
+        .tracking { padding: 72px 0; }
+        .tracking p.intro { color: var(--ink-soft); max-width: 36em; margin: -24px 0 40px; }
+        .status-track { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); counter-reset: step; }
+        .status-track li { position: relative; padding-top: 44px; padding-right: 16px; }
+        .status-track li::before {
+            counter-increment: step; content: counter(step);
+            position: absolute; top: 0; left: 0; width: 32px; height: 32px; border-radius: 50%;
+            background: var(--blue-deep); color: var(--white); font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .status-track li::after {
+            content: ""; position: absolute; top: 15px; left: 40px; right: 8px; height: 2px; background: var(--line);
+        }
+        .status-track li:last-child::after { display: none; }
+        .status-track strong { display: block; font-size: 18px; }
+        .status-track span { color: var(--ink-soft); font-size: 15px; }
+
+        /* ---------- Closing call to action ---------- */
+        .closing { background: var(--blue-deep); color: var(--white); padding: 64px 0; }
+        .closing-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; }
+        .closing h2 { margin: 0 0 6px; font-size: 30px; letter-spacing: -0.5px; }
+        .closing p { margin: 0; color: #cfdcee; }
+        .closing .btn { background: var(--white); color: var(--blue-deep); border-color: var(--white); }
+        .closing .btn:hover { background: var(--blue-light); }
+
+        /* ---------- Footer ---------- */
+        footer { background: var(--white); color: var(--ink-soft); text-align: center; padding: 24px; font-size: 13px; border-top: 1px solid var(--line); }
+        footer .footer-links { margin-bottom: 10px; }
+        footer .footer-links a { text-decoration: none; margin: 0 12px; font-weight: 600; }
+        footer .footer-links a:hover { text-decoration: underline; }
+
+        /* ---------- Small screens ---------- */
+        @media (max-width: 800px) {
+            .hero { padding: 40px 0 56px; }
+            .hero-grid { grid-template-columns: 1fr; gap: 36px; }
+            .hero-logo { order: -1; padding: 28px 24px; }
+            .hero-logo img { max-width: 240px; }
+            .split { grid-template-columns: 1fr; }
+            .split > div, .split > div:first-child, .split > div:last-child { padding: 0; border: none; }
+            .split > div:first-child { margin-bottom: 36px; padding-bottom: 36px; border-bottom: 1px solid var(--line); }
+            .status-track { grid-template-columns: 1fr; gap: 24px; }
+            .status-track li { padding: 0 0 0 48px; min-height: 32px; }
+            .status-track li::after { display: none; }
+            .brand span { font-size: 17px; }
+            .brand img { height: 30px; }
+            nav { gap: 12px; }
+            nav .btn { padding: 9px 14px; font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="wrap header-inner">
+            <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
+                <img th:src="@{/images/logo-mark.png}" alt="">
+                <span>CareerConnect</span>
+            </a>
+            <nav aria-label="Main">
+                <a class="link" th:href="@{/login}">Log in</a>
+                <a class="btn btn-primary" th:href="@{/register}">Create account</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero -->
+        <section class="hero">
+            <div class="wrap hero-grid">
+                <div>
+                    <h1>Every job opening, in one place.</h1>
+                    <p class="lead">
+                        Stop checking through multiple website. CareerConnect brings everything together
+                        so your match can be found faster, be it a candidates or a job.
+                    </p>
+                    <div class="hero-actions">
+                        <a class="btn btn-primary" th:href="@{/register}">Create an account</a>
+                        <a class="btn btn-outline" th:href="@{/login}">Log in</a>
+                    </div>
+                </div>
+                <div class="hero-logo">
+                    <img th:src="@{/images/logo.png}" alt="CareerConnect logo: three professionals in ties">
+                </div>
+            </div>
+        </section>
+
+        <!-- Two audiences -->
+        <section class="audiences" id="about">
+            <div class="wrap">
+                <h2>One platform for both sides of the table</h2>
+                <div class="split">
+                    <div>
+                        <h3>For job seekers</h3>
+                        <p class="who">Spend your time on applications, not on searching.</p>
+                        <ul>
+                            <li>Upload your resume once and reuse it for every application.</li>
+                            <li>Search and filter openings from one place.</li>
+                            <li>Get recommendation based on your profile for your best match.</li>
+                            <li>Get a cover letter drafted for you when you apply.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>For recruiters</h3>
+                        <p class="who">Reach candidates and review them faster.</p>
+                        <ul>
+                            <li>Post and manage your job openings.</li>
+                            <li>Filter applicants by the criteria you set for the role.</li>
+                            <li>Review application details and linked projects in one view.</li>
+                            <li>Message candidates directly.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Application tracking -->
+        <section class="tracking">
+            <div class="wrap">
+                <h2>Link every application to an answer</h2>
+                <p class="intro">Each application has a status, so you always know at what point you are.</p>
+                <ol class="status-track">
+                    <li><strong>Applied</strong><span>Your application is submitted.</span></li>
+                    <li><strong>Interview</strong><span>The recruiters wants to talk.</span></li>
+                    <li><strong>Offered or rejected</strong><span>The outcome is clear and your history is kept.</span></li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Closing call to action -->
+        <section class="closing">
+            <div class="wrap closing-inner">
+                <div>
+                    <h2>Register now!</h2>
+                    <p>You will be applying within 5 minutes.</p>
+                </div>
+                <a class="btn" th:href="@{/register}">Create an account</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#">About Us</a>
+            <a href="#">Contact Support</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+        <div>&copy; 2026 CareerConnect. SOEN 341 Project.</div>
+    </footer>
+
+</body>
+</html>

@@ -22,7 +22,13 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    @GetMapping({"/", "/login"})
+    @GetMapping("/")
+    public String showHomePage() {
+        return "index";
+    }
+
+
+    @GetMapping({"/login"})
     public String showLoginForm() {
         return "login";
     }
