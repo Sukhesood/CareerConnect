@@ -2,11 +2,39 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Login - CareerConnect</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CareerConnect - Log in</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
+
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
-        header { background: #1a73e8; color: white; padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
+
+        :root {
+            --ink: #14253b;          /* main text */
+            --ink-soft: #4a5b72;     /* secondary text */
+            --blue-deep: #2f5f96;    /* logo "CAREER" blue */
+            --blue-mid: #5c86b8;     /* logo figures */
+            --blue-light: #dfe9f5;   /* panels */
+            --paper: #f7f9fc;        /* page background */
+            --line: #d3deec;
+            --white: #ffffff;
+        }
+
+
+        .wrap { max-width: 1080px; padding: 0 24px; }
+
+
+        body { font-family: "Trebuchet MS", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: var(--ink); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--white); border-bottom: 1px solid var(--line); }
+        .header-inner {
+            display: flex; align-items: center; justify-content: space-between;
+            height: 72px;
+        }
+        .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--blue-deep); }
+        .brand img { height: 38px; width: auto; display: block; }
+        .brand span { font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
+
+
+
         .main-content { flex: 1; display: flex; justify-content: center; align-items: center; padding: 40px 20px; }
         .form-card { background: white; padding: 35px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); width: 100%; max-width: 400px; }
         h2 { text-align: center; color: #333; margin-top: 0; }
@@ -15,8 +43,8 @@
         input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
         input:focus { border-color: #1a73e8; outline: none; }
         .error { color: #d93025; font-size: 12px; text-align: center; margin-bottom: 12px; }
-        button { width: 100%; background: #1a73e8; color: white; border: none; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-        button:hover { background: #1557b0; }
+        button { width: 100%; background: var(--blue-deep); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #244e7e; }
         .footer-link { text-align: center; margin-top: 20px; font-size: 14px; color: #555; }
         .footer-link a { color: #1a73e8; text-decoration: none; font-weight: bold; }
         .footer-link a:hover { text-decoration: underline; }
@@ -30,7 +58,12 @@
 
     <!-- Header -->
     <header>
-        <h1>CareerConnect</h1>
+        <div class="wrap header-inner">
+            <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
+                <img th:src="@{/images/logo-mark.png}" alt="">
+                <span>CareerConnect</span>
+            </a>
+        </div>
     </header>
 
     <!-- Main Form Area -->

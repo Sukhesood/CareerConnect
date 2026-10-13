@@ -22,7 +22,17 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    @GetMapping({"/", "/login"})
+    private boolean isAuth(HttpSession session){
+        return ( null != session.getAttribute("loggedInUserEmail"));
+    }
+
+    @GetMapping("/")
+    public String showHomePage(HttpSession session, Model model) {
+        model.addAttribute("isAuth", isAuth(session));
+        return "index";
+    }
+
+    @GetMapping({"/login"})
     public String showLoginForm() {
         return "login";
     }
@@ -94,6 +104,9 @@ public class AuthController {
         model.addAttribute("user", new User());
         return "register";
     }
+
+
+
 
     @PostMapping("/register")
     public String registerUser(@Valid @ModelAttribute("user") User user, 
