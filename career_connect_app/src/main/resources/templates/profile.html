@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>CareerConnect - My Profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CareerConnect - My profile</title>
     <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
     <style>
         :root {
@@ -30,8 +31,6 @@
         .brand img { height: 38px; width: auto; display: block; }
         .brand span { font-size: 21px; font-weight: 800; letter-spacing: -0.3px;}
 
-
-
         header h1 { margin: 0; font-size: 20px; font-weight: 600; color: var(--text-main); }
         .nav-links { display: flex; align-items: center; gap: 20px; }
         .nav-links a { text-decoration: none; color: var(--text-secondary); font-weight: 500; font-size: 14px; }
@@ -53,7 +52,7 @@
         
         .resume-section { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
         .resume-info { font-size: 14px; color: var(--text-secondary); }
-
+        
         footer { background: var(--card-bg); color: var(--text-secondary); text-align: center; padding: 20px; font-size: 13px; border-top: 1px solid var(--line); }
         footer a { color: var(--primary-color); text-decoration: none; margin: 0 10px; }
     </style>
@@ -115,57 +114,28 @@
         </div>
 
         <!-- Resume Upload Card -->
-		<div class="card">
+        <div class="card">
+            <h2>Resume Management</h2>
+            
+            <div th:if="${param.resumeSuccess}" class="success">
+                Resume uploaded successfully!
+            </div>
 
-		    <h2>Resume Management</h2>
+            <div class="resume-section" style="margin-bottom: 20px;">
+                <div class="resume-info">
+                    <strong>Current Resume:</strong> 
+                    <span th:text="${user.resumeFilename != null ? user.resumeFilename : 'No resume uploaded yet'}"></span>
+                </div>
+            </div>
 
-		    <div th:if="${param.resumeSuccess}" class="success">
-		        Resume uploaded successfully!
-		    </div>
-
-		    <div class="resume-section" style="margin-bottom: 20px;">
-
-		        <div class="resume-info">
-
-		            <strong>Current Resume:</strong>
-
-		            <span th:if="${user.resumeFilename == null}">
-		                No resume uploaded yet
-		            </span>
-
-		            <a th:if="${user.resumeFilename != null}"
-		               th:href="@{/profile/resume}"
-		               th:text="${user.resumeFilename}"
-		               target="_blank">
-		            </a>
-
-		        </div>
-
-		    </div>
-
-		    <form th:action="@{/profile/upload-resume}"
-		          method="post"
-		          enctype="multipart/form-data">
-
-		        <div class="form-group">
-
-		            <label>Upload New Resume (PDF / DOCX):</label>
-
-		            <input type="file"
-		                   name="resumeFile"
-		                   accept=".pdf,.doc,.docx"
-		                   required
-		                   style="padding: 7px; background: #f9fbfd;" />
-
-		        </div>
-
-		        <button type="submit">
-		            Upload Resume
-		        </button>
-
-		    </form>
-
-		</div>
+            <form th:action="@{/profile/upload-resume}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Upload New Resume (PDF / DOCX):</label>
+                    <input type="file" name="resumeFile" accept=".pdf,.doc,.docx" required style="padding: 7px; background: #f9fbfd;" />
+                </div>
+                <button type="submit">Upload Resume</button>
+            </form>
+        </div>
 
     </div>
 
