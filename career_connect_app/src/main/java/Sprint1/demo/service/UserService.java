@@ -4,7 +4,7 @@ package Sprint1.demo.service;
 import Sprint1.demo.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import Sprint1.demo.model.User;
 
 import java.io.IOException;
 
