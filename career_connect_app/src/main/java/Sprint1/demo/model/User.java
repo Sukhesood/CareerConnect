@@ -109,12 +109,33 @@
      }
      private String resumeFilename;
 
-  // Add getter and setter:
-  public String getResumeFilename() {
-      return resumeFilename;
-  }
+     private String resumeContentType;
 
-  public void setResumeFilename(String resumeFilename) {
-      this.resumeFilename = resumeFilename;
-  }
+     @Lob
+     @Column(columnDefinition = "LONGBLOB")
+     private byte[] resumeData;
+
+     public String getResumeFilename() {
+         return resumeFilename;
+     }
+
+     public void setResumeFilename(String resumeFilename) {
+         this.resumeFilename = resumeFilename;
+     }
+
+     public String getResumeContentType() {
+         return resumeContentType;
+     }
+
+     public void setResumeContentType(String resumeContentType) {
+         this.resumeContentType = resumeContentType;
+     }
+
+     public byte[] getResumeData() {
+         return resumeData;
+     }
+
+     public void setResumeData(byte[] resumeData) {
+         this.resumeData = resumeData;
+     }
  }
