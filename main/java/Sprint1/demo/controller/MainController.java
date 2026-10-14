@@ -1,15 +1,13 @@
 package Sprint1.demo.controller;
 
 import Sprint1.demo.model.User;
+import Sprint1.demo.service.UserService;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-
-import java.util.Optional;
-import Sprint1.demo.service.UserService;
-import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,17 +17,25 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
 
 @Controller
-public class AuthController {
+public class MainController {
+	 private final UserService userService ;
+	   public MainController(UserService userService) {
+	       this.userService = userService;
+	   }
+    private boolean isAuth(HttpSession session) {
+        return (null != session.getAttribute("loggedInUserEmail"));
+    }
 
+    @GetMapping("/")
+    public String showHomePage(HttpSession session, Model model) {
+        model.addAttribute("isAuth", isAuth(session));
+        return "index";
+    }
 
-   private final UserService userService ;
-   public AuthController(UserService userService) {
-       this.userService = userService;
-   }
-
-    @GetMapping({"/", "/login"})
+    @GetMapping({"/login"})
     public String showLoginForm() {
         return "login";
     }
@@ -89,9 +95,9 @@ public class AuthController {
         userService.saveResume(email, file);
         return "redirect:/profile?resumeSuccess=true";
     }
+
     @GetMapping("/profile/resume")
     public ResponseEntity<byte[]> viewResume(HttpSession session) {
-
         String email = (String) session.getAttribute("loggedInUserEmail");
 
         if (email == null) {
@@ -114,6 +120,7 @@ public class AuthController {
                 )
                 .body(user.getResumeData());
     }
+
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
@@ -141,5 +148,4 @@ public class AuthController {
         }
         return "redirect:/register?success";
     }
-    
 }
