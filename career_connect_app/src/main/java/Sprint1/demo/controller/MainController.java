@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Optional;
 
 @Controller
-public class AuthController {
+public class MainController {
 
     @Autowired
     private UserService userService;
