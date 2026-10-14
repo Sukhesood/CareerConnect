@@ -1,10 +1,11 @@
 package Sprint1.demo.controller;
 
-import Sprint1.demo.model.User;
-import Sprint1.demo.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,12 +19,12 @@ import java.util.Optional;
 
 @Controller
 public class MainController {
-
-    @Autowired
-    private UserService userService;
-
-    private boolean isAuth(HttpSession session){
-        return ( null != session.getAttribute("loggedInUserEmail"));
+	 private final UserService userService ;
+	   public MainController(UserService userService) {
+	       this.userService = userService;
+	   }
+    private boolean isAuth(HttpSession session) {
+        return (null != session.getAttribute("loggedInUserEmail"));
     }
 
     @GetMapping("/")
@@ -93,6 +94,31 @@ public class MainController {
         return "redirect:/profile?resumeSuccess=true";
     }
 
+    @GetMapping("/profile/resume")
+    public ResponseEntity<byte[]> viewResume(HttpSession session) {
+        String email = (String) session.getAttribute("loggedInUserEmail");
+
+        if (email == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User user = userService.getUserByEmail(email);
+
+        if (user == null || user.getResumeData() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+                .header(
+                    HttpHeaders.CONTENT_DISPOSITION,
+                    "inline; filename=\"" + user.getResumeFilename() + "\""
+                )
+                .contentType(
+                    MediaType.parseMediaType(user.getResumeContentType())
+                )
+                .body(user.getResumeData());
+    }
+
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
@@ -104,9 +130,6 @@ public class MainController {
         model.addAttribute("user", new User());
         return "register";
     }
-
-
-
 
     @PostMapping("/register")
     public String registerUser(@Valid @ModelAttribute("user") User user, 
@@ -123,5 +146,4 @@ public class MainController {
         }
         return "redirect:/register?success";
     }
-    
 }
