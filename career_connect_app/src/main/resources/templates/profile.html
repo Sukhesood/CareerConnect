@@ -73,6 +73,7 @@
         </div>
     </header>
 
+
     <div class="main-content">
         
         <!-- Profile Update Card -->
@@ -114,40 +115,70 @@
         </div>
 
         <!-- Resume Upload Card -->
-        <div class="card">
-            <h2>Resume Management</h2>
-            
-            <div th:if="${param.resumeSuccess}" class="success">
-                Resume uploaded successfully!
-            </div>
+		<div class="card">
 
-            <div class="resume-section" style="margin-bottom: 20px;">
-                <div class="resume-info">
-                    <strong>Current Resume:</strong> 
-                    <span th:text="${user.resumeFilename != null ? user.resumeFilename : 'No resume uploaded yet'}"></span>
-                </div>
-            </div>
+		    <h2>Resume Management</h2>
 
-            <form th:action="@{/profile/upload-resume}" method="post" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label>Upload New Resume (PDF / DOCX):</label>
-                    <input type="file" name="resumeFile" accept=".pdf,.doc,.docx" required style="padding: 7px; background: #f9fbfd;" />
-                </div>
-                <button type="submit">Upload Resume</button>
-            </form>
-        </div>
+		    <div th:if="${param.resumeSuccess}" class="success">
+		        Resume uploaded successfully!
+		    </div>
+
+		    <div class="resume-section" style="margin-bottom: 20px;">
+
+		        <div class="resume-info">
+
+		            <strong>Current Resume:</strong>
+
+		            <span th:if="${user.resumeFilename == null}">
+		                No resume uploaded yet
+		            </span>
+
+		            <a th:if="${user.resumeFilename != null}"
+		               th:href="@{/profile/resume}"
+		               th:text="${user.resumeFilename}"
+		               target="_blank">
+		            </a>
+
+		        </div>
+
+		    </div>
+
+		    <form th:action="@{/profile/upload-resume}"
+		          method="post"
+		          enctype="multipart/form-data">
+
+		        <div class="form-group">
+
+		            <label>Upload New Resume (PDF / DOCX):</label>
+
+		            <input type="file"
+		                   name="resumeFile"
+		                   accept=".pdf,.doc,.docx"
+		                   required
+		                   style="padding: 7px; background: #f9fbfd;" />
+
+		        </div>
+
+		        <button type="submit"
+		                style="background: #34a853;">
+		            Upload Resume
+		        </button>
+
+		    </form>
+
+		</div>
 
     </div>
 
-    <footer>
-        <div class="footer-links">
-            <a href="#">About Us</a>    |
-            <a href="#">Contact Support</a> |
-            <a href="#">Privacy Policy</a>  |
-            <a href="#">Terms of Service</a>
-        </div>
-        <div>&copy; 2026 CareerConnect. SOEN 341 Project.</div>
-    </footer>
+	<footer>
+	        <div class="footer-links">
+	            <a href="#">About Us</a>    |
+	            <a href="#">Contact Support</a> |
+	            <a href="#">Privacy Policy</a>  |
+	            <a href="#">Terms of Service</a>
+	        </div>
+	        <div>&copy; 2026 CareerConnect. SOEN 341 Project.</div>
+	    </footer>
 
-</body>
-</html>
+	</body>
+	</html>
