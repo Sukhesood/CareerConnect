@@ -405,3 +405,41 @@ Bash
 mvn spring-boot:run
 Open your browser and navigate to: http://localhost:8080/
  Review: Gemini help me to write code but i always know how java, spring boot, database connectivity, Mvc model. In future I will use spring security, okta, websockets for real time communication and authentication.
+
+
+
+
+
+2.# AI Usage Log – Issue #67: Resume Storage
+
+**AI Tool:** Google Gemini  
+**Project:** CareerConnect – SOEN 341  
+**Feature:** Resume Upload and Storage
+
+### 1. Prompt Given to AI
+
+"How can I store an uploaded resume directly in a MySQL database using Java Spring Boot instead of saving it in a local folder? What changes do I need to make in my User class and other related classes?"
+
+### 2. AI Response
+
+Gemini suggested storing the resume as binary data in MySQL instead of saving only the file path or filename.
+
+It recommended changing the variable type in the `User` class to `byte[]` so the uploaded file content could be stored in the database.
+
+It also suggested updating the related classes to handle the new data type and save the resume correctly.
+
+### 3. Changes Made
+
+- Changed the resume data variable type in `User.java` to `byte[]`.
+- Updated the related class to handle resume data using the new variable type.
+- Modified the resume storage logic to support saving files in MySQL instead of local storage.
+
+### 4. Validation
+
+Reviewed the AI-generated suggestions and checked how the changes fit into the existing CareerConnect project. The resume upload and retrieval functionality still needs to be verified through testing.
+
+### 5. Purpose of Using AI
+
+I used Gemini to understand how binary files can be stored in MySQL using Spring Boot and what changes were needed in the existing Java classes.
+
+**Related GitHub Issue:** #67 – Faulty Resume Storage Method
