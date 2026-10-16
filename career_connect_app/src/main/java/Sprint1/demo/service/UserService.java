@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -60,7 +61,7 @@ public class UserService {
             Optional<User> userOpt = userRepository.findByEmail(email);
             if (userOpt.isPresent() && !file.isEmpty()) {
                 User user = userOpt.get();
-                
+
                 // Create upload directory if it doesn't exist
                 File uploadDir = new File(UPLOAD_DIR);
                 if (!uploadDir.exists()) {
@@ -79,4 +80,6 @@ public class UserService {
             throw new RuntimeException("Failed to store resume file.", e);
         }
     }
+
+
 }

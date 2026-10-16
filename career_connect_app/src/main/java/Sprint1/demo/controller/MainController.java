@@ -1,10 +1,12 @@
 package Sprint1.demo.controller;
 
+import Sprint1.demo.model.JobListing;
+import Sprint1.demo.model.JobListingForm;
 import Sprint1.demo.model.User;
+import Sprint1.demo.service.JobPostingService;
 import Sprint1.demo.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,24 +15,75 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
 
 @Controller
-public class AuthController {
-
-    @Autowired
-    private UserService userService;
-
-    private boolean isAuth(HttpSession session){
-        return ( null != session.getAttribute("loggedInUserEmail"));
+//new main controller
+public class MainController {
+	 private final UserService userService ;
+     private final JobPostingService jobPostingService;
+	   public MainController(UserService userService, JobPostingService jobPostingService) {
+	       this.userService = userService;
+           this.jobPostingService=jobPostingService;
+	   }
+    private boolean isAuth(HttpSession session) {
+        return (null != session.getAttribute("loggedInUserEmail"));
     }
+
+    private boolean isRecruiter(HttpSession session) {
+        String email =(String) session.getAttribute("loggedInUserEmail");
+        Optional<User> result = userService.findByEmail(email);
+        if (result.isPresent()){
+            User temp = result.get();
+            return temp.getRole().equals("RECRUITER");
+        }
+        return false;
+    }
+
+
 
     @GetMapping("/")
     public String showHomePage(HttpSession session, Model model) {
         model.addAttribute("isAuth", isAuth(session));
         return "index";
     }
+
+
+
+    @GetMapping({"/job_posting_creation"})
+    public String showJobPostingCreation(HttpSession session, Model model){
+        if (!isAuth(session)) return "redirect:/login";
+        if (!isRecruiter(session)) return "redirect:/dashboard";
+        model.addAttribute("jobListing", new JobListing());
+        return "job_posting_creation";
+    }
+
+    @PostMapping({"/job_posting_creation"})
+    public String submitJobPosting(@Valid @ModelAttribute("jobListing") JobListingForm form, BindingResult result, HttpSession session,
+                                   RedirectAttributes redirect) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (!isRecruiter(session)) return "redirect:/dashboard";
+
+
+        if (result.hasErrors()) {
+            return "job_posting_creation";
+        }
+        String email = (String) session.getAttribute(("loggedInUserEmail"));
+        if (email == null) {
+            return "redirect:/login";
+        }
+
+
+        jobPostingService.createJobListing(form, email);
+
+
+        redirect.addFlashAttribute("success", "Listing published.");
+        return "redirect:/dashboard";
+    }
+
+
 
     @GetMapping({"/login"})
     public String showLoginForm() {
@@ -54,6 +107,7 @@ public class AuthController {
 
     @GetMapping("/dashboard")
     public String showDashboard(HttpSession session, Model model) {
+        model.addAttribute("isRecruiter",isRecruiter(session));
         String email = (String) session.getAttribute("loggedInUserEmail");
         if (email == null) return "redirect:/login";
         
@@ -64,6 +118,9 @@ public class AuthController {
 
     @GetMapping("/profile")
     public String showProfile(HttpSession session, Model model) {
+        model.addAttribute("isRecruiter",isRecruiter(session));
+
+
         String email = (String) session.getAttribute("loggedInUserEmail");
         if (email == null) return "redirect:/login";
 
@@ -123,5 +180,4 @@ public class AuthController {
         }
         return "redirect:/register?success";
     }
-    
 }
