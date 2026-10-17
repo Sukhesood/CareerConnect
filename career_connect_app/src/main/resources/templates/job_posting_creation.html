@@ -264,10 +264,10 @@
             margin-top: -2px;
             transition: transform 0.15s ease-out;
         }
-        .check-card input:checked + .check-box { background: var(--blue-deep); border-color: var(--blue-deep); }
-        .check-card input:checked + .check-box::after { transform: rotate(45deg) scale(1); }
+        .check-card input:checked ~ .check-box { background: var(--blue-deep); border-color: var(--blue-deep); }
+        .check-card input:checked ~ .check-box::after { transform: rotate(45deg) scale(1); }
         .check-card:has(input:checked) { background: var(--blue-light); border-color: var(--blue-deep); }
-        .check-card input:focus-visible + .check-box { outline: 3px solid var(--blue-mid); outline-offset: 3px; }
+        .check-card input:focus-visible ~ .check-box { outline: 3px solid var(--blue-mid); outline-offset: 3px; }
         .check-text strong { display: block; font-weight: 700; }
         .check-text span { color: var(--ink-soft); font-size: 0.9rem; }
 
@@ -411,10 +411,7 @@
         <p>Fill in the details below. Job seekers will see this listing alongside every other opening on CareerConnect.</p>
     </section>
 
-    <!--
-        Expected backing object: a JobPostingForm (name it as you like) in the model under "jobPosting".
-        Adjust field names to match your entity/DTO.
-    -->
+
     <form class="layout" id="job-form"
           th:action="@{/job_posting_creation}" th:object="${jobListing}" method="post" novalidate>
 

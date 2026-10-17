@@ -12,16 +12,16 @@ import java.util.List;
 
 public class JobListingForm {
 
-    @NotBlank
+    @NotBlank(message = "Please provide a title to the job posting")
     private String title;
-    @NotBlank private String companyName;
-    @NotBlank private String location;
+    @NotBlank(message = "Company name must be included") private String companyName;
+    @NotBlank(message = "Please provide the general location of the job") private String location;
     private String workMode;
-    @NotBlank private String jobType; // e.g., Full-time, Internship, Part time
+    @NotBlank(message = "Please include the employment type") private String jobType; // e.g., Full-time, Internship, Part time
     private List<String> tags;
 
     @Column(length = 5000)
-    @NotBlank private String description;
+    @NotBlank(message = "Please provide a description of the job") private String description;
 
     @Column(length = 2000)
     private String requirement;
