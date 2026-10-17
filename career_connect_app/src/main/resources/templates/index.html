@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>CareerConnect - Every job opening in one place</title>
     <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
+
     <style>
         :root {
             --ink: #14253b;          /* main text */
@@ -34,7 +35,7 @@
             border-radius: 4px;
         }
 
-        .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+        .wrap { max-width: 1440px; margin: 0 auto; padding: 0 24px; }
 
         /* ---------- Header ---------- */
         header { background: var(--white); border-bottom: 1px solid var(--line); }
@@ -42,13 +43,73 @@
             display: flex; align-items: center; justify-content: space-between;
             height: 72px;
         }
+
+        .burger_menu {
+            color: var(--blue-deep);
+            border: none;
+            border-radius: 6px;
+            padding: 2px 2px;
+            display: inline-flex;
+            align-items: end;
+            justify-content: space-between;
+        }
+
+        .burger_menu:hover {background-color: var(--blue-light); transition: background-color 0.5s  }
+        #checkbox_v {display:none}
+
+        .burger_menu::before {
+            content: "";
+            background:url("/images/menu_icon.png") center / contain no-repeat;
+            height: 40px;
+            width: 40px;
+        }
+        #checkbox_v:checked ~ .burger_menu:before{
+            background: url("/images/close_icon.png") center / contain no-repeat;
+
+            z-index: 999;
+
+        }
+
+        .items {
+            position:absolute;
+            display: flex;
+            width:200px;
+            top:72px;
+            right:50px;
+            flex-direction: column;
+            max-height: 0 ;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+            align-items: flex-start;
+            justify-content: flex-start;
+            background-color: var(--white);
+            border-width: 1px;
+            border-radius: 8px;
+        }
+
+        .item{
+            width: 100%;
+            padding: 15px;
+            border-radius: 0;
+            font-family: "Trebuchet MS", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            align-items: center;
+            justify-content: center ;
+            text-decoration: none;
+        }
+        .item:hover {
+            background-color: var(--blue-light);
+        }
+
+        #checkbox_v:checked ~ .items{
+            max-height: 500px   ;
+        }
         .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--blue-deep); }
         .brand img { height: 38px; width: auto; display: block; }
         .brand span { font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
-        .nav-links { display: flex; align-items: center; gap: 20px; }
         .nav-links a { text-decoration: none; color: var(--ink); font-weight: 500; font-size: 14px; }
         .nav-links a:hover { color: var(--blue-mid);  }
-
         .btn {
             display: inline-block; text-decoration: none; font-weight: 800; font-size: 16px;
             padding: 12px 24px; border-radius: 8px; border: 2px solid var(--blue-deep);
@@ -58,7 +119,8 @@
         .btn-primary:hover { background: #244e7e; border-color: #244e7e; }
         .btn-outline { background: transparent; color: var(--blue-deep); }
         .btn-outline:hover { background: var(--blue-light); }
-
+        .logout-item { color: #d93025 !important; padding: 15px; align-items: center; width: 100%; text-decoration: none;}
+        .logout-item:hover { background: #fce8e6 !important; }
 
 
         /* ---------- Hero ---------- */
@@ -147,108 +209,121 @@
 </head>
 <body>
 
-    <header>
-        <div class="wrap header-inner">
-            <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
-                <img th:src="@{/images/logo-mark.png}" alt="">
-                <span>CareerConnect</span>
-            </a>
+<header>
+    <div class="wrap header-inner">
+        <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
+            <img th:src="@{/images/logo-mark.png}" alt="">
+            <span>CareerConnect</span>
+        </a>
 
-            <div th:if="${!isAuth}">
-                <a class="btn btn-outline" th:href="@{/login}">Log in</a>
-                <a class="btn btn-primary" th:href="@{/register}">Create account</a>
-            </div>
-            <div th:if="${isAuth}" class="nav-links">
-                <a th:href="@{/profile}">My profile</a>
-                <a th:href="@{/dashboard}">Dashboard</a>
+
+        <div th:if="${!isAuth}">
+            <input type="checkbox" name="" id="checkbox_v">
+            <label class="burger_menu" for="checkbox_v">
+            </label>
+            <div class="items">
+                <a class="item"  th:href="@{/login}">Log in</a>
+                <a class="item"  th:href="@{/register}">Create account</a>
             </div>
         </div>
-    </header>
-
-    <main>
-        <!-- Hero -->
-        <section class="hero">
-            <div class="wrap hero-grid">
-                <div>
-                    <h1>Every job opening in one place.</h1>
-                    <p class="lead">
-                        Stop checking through multiple website. CareerConnect brings everything together
-                        so your match can be found faster, be it a candidates or a job.
-                    </p>
-                    <div class="hero-actions">
-                        <a class="btn btn-primary" th:href="@{/register}">Create an account</a>
-                        <a class="btn btn-outline" th:href="@{/login}">Log in</a>
-                    </div>
-                </div>
-                <div class="hero-logo">
-                    <img th:src="@{/images/logo.png}" alt="CareerConnect logo: three professionals in ties">
-                </div>
+        <div th:if="${isAuth}" >
+            <input type="checkbox" name="" id="checkbox_v">
+            <label class="burger_menu" for="checkbox_v">
+            </label>
+            <div class="items">
+                <a class="item" th:href="@{/profile}">My profile</a>
+                <a class="item" th:href="@{/dashboard}">Dashboard</a>
+                <a class="logout-item"  style="" th:href="@{/logout}">Sign out</a>
             </div>
-        </section>
-
-        <!-- Two audiences -->
-        <section class="audiences" id="about">
-            <div class="wrap">
-                <h2>One platform for both sides of the table</h2>
-                <div class="split">
-                    <div>
-                        <h3>For job seekers</h3>
-                        <p class="who">Spend your time on applications, not on searching.</p>
-                        <ul>
-                            <li>Upload your resume once and reuse it for every application.</li>
-                            <li>Search and filter openings from one place.</li>
-                            <li>Get recommendation based on your profile for your best match.</li>
-                            <li>Get a cover letter drafted for you when you apply.</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3>For recruiters</h3>
-                        <p class="who">Reach candidates and review them faster.</p>
-                        <ul>
-                            <li>Post and manage your job openings.</li>
-                            <li>Filter applicants by the criteria you set for the role.</li>
-                            <li>Review application details and linked projects in one view.</li>
-                            <li>Message candidates directly.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Application tracking -->
-        <section class="tracking">
-            <div class="wrap">
-                <h2>Link every application to an answer</h2>
-                <p class="intro">Each application has a status, so you always know at what point you are.</p>
-                <ol class="status-track">
-                    <li><strong>Applied</strong><span>Your application is submitted.</span></li>
-                    <li><strong>Interview</strong><span>The recruiters wants to talk.</span></li>
-                    <li><strong>Offered or rejected</strong><span>The outcome is clear and your history is kept.</span></li>
-                </ol>
-            </div>
-        </section>
-
-        <!-- Closing call to action -->
-        <section class="closing">
-            <div class="wrap closing-inner">
-                <div>
-                    <h2>Register now!</h2>
-                    <p>You will be applying within 5 minutes.</p>
-                </div>
-                <a class="btn" th:href="@{/register}">Create an account</a>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <div class="footer-links">
-            <a href="#">About Us</a> |
-            <a href="#">Contact Support</a> |
-            <a href="#">Privacy Policy</a> |
-            <a href="#">Terms of Service</a>
         </div>
-        <div>&copy; 2026 CareerConnect. SOEN 341 Project.</div>
-    </footer>
+
+    </div>
+</header>
+
+<main>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="wrap hero-grid">
+            <div>
+                <h1>Every job opening in one place.</h1>
+                <p class="lead">
+                    Stop checking through multiple website. CareerConnect brings everything together
+                    so your match can be found faster, be it a candidates or a job.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" th:href="@{/register}">Create an account</a>
+                    <a class="btn btn-outline" th:href="@{/login}">Log in</a>
+                </div>
+            </div>
+            <div class="hero-logo">
+                <img th:src="@{/images/logo.png}" alt="CareerConnect logo: three professionals in ties">
+            </div>
+        </div>
+    </section>
+
+    <!-- Two audiences -->
+    <section class="audiences" id="about">
+        <div class="wrap">
+            <h2>One platform for both sides of the table</h2>
+            <div class="split">
+                <div>
+                    <h3>For job seekers</h3>
+                    <p class="who">Spend your time on applications, not on searching.</p>
+                    <ul>
+                        <li>Upload your resume once and reuse it for every application.</li>
+                        <li>Search and filter openings from one place.</li>
+                        <li>Get recommendation based on your profile for your best match.</li>
+                        <li>Get a cover letter drafted for you when you apply.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>For recruiters</h3>
+                    <p class="who">Reach candidates and review them faster.</p>
+                    <ul>
+                        <li>Post and manage your job openings.</li>
+                        <li>Filter applicants by the criteria you set for the role.</li>
+                        <li>Review application details and linked projects in one view.</li>
+                        <li>Message candidates directly.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Application tracking -->
+    <section class="tracking">
+        <div class="wrap">
+            <h2>Link every application to an answer</h2>
+            <p class="intro">Each application has a status, so you always know at what point you are.</p>
+            <ol class="status-track">
+                <li><strong>Applied</strong><span>Your application is submitted.</span></li>
+                <li><strong>Interview</strong><span>The recruiters wants to talk.</span></li>
+                <li><strong>Offered or rejected</strong><span>The outcome is clear and your history is kept.</span></li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- Closing call to action -->
+    <section class="closing">
+        <div class="wrap closing-inner">
+            <div>
+                <h2>Register now!</h2>
+                <p>You will be applying within 5 minutes.</p>
+            </div>
+            <a class="btn" th:href="@{/register}">Create an account</a>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div class="footer-links">
+        <a href="#">About Us</a> |
+        <a href="#">Contact Support</a> |
+        <a href="#">Privacy Policy</a> |
+        <a href="#">Terms of Service</a>
+    </div>
+    <div>&copy; 2026 CareerConnect. SOEN 341 Project.</div>
+</footer>
 
 </body>
 </html>
