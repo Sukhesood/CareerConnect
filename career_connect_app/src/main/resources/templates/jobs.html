@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CareerConnect-Job Postings</title>
+</head>
+<style>
+    
+    .tag {
+        background-color: #f0f0f0;
+        border-radius: 8px;
+        padding: 4px 10px;
+        font-size: 14px;
+        font-weight: bold;
+        margin-right: 6px;
+    }
+</style>
+<body>
+    <h1>Job Postings</h1>
+
+    //Search form (user fills in,gets sent into web adress,controller reads and searches database to send results)
+    <form method="get" th:action="@{/jobs}">
+
+        <input type="text" name="keyword" th:value="${keyword}"
+               placeholder="Search by title, company or field of work...">
+
+                <select name="location">
+            <!-- first choice: all locations, so no filter -->
+            <option value="">All locations</option>
+
+            <!-- one choice for each city existing in the database -->
+            <option th:each="loc : ${locations}" th:value="${loc}" th:text="${loc}"
+                    th:selected="${loc == selectedLocation}"></option>
+        </select>
+
+        <select name="jobType">
+
+            <!-- first choice: all jobs, so no filter -->
+            <option value="">All job types</option>
+
+            <!-- one choice for each job type existing in the database-->
+            <option th:each="type : ${jobTypes}" th:value="${type}" th:text="${type}"
+                    th:selected="${type == selectedJobType}"></option>
+        </select>
+
+        <!-- Search button sends the keyword and selected filters to controller /jobs -->
+        <button type="submit">Search</button>
+        <a th:if="${filtersActive}" th:href="@{/jobs}">Clear filters</a>
+
+    </form></select>
+
+    </form>
+     
+    <!-- Shows how many jobs found in database by the controller  match user selection  -->
+    <p th:text="${jobs.size()} + ${jobs.size() == 1 ? ' job found' : ' jobs found'}"></p>
+
+    
+    <!-- Shows the user that no jobs were found matching the keyword entered -->
+    <div th:if="${jobs.isEmpty()}">
+        <strong>No jobs found.</strong> Try a different keyword or clear your filters.
+    </div>
+
+    <!-- Shows the job tittle and company name to the user -->
+    <div th:each="job : ${jobs}">
+        <h2 th:text="${job.title}">Job title</h2>
+        <p th:text="${job.companyName}">Company</p>
+        <p>
+           <!-- Shows the location,job type and work modeof in the form of grey tags if filled in by recruiter --> 
+            <span class="tag" th:if="${job.location != null}" th:text="${job.location}"></span>
+            <span class="tag" th:if="${job.jobType != null}" th:text="${job.jobType}"></span>
+            <span class="tag" th:if="${job.workMode != null}" th:text="${job.workMode}"></span>
+        </p>
+        <!--Abbreviates job posting description if longer than 220 characters by adding "..."-->
+        <p th:text="${#strings.abbreviate(job.description, 220)}"></p>
+
+        <!--Shows date that the job was posted if there is a date-->
+        <small th:if="${job.postedDate != null}" th:text="'Posted ' + ${job.postedDate}"></small>
+
+        <!--Shows if there is a deadline to apply for the job listing-->
+        <small th:if="${job.deadline != null}" th:text="' | Apply by ' + ${job.deadline}"></small>
+        <hr>
+    </div>
+
+</body></html>
