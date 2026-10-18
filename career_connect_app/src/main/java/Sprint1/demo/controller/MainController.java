@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Controller
@@ -81,6 +82,18 @@ public class MainController {
 
         redirect.addFlashAttribute("success", "Listing published.");
         return "redirect:/dashboard";
+    }
+
+    // US 3.5 (#37): dedicated page holding every job posting created by the logged-in recruiter
+    @GetMapping({"/my_job_postings"})
+    public String showMyJobPostings(HttpSession session, Model model) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (!isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        model.addAttribute("jobListings", jobPostingService.getJobListingsForRecruiter(email));
+        model.addAttribute("today", LocalDate.now());
+        return "my_job_postings";
     }
 
 

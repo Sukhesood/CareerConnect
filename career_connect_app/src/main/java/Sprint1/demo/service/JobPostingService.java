@@ -4,6 +4,8 @@ import Sprint1.demo.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import Sprint1.demo.repository.*;
 import Sprint1.demo.model.*;
 
@@ -44,6 +46,14 @@ public class JobPostingService {
         }
 
         return jobRepository.save(job);
+    }
+
+    // US 3.5 (#37): job listings created by the logged-in recruiter, newest first.
+    public List<JobListing> getJobListingsForRecruiter(String recruiterEmail) {
+        if (recruiterEmail == null) {
+            return List.of();
+        }
+        return jobRepository.findByRecruiter_EmailOrderByPostedDateDescIdDesc(recruiterEmail);
     }
 
 }
