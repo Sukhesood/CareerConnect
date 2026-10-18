@@ -3,6 +3,7 @@ package Sprint1.demo.controller;
 import Sprint1.demo.model.JobListing;
 import Sprint1.demo.model.JobListingForm;
 import Sprint1.demo.model.User;
+import Sprint1.demo.repository.JobApplicationRepository;
 import Sprint1.demo.service.JobPostingService;
 import Sprint1.demo.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -25,9 +26,11 @@ import java.util.Optional;
 public class MainController {
 	 private final UserService userService ;
      private final JobPostingService jobPostingService;
-	   public MainController(UserService userService, JobPostingService jobPostingService) {
+	 private final JobApplicationRepository jobApplicationRepository;
+	   public MainController(UserService userService, JobPostingService jobPostingService, JobApplicationRepository jobApplicationRepository) {
 	       this.userService = userService;
            this.jobPostingService=jobPostingService;
+	       this.jobApplicationRepository = jobApplicationRepository;
 	   }
     private boolean isAuth(HttpSession session) {
         return (null != session.getAttribute("loggedInUserEmail"));
@@ -127,6 +130,16 @@ public class MainController {
         Optional<User> user = userService.findByEmail(email);
         user.ifPresent(value -> model.addAttribute("user", value));
         return "dashboard";
+    }
+
+    @GetMapping("/applications")
+    public String showSubmittedApplications(HttpSession session, Model model) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        model.addAttribute("applications", jobApplicationRepository.findByApplicant_EmailOrderBySubmittedAtDesc(email));
+        return "submitted-applications";
     }
 
     @GetMapping("/profile")
