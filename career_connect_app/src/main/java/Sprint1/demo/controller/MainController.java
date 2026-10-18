@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -60,6 +61,21 @@ public class MainController {
         Optional<User> user = userService.findByEmail(email);
         user.ifPresent(value -> model.addAttribute("user", value));
         return "dashboard";
+    }
+
+    @GetMapping("/jobs")
+    public String showJobPostings(Model model) {
+        List<JobPosting> jobs = List.of(
+                new JobPosting("Junior Software Developer", "TechNova", "Montreal, QC", "Full-time",
+                        "Help build and improve web applications with a collaborative development team."),
+                new JobPosting("Business Analyst Intern", "Northstar Solutions", "Toronto, ON", "Internship",
+                        "Support requirement gathering, process analysis, and project documentation."),
+                new JobPosting("Frontend Developer", "Maple Digital", "Remote", "Full-time",
+                        "Create accessible and responsive user interfaces for client-facing products.")
+        );
+
+        model.addAttribute("jobs", jobs);
+        return "job-postings";
     }
 
     @GetMapping("/profile")
@@ -122,6 +138,9 @@ public class MainController {
             return "register";
         }
         return "redirect:/register?success";
+    }
+
+    public record JobPosting(String title, String company, String location, String category, String description) {
     }
     
 }

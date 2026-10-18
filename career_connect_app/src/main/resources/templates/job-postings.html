@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CareerConnect - Job Postings</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
+    <style>
+        :root {
+            --blue: #2f5f96;
+            --blue-light: #eaf1f8;
+            --page: #f8f9fa;
+            --text: #202124;
+            --muted: #5f6368;
+            --border: #d3deec;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            color: var(--text);
+            background: var(--page);
+            font-family: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        header {
+            height: 72px;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--blue);
+            text-decoration: none;
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        .brand img { height: 38px; }
+        .nav-link {
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .nav-link:hover { color: var(--blue); }
+
+        main { max-width: 1080px; margin: 0 auto; padding: 48px 24px 64px; }
+        h1 { margin: 0 0 10px; font-size: 34px; }
+        .intro { margin: 0 0 32px; color: var(--muted); font-size: 16px; }
+
+        .job-list { display: grid; gap: 18px; }
+        .job-card {
+            padding: 24px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(20, 37, 59, 0.05);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        h2 { margin: 0 0 6px; color: var(--blue); font-size: 22px; }
+        .company { margin: 0; font-weight: 700; }
+        .category {
+            padding: 6px 10px;
+            white-space: nowrap;
+            border-radius: 16px;
+            background: var(--blue-light);
+            color: var(--blue);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .location { margin: 16px 0 10px; color: var(--muted); font-size: 14px; }
+        .description { margin: 0; color: var(--muted); line-height: 1.55; }
+
+        .empty-state {
+            padding: 28px;
+            text-align: center;
+            color: var(--muted);
+            background: white;
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+        }
+
+        @media (max-width: 600px) {
+            header { padding: 0 20px; }
+            main { padding: 32px 18px; }
+            .job-header { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
+        <img th:src="@{/images/logo-mark.png}" alt="">
+        <span>CareerConnect</span>
+    </a>
+    <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
+</header>
+
+<main>
+    <h1>Job Postings</h1>
+    <p class="intro">Browse the opportunities currently available on CareerConnect.</p>
+
+    <section class="job-list" aria-label="Available job postings">
+        <article class="job-card" th:each="job : ${jobs}">
+            <div class="job-header">
+                <div>
+                    <h2 th:text="${job.title}">Job title</h2>
+                    <p class="company" th:text="${job.company}">Company</p>
+                </div>
+                <span class="category" th:text="${job.category}">Category</span>
+            </div>
+            <p class="location" th:text="${job.location}">Location</p>
+            <p class="description" th:text="${job.description}">Job description</p>
+        </article>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(jobs)}">There are no job postings available right now.</p>
+    </section>
+</main>
+</body>
+</html>

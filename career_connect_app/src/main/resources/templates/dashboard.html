@@ -199,6 +199,7 @@
             </a>
         </div>
         <div class="header-nav">
+            <a th:href="@{/jobs}" class="nav-link">Browse Jobs</a>
             <a th:href="@{/profile}" class="nav-link">My Profile</a>
             <div class="user-badge">
                 <span>🟢 Portal Active</span>
@@ -213,6 +214,7 @@
             <h2>Welcome to your Dashboard</h2>
             <p>You have successfully authenticated into the CareerConnect portal.</p>
             <p style="margin-top: 10px;">Manage your personal information and upload your resume via your profile page.</p>
+            <a th:href="@{/jobs}" class="profile-btn">Browse Job Postings</a>
             <a th:href="@{/profile}" class="profile-btn">Go to My Profile</a>
         </div>
     </div>
