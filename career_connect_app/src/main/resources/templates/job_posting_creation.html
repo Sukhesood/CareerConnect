@@ -18,6 +18,8 @@
             --white: #ffffff;
             --error: #b3261e;
             --error-bg: #fcecea;
+            --success: #1e6b3a;
+            --success-bg: #e6f4ea;
         }
 
         /* ---------- Base ---------- */
@@ -368,6 +370,15 @@
             margin-bottom: 24px;
             font-weight: 700;
         }
+        .alert-success{
+            background: var(--success-bg);
+            border: 1px solid var(--success);
+            color: var(--success);
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
 
         /* ---------- Responsive ---------- */
         @media (max-width: 960px) {
@@ -423,6 +434,7 @@
             <div class="alert" role="alert" th:if="${#fields.hasErrors('*')}">
                 Some fields need your attention. Check the highlighted fields below.
             </div>
+            <div class="alert-success" role="status" th:if="${success}" th:text="${success}"></div>
 
             <!-- Basics -->
             <fieldset>
@@ -587,7 +599,7 @@
                 <li>List the must-have requirements first.</li>
             </ul>
             <div class="actions">
-                <button type="submit" class="btn btn-primary">Publish listing</button>
+                <button type="submit" th:href="@{/job_posting_creation.html}" class="btn btn-primary">Publish listing</button>
                 <!---<button type="submit" class="btn btn-secondary" name="draft" value="true" formnovalidate>Save as draft</button>---->
                 <a class="btn btn-secondary" th:href="@{/dashboard}">Cancel</a>
             </div>

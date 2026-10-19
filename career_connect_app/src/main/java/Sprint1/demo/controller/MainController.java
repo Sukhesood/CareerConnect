@@ -98,8 +98,8 @@ public class MainController {
         jobPostingService.createJobListing(form, email);
 
 
-        redirect.addFlashAttribute("success", "Listing published.");
-        return "redirect:/dashboard";
+        redirect.addFlashAttribute("success", "The job listing was posted successfully.");
+        return "redirect:/job_posting_creation";
     }
 
     // US 3.5 (#37): dedicated page holding every job posting created by the logged-in recruiter

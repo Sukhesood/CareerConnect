@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -277,7 +277,9 @@
             <h1>My job postings</h1>
             <p th:if="${#lists.isEmpty(jobListings)}">Every job you post on CareerConnect will show up here.</p>
             <p th:unless="${#lists.isEmpty(jobListings)}"
-               th:text="${#lists.size(jobListings) == 1} ? 'You have 1 job posting.' : |You have ${#lists.size(jobListings)} job postings.|">
+               th:text="${#lists.size(jobListings) == 1
+               ? 'You have 1 job posting.'
+               : 'You have ' + #lists.size(jobListings) + ' job postings.'}">
                 You have 3 job postings.
             </p>
         </div>
