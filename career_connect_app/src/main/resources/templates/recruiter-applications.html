@@ -41,12 +41,12 @@
     <h1>Received Applications</h1>
     <p class="intro">Review applications submitted for your job postings.</p>
     <section class="application-list" aria-label="Received applications">
-        <article class="application-card" th:each="application : ${applications}">
-            <div class="application-header"><div><h2 th:text="${application.jobListing.title}">Job title</h2><p class="company" th:text="${application.jobListing.companyName}">Company</p></div><span class="status" th:text="${application.status}">Applied</span></div>
-            <p class="applicant"><strong th:text="${application.applicant.firstName + ' ' + application.applicant.lastName}">Applicant name</strong> &middot; <span th:text="${application.applicant.email}">email@example.com</span></p>
-            <a class="resume-link" th:if="${application.applicant.resumeFilename != null}" th:href="@{/recruiter/applications/{id}/resume(id=${application.id})}">Download resume</a>
-            <p class="no-resume" th:unless="${application.applicant.resumeFilename != null}">No resume uploaded.</p>
-            <p class="date">Submitted <span th:text="${#temporals.format(application.submittedAt, 'MMMM d, yyyy')}">January 1, 2026</span></p>
+        <article class="application-card" th:each="jobApplication : ${applications}">
+            <div class="application-header"><div><h2 th:text="${jobApplication.jobListing.title}">Job title</h2><p class="company" th:text="${jobApplication.jobListing.companyName}">Company</p></div><span class="status" th:text="${jobApplication.status}">Applied</span></div>
+            <p class="applicant"><strong th:text="${jobApplication.applicant.firstName + ' ' + jobApplication.applicant.lastName}">Applicant name</strong> &middot; <span th:text="${jobApplication.applicant.email}">email@example.com</span></p>
+            <a class="resume-link" th:if="${jobApplication.applicant.resumeFilename != null}" th:href="@{/recruiter/applications/{id}/resume(id=${jobApplication.id})}">Download resume</a>
+            <p class="no-resume" th:unless="${jobApplication.applicant.resumeFilename != null}">No resume uploaded.</p>
+            <p class="date">Submitted <span th:text="${#temporals.format(jobApplication.submittedAt, 'MMMM d, yyyy')}">January 1, 2026</span></p>
         </article>
         <div class="empty-state" th:if="${#lists.isEmpty(applications)}"><h2>No applications received yet</h2><p>Applications for your job postings will appear here.</p></div>
     </section>

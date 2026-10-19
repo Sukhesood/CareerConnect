@@ -153,6 +153,41 @@ public class MainController {
         return "submitted-applications";
     }
 
+    @GetMapping("/job_postings")
+    public String showJobPostings(HttpSession session, Model model) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        model.addAttribute("jobListings", jobPostingService.getAvailableJobListings(email));
+        return "job-postings";
+    }
+
+    @PostMapping("/job_postings/{jobId}/apply")
+    public String applyToJob(@PathVariable Long jobId, HttpSession session, RedirectAttributes redirect) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        Optional<User> applicant = userService.findByEmail(email);
+        Optional<JobListing> jobListing = jobPostingService.getJobListing(jobId);
+        if (applicant.isEmpty() || jobListing.isEmpty()) {
+            redirect.addFlashAttribute("error", "The job posting could not be found.");
+            return "redirect:/job_postings";
+        }
+        if (jobApplicationRepository.existsByApplicant_EmailAndJobListing_Id(email, jobId)) {
+            redirect.addFlashAttribute("error", "You have already applied to this job.");
+            return "redirect:/job_postings";
+        }
+
+        JobApplication application = new JobApplication();
+        application.setApplicant(applicant.get());
+        application.setJobListing(jobListing.get());
+        jobApplicationRepository.save(application);
+        redirect.addFlashAttribute("success", "Your application was submitted.");
+        return "redirect:/job_postings";
+    }
+
     @GetMapping("/recruiter/applications")
     public String showRecruiterApplications(HttpSession session, Model model) {
         if (!isAuth(session)) return "redirect:/login";

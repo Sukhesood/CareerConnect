@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CareerConnect - Job Postings</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
+    <style>
+        :root { --blue: #2f5f96; --blue-light: #eaf1f8; --page: #f8f9fa; --text: #202124; --muted: #5f6368; --border: #d3deec; --success: #216e39; --error: #b3261e; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--page); color: var(--text); font-family: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+        header { height: 72px; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; background: white; border-bottom: 1px solid var(--border); }
+        .brand { display: flex; align-items: center; gap: 12px; color: var(--blue); text-decoration: none; font-size: 21px; font-weight: 800; }
+        .brand img { height: 38px; }
+        .nav-link { color: var(--muted); font-size: 14px; font-weight: 600; text-decoration: none; }
+        .nav-link:hover { color: var(--blue); }
+        main { max-width: 1080px; margin: 0 auto; padding: 48px 24px 64px; }
+        h1 { margin: 0 0 10px; font-size: 34px; }
+        .intro { margin: 0 0 24px; color: var(--muted); font-size: 16px; }
+        .message { margin: 0 0 18px; padding: 12px 14px; border-radius: 8px; font-size: 14px; }
+        .success { background: #e8f5e9; color: var(--success); border: 1px solid #b7dfba; }
+        .error { background: #fce8e6; color: var(--error); border: 1px solid #f5c2bc; }
+        .job-list { display: grid; gap: 18px; }
+        .job-card { padding: 24px; background: white; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 2px 8px rgba(20, 37, 59, 0.05); }
+        .job-header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+        h2 { margin: 0 0 6px; color: var(--blue); font-size: 22px; }
+        .company { margin: 0; font-weight: 700; }
+        .location, .description { color: var(--muted); line-height: 1.5; }
+        .location { margin: 14px 0 0; font-size: 14px; }
+        .description { margin: 12px 0 0; }
+        .job-type { padding: 6px 10px; white-space: nowrap; border-radius: 16px; background: var(--blue-light); color: var(--blue); font-size: 13px; font-weight: 700; }
+        .apply-button { margin-top: 18px; border: 0; border-radius: 6px; background: var(--blue); color: white; padding: 10px 16px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+        .apply-button:hover { background: #244b77; }
+        .empty-state { padding: 32px; text-align: center; background: white; border: 1px dashed var(--border); border-radius: 10px; color: var(--muted); }
+        .empty-state h2 { color: var(--text); }
+        @media (max-width: 600px) { header { padding: 0 20px; } main { padding: 32px 18px; } .job-header { flex-direction: column; } }
+    </style>
+</head>
+<body>
+<header>
+    <a class="brand" th:href="@{/}" aria-label="CareerConnect home"><img th:src="@{/images/logo-mark.png}" alt=""><span>CareerConnect</span></a>
+    <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
+</header>
+<main>
+    <h1>Job Postings</h1>
+    <p class="intro">Browse available opportunities and apply directly through CareerConnect.</p>
+    <p class="message success" th:if="${success}" th:text="${success}">Your application was submitted.</p>
+    <p class="message error" th:if="${error}" th:text="${error}">An error occurred.</p>
+    <section class="job-list" aria-label="Available job postings">
+        <article class="job-card" th:each="job : ${jobListings}">
+            <div class="job-header"><div><h2 th:text="${job.title}">Job title</h2><p class="company" th:text="${job.companyName}">Company</p></div><span class="job-type" th:text="${job.jobType}">Full-time</span></div>
+            <p class="location" th:text="${job.location + ' · ' + job.workMode}">Montreal, QC · Hybrid</p>
+            <p class="description" th:text="${job.description}">Job description</p>
+            <form th:action="@{/job_postings/{id}/apply(id=${job.id})}" method="post"><button class="apply-button" type="submit">Apply</button></form>
+        </article>
+        <div class="empty-state" th:if="${#lists.isEmpty(jobListings)}"><h2>No available job postings</h2><p>You have applied to every job posting currently available.</p></div>
+    </section>
+</main>
+</body>
+</html>
