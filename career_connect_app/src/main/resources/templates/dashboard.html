@@ -201,6 +201,8 @@
         <div class="header-nav">
             <a th:if="${isRecruiter}" th:href="@{/job_posting_creation}" class="nav-link">Create</a>
             <a th:if="${isRecruiter}" th:href="@{/my_job_postings}" class="nav-link">My Job Postings</a>
+            <a th:if="${isRecruiter}" th:href="@{/recruiter/applications}" class="nav-link">Applications</a>
+            <a th:unless="${isRecruiter}" th:href="@{/job_postings}" class="nav-link">Browse Jobs</a>
             <a th:unless="${isRecruiter}" th:href="@{/applications}" class="nav-link">My Applications</a>
             <a th:href="@{/profile}" class="nav-link">My Profile</a>
             <div class="user-badge">
@@ -216,7 +218,9 @@
             <h2>Welcome to your Dashboard</h2>
             <p>You have successfully authenticated into the CareerConnect portal.</p>
             <p style="margin-top: 10px;">Manage your personal information and upload your resume via your profile page.</p>
+            <a th:unless="${isRecruiter}" th:href="@{/job_postings}" class="profile-btn">Browse Jobs</a>
             <a th:unless="${isRecruiter}" th:href="@{/applications}" class="profile-btn">My Applications</a>
+            <a th:if="${isRecruiter}" th:href="@{/recruiter/applications}" class="profile-btn">Review Applications</a>
             <a th:href="@{/profile}" class="profile-btn">Go to My Profile</a>
         </div>
     </div>

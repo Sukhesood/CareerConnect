@@ -56,5 +56,16 @@ public class JobPostingService {
         return jobRepository.findByRecruiter_EmailOrderByPostedDateDescIdDesc(recruiterEmail);
     }
 
+    public List<JobListing> getAvailableJobListings(String applicantEmail) {
+        if (applicantEmail == null) {
+            return List.of();
+        }
+        return jobRepository.findAvailableForApplicant(applicantEmail);
+    }
+
+    public java.util.Optional<JobListing> getJobListing(Long jobId) {
+        return jobRepository.findById(jobId);
+    }
+
 }
 

@@ -2,24 +2,39 @@ package Sprint1.demo.controller;
 
 import Sprint1.demo.model.JobListing;
 import Sprint1.demo.model.JobListingForm;
+import Sprint1.demo.model.JobApplication;
 import Sprint1.demo.model.User;
 import Sprint1.demo.repository.JobApplicationRepository;
 import Sprint1.demo.service.JobPostingService;
 import Sprint1.demo.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 //new main controller
@@ -140,6 +155,69 @@ public class MainController {
         String email = (String) session.getAttribute("loggedInUserEmail");
         model.addAttribute("applications", jobApplicationRepository.findByApplicant_EmailOrderBySubmittedAtDesc(email));
         return "submitted-applications";
+    }
+
+    @GetMapping("/job_postings")
+    public String showJobPostings(HttpSession session, Model model) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        model.addAttribute("jobListings", jobPostingService.getAvailableJobListings(email));
+        return "job-postings";
+    }
+
+    @PostMapping("/job_postings/{jobId}/apply")
+    public String applyToJob(@PathVariable Long jobId, HttpSession session, RedirectAttributes redirect) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        Optional<User> applicant = userService.findByEmail(email);
+        Optional<JobListing> jobListing = jobPostingService.getJobListing(jobId);
+        if (applicant.isEmpty() || jobListing.isEmpty()) {
+            redirect.addFlashAttribute("error", "The job posting could not be found.");
+            return "redirect:/job_postings";
+        }
+        if (jobApplicationRepository.existsByApplicant_EmailAndJobListing_Id(email, jobId)) {
+            redirect.addFlashAttribute("error", "You have already applied to this job.");
+            return "redirect:/job_postings";
+        }
+
+        JobApplication application = new JobApplication();
+        application.setApplicant(applicant.get());
+        application.setJobListing(jobListing.get());
+        jobApplicationRepository.save(application);
+        redirect.addFlashAttribute("success", "Your application was submitted.");
+        return "redirect:/job_postings";
+    }
+
+    @GetMapping("/recruiter/applications")
+    public String showRecruiterApplications(HttpSession session, Model model) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (!isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        List<JobApplication> applications = jobApplicationRepository.findByJobListing_Recruiter_EmailOrderBySubmittedAtDesc(email);
+        Map<JobListing, List<JobApplication>> applicationsByJob = applications.stream().collect(Collectors.groupingBy(JobApplication::getJobListing, LinkedHashMap::new, Collectors.toList()));
+        model.addAttribute("applicationsByJob", applicationsByJob);
+        return "recruiter-applications";
+    }
+
+    @GetMapping("/recruiter/applications/{applicationId}/resume")
+    public ResponseEntity<Resource> downloadApplicantResume(@PathVariable Long applicationId, HttpSession session) throws MalformedURLException {
+        if (!isAuth(session) || !isRecruiter(session)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        Optional<JobApplication> application = jobApplicationRepository.findByIdAndJobListing_Recruiter_Email(applicationId, email);
+        if (application.isEmpty() || application.get().getApplicant().getResumeFilename() == null) return ResponseEntity.notFound().build();
+
+        Path uploadsFolder = Paths.get("uploads").toAbsolutePath().normalize();
+        Path resumePath = uploadsFolder.resolve(application.get().getApplicant().getResumeFilename()).normalize();
+        if (!resumePath.startsWith(uploadsFolder) || !Files.exists(resumePath)) return ResponseEntity.notFound().build();
+
+        Resource resume = new UrlResource(resumePath.toUri());
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resumePath.getFileName() + "\"").body(resume);
     }
 
     @GetMapping("/profile")
