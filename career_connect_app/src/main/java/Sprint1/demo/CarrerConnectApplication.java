@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class CarrerConnectApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(CarrerConnectApplication.class, args);
-		System.out.println("hello world");
 	}
 
 }

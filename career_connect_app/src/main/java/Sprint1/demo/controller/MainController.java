@@ -30,7 +30,11 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 //new main controller
@@ -194,7 +198,9 @@ public class MainController {
         if (!isRecruiter(session)) return "redirect:/dashboard";
 
         String email = (String) session.getAttribute("loggedInUserEmail");
-        model.addAttribute("applications", jobApplicationRepository.findByJobListing_Recruiter_EmailOrderBySubmittedAtDesc(email));
+        List<JobApplication> applications = jobApplicationRepository.findByJobListing_Recruiter_EmailOrderBySubmittedAtDesc(email);
+        Map<JobListing, List<JobApplication>> applicationsByJob = applications.stream().collect(Collectors.groupingBy(JobApplication::getJobListing, LinkedHashMap::new, Collectors.toList()));
+        model.addAttribute("applicationsByJob", applicationsByJob);
         return "recruiter-applications";
     }
 
