@@ -168,7 +168,8 @@
             margin-bottom: 24px;
             font-weight: 700;
         }
-
+        .notice-error { background: #fcecea; border-color: #b3261e; color: #b3261e; }
+        
         /* ---------- Job cards ---------- */
         .job-list {
             list-style: none;
@@ -288,6 +289,7 @@
 
     <!-- Flash message, e.g. after creating or editing a posting -->
     <div class="notice" role="status" th:if="${success}" th:text="${success}">Listing published.</div>
+    <div class="notice notice-error" role="alert" th:if="${error}" th:text="${error}">That job posting could not be found.</div>
 
     <!-- Empty state -->
     <section class="empty" th:if="${#lists.isEmpty(jobListings)}">

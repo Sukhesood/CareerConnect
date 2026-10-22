@@ -422,13 +422,14 @@
 <main class="wrap">
 
     <section class="intro">
-        <h1>Post a job opening</h1>
-        <p>Fill in the details below. Job seekers will see this listing alongside every other opening on CareerConnect.</p>
+        <h1 th:text="${editingJobId != null} ? 'Edit job posting' : 'Post a job opening'">Post a job opening</h1>
+        <p th:text="${editingJobId != null} ? 'Update the details below. Your changes will be visible to job seekers right away.' : 'Fill in the details below. Job seekers will see this listing alongside every other opening on CareerConnect.'">Fill in the details below. Job seekers will see this listing alongside every other opening on CareerConnect.</p>
     </section>
 
 
     <form class="layout" id="job-form"
-          th:action="@{/job_posting_creation}" th:object="${jobListing}" method="post" novalidate>
+    th:action="${editingJobId != null} ? @{/job_posting/{id}/edit(id=${editingJobId})} : @{/job_posting_creation}"
+    th:object="${jobListing}" method="post" novalidate>
 
         <div>
             <div class="alert" role="alert" th:if="${#fields.hasErrors('*')}">
@@ -599,9 +600,9 @@
                 <li>List the must-have requirements first.</li>
             </ul>
             <div class="actions">
-                <button type="submit" th:href="@{/job_posting_creation.html}" class="btn btn-primary">Publish listing</button>
+                <button type="submit" class="btn btn-primary" th:text="${editingJobId != null} ? 'Save changes' : 'Publish listing'">Publish listing</button>
                 <!---<button type="submit" class="btn btn-secondary" name="draft" value="true" formnovalidate>Save as draft</button>---->
-                <a class="btn btn-secondary" th:href="@{/dashboard}">Cancel</a>
+                <a class="btn btn-secondary" th:href="${editingJobId != null} ? @{/my_job_postings} : @{/dashboard}">Cancel</a>
             </div>
         </aside>
     </form>

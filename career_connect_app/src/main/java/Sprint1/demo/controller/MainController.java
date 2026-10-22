@@ -114,6 +114,50 @@ public class MainController {
         return "my_job_postings";
     }
 
+    // US 3.3 (#35): open the job posting form pre-filled, so a recruiter can edit one of their own postings
+    @GetMapping("/job_posting/{id}/edit")
+    public String showEditJobPosting(@PathVariable Long id, HttpSession session, Model model,
+                                     RedirectAttributes redirect) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (!isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        Optional<JobListing> job = jobPostingService.getOwnedJobListing(id, email);
+        if (job.isEmpty()) {
+            redirect.addFlashAttribute("error", "That job posting could not be found.");
+            return "redirect:/my_job_postings";
+        }
+
+        model.addAttribute("jobListing", jobPostingService.toForm(job.get()));
+        model.addAttribute("editingJobId", id);
+        return "job_posting_creation";
+    }
+
+    // US 3.3 (#35): save the changes; a recruiter can only update a posting they created
+    @PostMapping("/job_posting/{id}/edit")
+    public String submitEditJobPosting(@PathVariable Long id,
+                                       @Valid @ModelAttribute("jobListing") JobListingForm form, BindingResult result,
+                                       HttpSession session, Model model, RedirectAttributes redirect) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (!isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        Optional<JobListing> job = jobPostingService.getOwnedJobListing(id, email);
+        if (job.isEmpty()) {
+            redirect.addFlashAttribute("error", "That job posting could not be found.");
+            return "redirect:/my_job_postings";
+        }
+
+        if (result.hasErrors()) {
+            model.addAttribute("editingJobId", id);
+            return "job_posting_creation";
+        }
+
+        jobPostingService.updateJobListing(job.get(), form);
+        redirect.addFlashAttribute("success", "Your job posting was updated.");
+        return "redirect:/my_job_postings";
+    }
+
 
 
     @GetMapping({"/login"})
