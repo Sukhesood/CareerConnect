@@ -35,6 +35,7 @@ public class JobPostingService {
         job.setSkills(form.getSkills());
         job.setSalaryMin(form.getSalaryMin());
         job.setSalaryMax(form.getSalaryMax());
+        job.setSalaryPeriod(form.getSalaryPeriod());
         job.setApplyUrl(form.getApplyUrl());
         job.setCoverLetterRequired(form.isCoverLetterRequired());
         job.setDeadline(form.getDeadline());
