@@ -18,6 +18,8 @@
             --white: #ffffff;
             --error: #b3261e;
             --error-bg: #fcecea;
+            --success: #1e6b3a;
+            --success-bg: #e6f4ea;
         }
 
         /* ---------- Base ---------- */
@@ -76,7 +78,7 @@
             width: 40px;
         }
         #checkbox_v:checked ~ .burger_menu:before {
-            background: url("/static/images/close_icon.png") center / contain no-repeat;
+            background: url("/images/close_icon.png") center / contain no-repeat;
             z-index: 999;
         }
 
@@ -232,6 +234,10 @@
         .btn:active { transform: translateY(0); box-shadow: none; }
 
         .actions { display: flex; gap: 14px; flex-wrap: wrap; }
+        .logout-item { color: #d93025 !important; padding: 15px; align-items: center; width: 100%; text-decoration: none;}
+        .logout-item:hover { background: #fce8e6 !important; }
+
+
 
         /* Cover letter checkbox */
         .check-card {
@@ -264,10 +270,10 @@
             margin-top: -2px;
             transition: transform 0.15s ease-out;
         }
-        .check-card input:checked + .check-box { background: var(--blue-deep); border-color: var(--blue-deep); }
-        .check-card input:checked + .check-box::after { transform: rotate(45deg) scale(1); }
+        .check-card input:checked ~ .check-box { background: var(--blue-deep); border-color: var(--blue-deep); }
+        .check-card input:checked ~ .check-box::after { transform: rotate(45deg) scale(1); }
         .check-card:has(input:checked) { background: var(--blue-light); border-color: var(--blue-deep); }
-        .check-card input:focus-visible + .check-box { outline: 3px solid var(--blue-mid); outline-offset: 3px; }
+        .check-card input:focus-visible ~ .check-box { outline: 3px solid var(--blue-mid); outline-offset: 3px; }
         .check-text strong { display: block; font-weight: 700; }
         .check-text span { color: var(--ink-soft); font-size: 0.9rem; }
 
@@ -364,6 +370,15 @@
             margin-bottom: 24px;
             font-weight: 700;
         }
+        .alert-success{
+            background: var(--success-bg);
+            border: 1px solid var(--success);
+            color: var(--success);
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
 
         /* ---------- Responsive ---------- */
         @media (max-width: 960px) {
@@ -407,21 +422,20 @@
 <main class="wrap">
 
     <section class="intro">
-        <h1>Post a job opening</h1>
-        <p>Fill in the details below. Job seekers will see this listing alongside every other opening on CareerConnect.</p>
+        <h1 th:text="${editingJobId != null} ? 'Edit job posting' : 'Post a job opening'">Post a job opening</h1>
+        <p th:text="${editingJobId != null} ? 'Update the details below. Your changes will be visible to job seekers right away.' : 'Fill in the details below. Job seekers will see this listing alongside every other opening on CareerConnect.'">Fill in the details below. Job seekers will see this listing alongside every other opening on CareerConnect.</p>
     </section>
 
-    <!--
-        Expected backing object: a JobPostingForm (name it as you like) in the model under "jobPosting".
-        Adjust field names to match your entity/DTO.
-    -->
+
     <form class="layout" id="job-form"
-          th:action="@{/job_posting_creation}" th:object="${jobListing}" method="post" novalidate>
+    th:action="${editingJobId != null} ? @{/job_posting/{id}/edit(id=${editingJobId})} : @{/job_posting_creation}"
+    th:object="${jobListing}" method="post" novalidate>
 
         <div>
             <div class="alert" role="alert" th:if="${#fields.hasErrors('*')}">
                 Some fields need your attention. Check the highlighted fields below.
             </div>
+            <div class="alert-success" role="status" th:if="${success}" th:text="${success}"></div>
 
             <!-- Basics -->
             <fieldset>
@@ -586,9 +600,9 @@
                 <li>List the must-have requirements first.</li>
             </ul>
             <div class="actions">
-                <button type="submit" class="btn btn-primary">Publish listing</button>
-                <button type="submit" class="btn btn-secondary" name="draft" value="true" formnovalidate>Save as draft</button>
-                <a class="btn btn-secondary" th:href="@{/dashboard}">Cancel</a>
+                <button type="submit" class="btn btn-primary" th:text="${editingJobId != null} ? 'Save changes' : 'Publish listing'">Publish listing</button>
+                <!---<button type="submit" class="btn btn-secondary" name="draft" value="true" formnovalidate>Save as draft</button>---->
+                <a class="btn btn-secondary" th:href="${editingJobId != null} ? @{/my_job_postings} : @{/dashboard}">Cancel</a>
             </div>
         </aside>
     </form>

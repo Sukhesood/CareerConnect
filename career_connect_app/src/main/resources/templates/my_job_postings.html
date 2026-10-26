@@ -1,0 +1,351 @@
+    <!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CaCo - my job postings</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
+
+    <!-- US 3.5 (#37): page holding every job posting created by the logged-in recruiter -->
+    <style>
+        :root {
+            --ink: #14253b;
+            --ink-soft: #4a5b72;
+            --blue-deep: #2f5f96;
+            --blue-mid: #5c86b8;
+            --blue-light: #dfe9f5;
+            --paper: #f7f9fc;
+            --line: #d3deec;
+            --white: #ffffff;
+            --success: #1e6b3a;
+            --success-bg: #e6f4ea;
+            --closed: #8a5a00;
+            --closed-bg: #fdf3dc;
+        }
+
+        /* ---------- Base ---------- */
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Trebuchet MS", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--ink);
+            background: var(--paper);
+            line-height: 1.6;
+        }
+
+        a { color: var(--blue-deep); }
+        a:focus-visible, button:focus-visible {
+            outline: 3px solid var(--blue-mid);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        .wrap { max-width: 1440px; margin: 0 auto; padding: 0 24px; }
+
+        /* ---------- Header (same as job_posting_creation.html) ---------- */
+        header { background: var(--white); border-bottom: 1px solid var(--line); }
+        .header-inner {
+            display: flex; align-items: center; justify-content: space-between;
+            height: 72px;
+        }
+        .brand {
+            display: flex; align-items: center; gap: 14px;
+            text-decoration: none; color: var(--blue-deep);
+            font-size: 24px; font-weight: 500;
+        }
+        .brand img { height: 52px; }
+        .brand span { font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
+
+        .burger_menu {
+            color: var(--blue-deep);
+            border: none;
+            border-radius: 6px;
+            padding: 2px 2px;
+            display: inline-flex;
+            align-items: end;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .burger_menu:hover { background-color: var(--blue-light); transition: background-color 0.5s; }
+        #checkbox_v { display: none; }
+
+        .burger_menu::before {
+            content: "";
+            background: url("/images/menu_icon.png") center / contain no-repeat;
+            height: 40px;
+            width: 40px;
+        }
+        #checkbox_v:checked ~ .burger_menu:before {
+            background: url("/images/close_icon.png") center / contain no-repeat;
+        }
+
+        .items {
+            position: absolute;
+            display: flex;
+            width: 200px;
+            top: 72px;
+            right: 50px;
+            flex-direction: column;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+            align-items: flex-start;
+            justify-content: flex-start;
+            background-color: var(--white);
+            border-width: 1px;
+            border-radius: 8px;
+            z-index: 10;
+        }
+        .item {
+            width: 100%;
+            padding: 15px;
+            border-radius: 0;
+            font-size: 15px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+        .item:hover { background-color: var(--blue-light); }
+        #checkbox_v:checked ~ .items { max-height: 500px; }
+        .logout-item { color: #d93025 !important; padding: 15px; align-items: center; width: 100%; text-decoration: none; }
+        .logout-item:hover { background: #fce8e6 !important; }
+
+        /* ---------- Page intro ---------- */
+        .intro {
+            padding: 56px 0 32px;
+            display: flex; align-items: flex-end; justify-content: space-between;
+            gap: 24px; flex-wrap: wrap;
+        }
+        .intro h1 {
+            font-size: clamp(2.2rem, 4vw, 3.4rem);
+            line-height: 1.1;
+            margin: 0 0 14px;
+            letter-spacing: -0.5px;
+        }
+        .intro p {
+            margin: 0;
+            max-width: 62ch;
+            font-size: 1.1rem;
+            color: var(--ink-soft);
+        }
+
+        /* ---------- Buttons ---------- */
+        .btn {
+            font: inherit;
+            font-weight: 700;
+            padding: 13px 26px;
+            border-radius: 8px;
+            border: 2px solid var(--blue-deep);
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary { background: var(--blue-deep); color: var(--white); }
+        .btn-primary:hover {
+            background: var(--ink); border-color: var(--ink);
+            transform: translateY(-2px); box-shadow: 0 6px 14px rgba(20, 37, 59, 0.3);
+        }
+        .btn-secondary { background: transparent; color: var(--blue-deep); }
+        .btn-secondary:hover {
+            background: var(--blue-deep);
+            border-color: var(--blue-deep);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(47, 95, 150, 0.28);
+        }
+        .btn-small { padding: 8px 18px; font-size: 0.95rem; }
+        .btn:active { transform: translateY(0); box-shadow: none; }
+
+        /* ---------- Flash message ---------- */
+        .notice {
+            background: var(--success-bg);
+            border: 1px solid var(--success);
+            color: var(--success);
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
+        .notice-error { background: #fcecea; border-color: #b3261e; color: #b3261e; }
+        
+        /* ---------- Job cards ---------- */
+        .job-list {
+            list-style: none;
+            margin: 0;
+            padding: 0 0 80px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+        }
+        .job-card {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 24px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .job-card:hover { border-color: var(--blue-mid); box-shadow: 0 6px 18px rgba(20, 37, 59, 0.08); }
+
+        .job-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+        .job-title { margin: 0; font-size: 1.3rem; line-height: 1.25; color: var(--ink); }
+        .job-company { margin: 4px 0 0; color: var(--ink-soft); }
+
+        .status {
+            flex: 0 0 auto;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .status-open { background: var(--success-bg); color: var(--success); }
+        .status-closed { background: var(--closed-bg); color: var(--closed); }
+
+        .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+        .tag {
+            background: var(--blue-light);
+            color: var(--blue-deep);
+            border-radius: 999px;
+            padding: 4px 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .details { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; font-size: 0.95rem; }
+        .details dt { color: var(--ink-soft); }
+        .details dd { margin: 0; font-weight: 700; }
+
+        .job-actions {
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid var(--line);
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        }
+        .posted { color: var(--ink-soft); font-size: 0.9rem; }
+
+        /* ---------- Empty state ---------- */
+        .empty {
+            background: var(--white);
+            border: 1px dashed var(--line);
+            border-radius: 12px;
+            padding: 56px 32px;
+            text-align: center;
+            margin-bottom: 80px;
+        }
+        .empty h2 { margin: 0 0 8px; color: var(--blue-deep); }
+        .empty p { margin: 0 0 24px; color: var(--ink-soft); }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 600px) {
+            .job-list { grid-template-columns: 1fr; }
+            .job-card { padding: 20px; }
+            .items { right: 24px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="wrap header-inner">
+        <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
+            <img th:src="@{/images/logo-mark.png}" alt="">
+            <span>CareerConnect</span>
+        </a>
+
+        <input type="checkbox" name="" id="checkbox_v">
+        <label class="burger_menu" for="checkbox_v"></label>
+        <div class="items">
+            <a class="item" th:href="@{/profile}">My profile</a>
+            <a class="item" th:href="@{/dashboard}">Dashboard</a>
+            <a class="item" th:href="@{/job_posting_creation}">Post a job</a>
+            <a class="logout-item" th:href="@{/logout}">Sign out</a>
+        </div>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <section class="intro">
+        <div>
+            <h1>My job postings</h1>
+            <p th:if="${#lists.isEmpty(jobListings)}">Every job you post on CareerConnect will show up here.</p>
+            <p th:unless="${#lists.isEmpty(jobListings)}"
+               th:text="${#lists.size(jobListings) == 1
+               ? 'You have 1 job posting.'
+               : 'You have ' + #lists.size(jobListings) + ' job postings.'}">
+                You have 3 job postings.
+            </p>
+        </div>
+        <a class="btn btn-primary" th:href="@{/job_posting_creation}">+ Post a new job</a>
+    </section>
+
+    <!-- Flash message, e.g. after creating or editing a posting -->
+    <div class="notice" role="status" th:if="${success}" th:text="${success}">Listing published.</div>
+    <div class="notice notice-error" role="alert" th:if="${error}" th:text="${error}">That job posting could not be found.</div>
+
+    <!-- Empty state -->
+    <section class="empty" th:if="${#lists.isEmpty(jobListings)}">
+        <h2>You haven't posted any jobs yet</h2>
+        <p>Create your first job posting and it will appear on this page.</p>
+        <a class="btn btn-primary" th:href="@{/job_posting_creation}">Post your first job</a>
+    </section>
+
+    <!-- One card per job posting -->
+    <ul class="job-list" th:unless="${#lists.isEmpty(jobListings)}">
+        <li class="job-card" th:each="job : ${jobListings}"
+            th:with="closed=${job.deadline != null and job.deadline.isBefore(today)}">
+
+            <div class="job-top">
+                <div>
+                    <h2 class="job-title" th:text="${job.title}">Junior Java Developer</h2>
+                    <p class="job-company">
+                        <span th:text="${job.companyName}">Acme Inc.</span> ·
+                        <span th:text="${job.location}">Montréal, QC</span>
+                    </p>
+                </div>
+                <span class="status status-closed" th:if="${closed}">Closed</span>
+                <span class="status status-open" th:unless="${closed}">Open</span>
+            </div>
+
+            <ul class="tags">
+                <li class="tag" th:if="${!#strings.isEmpty(job.jobType)}" th:text="${job.jobType}">Full-time</li>
+                <li class="tag" th:if="${!#strings.isEmpty(job.workMode)}" th:text="${job.workMode}">Hybrid</li>
+                <li class="tag" th:if="${job.coverLetterRequired}">Cover letter required</li>
+            </ul>
+
+            <dl class="details">
+                <th:block th:if="${job.salaryMin != null or job.salaryMax != null}">
+                    <dt>Salary</dt>
+                    <dd>
+                        <span th:if="${job.salaryMin != null}" th:text="'$' + ${#numbers.formatInteger(job.salaryMin, 1, 'COMMA')}">$50,000</span>
+                        <span th:if="${job.salaryMin != null and job.salaryMax != null}">–</span>
+                        <span th:if="${job.salaryMax != null}" th:text="'$' + ${#numbers.formatInteger(job.salaryMax, 1, 'COMMA')}">$65,000</span>
+                        <span th:if="${!#strings.isEmpty(job.salaryPeriod)}" th:text="'/ ' + ${job.salaryPeriod}">/ year</span>
+                    </dd>
+                </th:block>
+                <dt>Deadline</dt>
+                <dd th:if="${job.deadline != null}" th:text="${#temporals.format(job.deadline, 'MMM d, yyyy')}">Nov 30, 2026</dd>
+                <dd th:unless="${job.deadline != null}">No deadline</dd>
+            </dl>
+
+            <div class="job-actions">
+                <span class="posted" th:if="${job.postedDate != null}"
+                      th:text="'Posted ' + ${#temporals.format(job.postedDate, 'MMM d, yyyy')}">Posted Oct 16, 2026</span>
+                <!-- US 3.3 (#35): edit page for this posting -->
+                <a class="btn btn-secondary btn-small" th:href="@{/job_posting/{id}/edit(id=${job.id})}">Edit</a>
+            </div>
+        </li>
+    </ul>
+
+</main>
+
+</body>
+</html>
