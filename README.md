@@ -72,10 +72,10 @@ career_connect_app/
 │                ├── repository/
 │                ├── service/
 │                └── CareerConnectApplication
-│       └── java/
-│            └── ressource/
-│                ├── static/       -> all images and css files
-│                └── templates/    -> all html file
+│       └── ressource/
+│            ├── static/       -> all images and css files
+│            └── templates/    -> all html file
+
 │    └── test/       
 └── pom.xml
 ```
