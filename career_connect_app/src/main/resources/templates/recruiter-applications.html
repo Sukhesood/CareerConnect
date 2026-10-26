@@ -33,6 +33,15 @@
         .no-resume { margin: 16px 0 0; color: var(--muted); font-size: 14px; }
         .empty-state { padding: 32px; text-align: center; background: white; border: 1px dashed var(--border); border-radius: 10px; color: var(--muted); }
         .empty-state h2 { color: var(--text); }
+                /* US 6.3 (#68): change application status */
+                .message { margin: 0 0 18px; padding: 12px 14px; border-radius: 8px; font-size: 14px; }
+        .message.success { background: #e8f5e9; color: #216e39; border: 1px solid #b7dfba; }
+        .message.error { background: #fce8e6; color: #b3261e; border: 1px solid #f5c2bc; }
+        .status-form { display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+        .status-form label { color: var(--muted); font-size: 14px; font-weight: 700; }
+        .status-form select { font: inherit; font-size: 14px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; background: white; }
+        .status-form button { border: 0; border-radius: 6px; background: var(--blue); color: white; padding: 8px 14px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+        .status-form button:hover { background: #244b77; }
         @media (max-width: 600px) { header { padding: 0 20px; } main { padding: 32px 18px; } .job-header, .application-header { flex-direction: column; } }
     </style>
 </head>
@@ -44,6 +53,8 @@
 <main>
     <h1>Received Applications</h1>
     <p class="intro">Review applications grouped by the job posting they were submitted for.</p>
+    <p class="message success" th:if="${success}" th:text="${success}">Status updated.</p>
+    <p class="message error" th:if="${error}" th:text="${error}">An error occurred.</p>
     <section class="job-list" aria-label="Received applications grouped by job posting">
         <section class="job-section" th:each="entry : ${applicationsByJob}">
             <div class="job-header"><div><h2 th:text="${entry.key.title}">Job title</h2><p class="company" th:text="${entry.key.companyName}">Company</p></div><span class="application-count" th:text="${#lists.size(entry.value) + ' application(s)'}">1 application</span></div>
@@ -54,6 +65,13 @@
                     <p class="no-resume" th:unless="${jobApplication.applicant.resumeFilename != null}">No resume uploaded.</p>
                     <p class="date" th:if="${jobApplication.submittedAt != null}">Submitted <span th:text="${#temporals.format(jobApplication.submittedAt, 'MMMM d, yyyy')}">January 1, 2026</span></p>
                     <p class="date" th:unless="${jobApplication.submittedAt != null}">Submission date unavailable</p>
+                    <form class="status-form" th:action="@{/recruiter/applications/{id}/status(id=${jobApplication.id})}" method="post">
+                        <label th:for="${'status-' + jobApplication.id}">Status</label>
+                        <select name="status" th:id="${'status-' + jobApplication.id}">
+                            <option th:each="s : ${ {'Applied', 'Under Review', 'Interview', 'Offered', 'Rejected'} }" th:value="${s}" th:text="${s}" th:selected="${s == jobApplication.status}">Applied</option>
+                        </select>
+                        <button type="submit">Update status</button>
+                    </form>
                 </article>
             </div>
         </section>

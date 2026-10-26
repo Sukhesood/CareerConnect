@@ -248,6 +248,34 @@ public class MainController {
         return "recruiter-applications";
     }
 
+    // US 6.3 (#68): the statuses a recruiter can give an application
+    private static final List<String> APPLICATION_STATUSES =
+            List.of("Applied", "Under Review", "Interview", "Offered", "Rejected");
+
+    // US 6.3 (#68): recruiter changes the status of an application to one of their own job postings
+    @PostMapping("/recruiter/applications/{applicationId}/status")
+    public String updateApplicationStatus(@PathVariable Long applicationId, @RequestParam("status") String status,
+                                          HttpSession session, RedirectAttributes redirect) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (!isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        Optional<JobApplication> application = jobApplicationRepository.findByIdAndJobListing_Recruiter_Email(applicationId, email);
+        if (application.isEmpty()) {
+            redirect.addFlashAttribute("error", "That application could not be found.");
+            return "redirect:/recruiter/applications";
+        }
+        if (!APPLICATION_STATUSES.contains(status)) {
+            redirect.addFlashAttribute("error", "Please choose a valid status.");
+            return "redirect:/recruiter/applications";
+        }
+
+        application.get().setStatus(status);
+        jobApplicationRepository.save(application.get());
+        redirect.addFlashAttribute("success", "Status updated to \"" + status + "\".");
+        return "redirect:/recruiter/applications";
+    }
+
     @GetMapping("/recruiter/applications/{applicationId}/resume")
     public ResponseEntity<Resource> downloadApplicantResume(@PathVariable Long applicationId, HttpSession session) throws MalformedURLException {
         if (!isAuth(session) || !isRecruiter(session)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
