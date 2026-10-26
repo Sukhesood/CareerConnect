@@ -67,13 +67,16 @@ career_connect_app/
 │    └── main/
 │       └── java/
 │            └── sprint1.demo/
-│                ├── Controller
-│                ├── model
-│                ├── repository
-│                ├── service
+│                ├── Controller/
+│                ├── model/
+│                ├── repository/
+│                ├── service/
 │                └── CareerConnectApplication
-├── view/
-│     └── index.html                
+│       └── java/
+│            └── ressource/
+│                ├── static/       -> all images and css files
+│                └── templates/    -> all html file
+│    └── test/       
 └── pom.xml
 ```
 
