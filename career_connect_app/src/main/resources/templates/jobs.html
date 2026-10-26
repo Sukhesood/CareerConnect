@@ -1,48 +1,113 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>CareerConnect-Job Postings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CareerConnect - Browsing Jobs</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
 
-<style>
-    
-    :root {
-    --primary-color: #1a73e8;
-    --bg-color: #f8f9fa;
-    --blue-deep: #2f5f96;
-    --blue-mid: #5c86b8;
-    --card-bg: #ffffff;
-    --text-main: #202124;
-    --text-secondary: #5f6368;
-    --border-color: #d3deec;
-}
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --bg-color: #f8f9fa;
+            --blue-deep: #2f5f96;
+            --blue-mid: #5c86b8;
+            --card-bg: #ffffff;
+            --text-main: #202124;
+            --text-secondary: #5f6368;
+            --border-color: #d3deec;
+            --ink: #14253b;
+            --ink-soft: #4a5b72;
+            --blue-light: #dfe9f5;
+            --paper: #f7f9fc;
+            --line: #d3deec;
+            --white: #ffffff;
+        }
 
-body {
-    font-family: "Trebuchet MS", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: var(--bg-color);
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    color: var(--text-main);
-}
 
-header {
-    background: var(--card-bg);
-    border-bottom: 1px solid var(--border-color);
-    padding: 0 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 70px;
-}
+    body {
+        font-family: "Trebuchet MS", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: var(--bg-color);
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        color: var(--text-main);
+    }
 
-.brand {
-    font-size: 21px;
-    font-weight: 800;
-    text-decoration: none;
-    color: var(--blue-deep);
-}
+    .wrap { max-width: 1440px; margin: 0 auto; padding: 0 24px; }
+
+    header { background: var(--white); border-bottom: 1px solid var(--line); }
+    .header-inner {
+        display: flex; align-items: center; justify-content: space-between;
+        height: 72px;
+    }
+    .brand {
+        display: flex; align-items: center; gap: 14px;
+        text-decoration: none; color: var(--blue-deep);
+        font-size: 24px; font-weight: 500;
+    }
+    .brand img { height: 52px; }
+    .brand span { font-size: 21px; font-weight: 800; letter-spacing: -0.3px;}
+
+
+    .burger_menu {
+        color: var(--blue-deep);
+        border: none;
+        border-radius: 6px;
+        padding: 2px 2px;
+        display: inline-flex;
+        align-items: end;
+        justify-content: space-between;
+        cursor: pointer;
+    }
+    .burger_menu:hover { background-color: var(--blue-light); transition: background-color 0.5s; }
+    #checkbox_v { display: none; }
+
+    .burger_menu::before {
+        content: "";
+        background: url("/images/menu_icon.png") center / contain no-repeat;
+        height: 40px;
+        width: 40px;
+    }
+    #checkbox_v:checked ~ .burger_menu:before {
+        background: url("/images/close_icon.png") center / contain no-repeat;
+        z-index: 999;
+    }
+
+    .items {
+        position: absolute;
+        display: flex;
+        width: 200px;
+        top: 72px;
+        right: 50px;
+        flex-direction: column;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease-in-out;
+        align-items: flex-start;
+        justify-content: flex-start;
+        background-color: var(--white);
+        border-width: 1px;
+        border-radius: 8px;
+        z-index: 10;
+    }
+    .item {
+        width: 100%;
+        padding: 15px;
+        border-radius: 0;
+        font-size: 15px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+    .item:hover { background-color: var(--blue-light); }
+    #checkbox_v:checked ~ .items { max-height: 500px; }
+
+
+
+    .logout-item { color: #d93025 !important; padding: 15px; align-items: center; width: 100%; text-decoration: none;}
+    .logout-item:hover { background: #fce8e6 !important; }
+
 
 .header-nav { display: flex; gap: 20px; }
 
@@ -136,34 +201,64 @@ header {
 .job-company { margin: 0 0 10px; font-size: 15px; font-weight: 500; }
 .job-description { margin: 0 0 8px; font-size: 14px; line-height: 1.5; color: var(--text-secondary); }
 .job-date { font-size: 12px; color: var(--text-secondary); }
-    .tag {
-        background-color: #f0f0f0;
-        border-radius: 8px;
-        padding: 4px 10px;
-        font-size: 14px;
-        font-weight: bold;
-        margin-right: 6px;
-    }
-footer {
-    background: var(--card-bg);
-    color: var(--text-secondary);
-    text-align: center;
-    padding: 24px;
-    font-size: 13px;
-    border-top: 1px solid var(--border-color);
+.tag {
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    margin-right: 6px;
 }
+
+    footer {
+        background: var(--card-bg);
+        color: var(--text-secondary);
+        text-align: center;
+        padding: 24px;
+        font-size: 13px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    footer .footer-links {
+        margin-bottom: 10px;
+    }
+
+    footer .footer-links a {
+        color: var(--primary-color);
+        text-decoration: none;
+        margin: 0 12px;
+        font-weight: 500;
+    }
+
+    footer .footer-links a:hover {
+        text-decoration: underline;
+    }
 
 </style>
 </head>
 <body>
-    
+
 <header>
-    <a class="brand" th:href="@{/}">CareerConnect</a>
-    <div class="header-nav">
-        <a th:href="@{/}" class="nav-link">Home</a>
-        <a th:href="@{/dashboard}" class="nav-link">Dashboard</a>
+    <div class="wrap header-inner">
+        <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
+            <img th:src="@{/images/logo-mark.png}"  alt="">
+            <span>CareerConnect</span>
+        </a>
+
+
+
+        <input type="checkbox" name="" id="checkbox_v">
+        <label class="burger_menu" for="checkbox_v">
+        </label>
+        <div class="items">
+            <a class="item" th:href="@{/dashboard}">Dashboard</a>
+            <a class="logout-item"  style="" th:href="@{/logout}">Sign out</a>
+
+        </div>
+
     </div>
 </header>
+
 <div class="main-content">
 
     <h1>Job Postings</h1>
@@ -228,7 +323,15 @@ footer {
         <small class="job-date" th:if="${job.deadline != null}" th:text="' | Apply by ' + ${job.deadline}"></small>
     </div>
 </div>
+
 <footer>
+    <div class="footer-links">
+        <a href="#">About Us</a>    |
+        <a href="#">Contact Support</a> |
+        <a href="#">Privacy Policy</a>  |
+        <a href="#">Terms of Service</a>
+    </div>
     <div>&copy; 2026 CareerConnect. SOEN 341 Project.</div>
 </footer>
+
 </body></html>

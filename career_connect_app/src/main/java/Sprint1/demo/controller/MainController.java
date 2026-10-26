@@ -5,6 +5,7 @@ import Sprint1.demo.model.JobListingForm;
 import Sprint1.demo.model.JobApplication;
 import Sprint1.demo.model.User;
 import Sprint1.demo.repository.JobApplicationRepository;
+import Sprint1.demo.repository.JobRepository;
 import Sprint1.demo.service.JobPostingService;
 import Sprint1.demo.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -42,10 +43,13 @@ public class MainController {
 	 private final UserService userService ;
      private final JobPostingService jobPostingService;
 	 private final JobApplicationRepository jobApplicationRepository;
-	   public MainController(UserService userService, JobPostingService jobPostingService, JobApplicationRepository jobApplicationRepository) {
+     private final JobRepository jobRepository;
+	   public MainController(UserService userService, JobPostingService jobPostingService, JobApplicationRepository jobApplicationRepository,
+                             JobRepository jobRepository) {
 	       this.userService = userService;
            this.jobPostingService=jobPostingService;
 	       this.jobApplicationRepository = jobApplicationRepository;
+           this.jobRepository=jobRepository;
 	   }
     private boolean isAuth(HttpSession session) {
         return (null != session.getAttribute("loggedInUserEmail"));
@@ -356,4 +360,58 @@ public class MainController {
         }
         return "redirect:/register?success";
     }
+
+    @GetMapping("/jobs")
+    public String showJobs(
+
+            @RequestParam(name = "keyword", defaultValue = "")
+            String keyword,
+
+            @RequestParam(name = "location", defaultValue = "")
+            String location,
+
+            @RequestParam(name = "jobType", defaultValue = "")
+            String jobType,
+
+            Model model,
+            HttpSession session,
+            RedirectAttributes redirect) {
+
+        model.addAttribute("isAuth", isAuth(session));
+        if (!isAuth(session)){
+            return "redirect:/";
+        }
+
+
+        //Remove extra spaces to match job postings
+        String cleanKeyword = keyword.trim();
+        String cleanLocation = location.trim();
+        String cleanJobType = jobType.trim();
+
+        //Calls search query returning list of matching jobs
+        List<JobListing> jobs = jobRepository.search(cleanKeyword, cleanLocation, cleanJobType);
+
+        //Attributes from the database
+        model.addAttribute("jobs", jobs);
+        model.addAttribute("locations", jobRepository.findDistinctLocations());
+        model.addAttribute("jobTypes", jobRepository.findDistinctJobTypes());
+
+        //Attributes from the user 
+        model.addAttribute("keyword", cleanKeyword);
+        model.addAttribute("selectedLocation", cleanLocation);
+        model.addAttribute("selectedJobType", cleanJobType);
+
+        //Attribute from user selection
+        model.addAttribute("filtersActive",!cleanKeyword.isEmpty() || !cleanLocation.isEmpty() || !cleanJobType.isEmpty());
+
+        return "jobs";
+
+
+    }
+    
+    
+    
+    
+    
+    
 }
