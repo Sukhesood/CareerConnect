@@ -1,0 +1,143 @@
+
+:root {
+    --primary-color: #1a73e8;
+    --primary-hover: #1557b0;
+    --bg-color: #f8f9fa;
+    --blue-deep: #2f5f96;
+    --card-bg: #ffffff;
+    --text-main: #202124;
+    --text-secondary: #5f6368;
+    --border-color: #d3deec;
+    --blue-mid: #5c86b8;
+}
+
+body {
+    font-family: "Trebuchet MS", 'Segoe UI',
+        Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-color);
+    color: var(--text-main);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* HEADER */
+
+header {
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 70px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--blue-deep);
+}
+
+.header-brand img {
+    height: 38px;
+    width: auto;
+    display: block;
+}
+
+.header-brand span {
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: var(--blue-mid);
+}
+
+.logout-btn {
+    background: transparent;
+    color: #d93025;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    border: 1px solid #fad2cf;
+    transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+    background: #fce8e6;
+    border-color: #f5c2bc;
+}
+
+/* FOOTER */
+
+footer {
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 24px;
+    font-size: 13px;
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+}
+
+footer .footer-links {
+    margin-bottom: 10px;
+}
+
+footer .footer-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    margin: 0 12px;
+    font-weight: 500;
+}
+
+footer .footer-links a:hover {
+    text-decoration: underline;
+}
+
+/* RESPONSIVE HEADER */
+
+@media (max-width: 650px) {
+
+    header {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .header-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    footer .footer-links a {
+        display: inline-block;
+        margin: 5px 8px;
+    }
+}

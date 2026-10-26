@@ -8,16 +8,15 @@ import Sprint1.demo.repository.JobApplicationRepository;
 import Sprint1.demo.repository.JobRepository;
 import Sprint1.demo.service.JobPostingService;
 import Sprint1.demo.service.UserService;
+import Sprint1.demo.service.ResumeService;
+
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,18 +37,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
-//new main controller
 public class MainController {
 	 private final UserService userService ;
+     private final resumeService resumeService;
      private final JobPostingService jobPostingService;
 	 private final JobApplicationRepository jobApplicationRepository;
      private final JobRepository jobRepository;
 	   public MainController(UserService userService, JobPostingService jobPostingService, JobApplicationRepository jobApplicationRepository,
-                             JobRepository jobRepository) {
+                             JobRepository jobRepository, ResumeService resumeService) {
 	       this.userService = userService;
            this.jobPostingService=jobPostingService;
 	       this.jobApplicationRepository = jobApplicationRepository;
            this.jobRepository=jobRepository;
+           this.resumeService=resumeService;
 	   }
     private boolean isAuth(HttpSession session) {
         return (null != session.getAttribute("loggedInUserEmail"));
@@ -73,6 +73,7 @@ public class MainController {
         return "index";
     }
 
+    @GetMapping("/login")
 
 
     @GetMapping({"/job_posting_creation"})
@@ -170,16 +171,28 @@ public class MainController {
     }
 
     @PostMapping("/login")
-    public String loginUser(@RequestParam("email") String email, 
-                            @RequestParam("password") String password, 
-                            HttpSession session, 
-                            Model model) {
-        boolean isAuthenticated = userService.authenticate(email, password);
+    public String loginUser(
+            @RequestParam("email") String email,
+            @RequestParam("password") String password,
+            HttpSession session,
+            Model model) {
+
+        boolean isAuthenticated =
+                userService.authenticate(email, password);
+
         if (isAuthenticated) {
-            session.setAttribute("loggedInUserEmail", email);
+
+            session.setAttribute(
+                    "loggedInUserEmail",
+                    email);
+
             return "redirect:/dashboard";
         } else {
-            model.addAttribute("loginError", "Invalid email or password!");
+
+            model.addAttribute(
+                    "loginError",
+                    "Invalid email or password!");
+
             return "login";
         }
     }
@@ -189,11 +202,12 @@ public class MainController {
         model.addAttribute("isRecruiter",isRecruiter(session));
         String email = (String) session.getAttribute("loggedInUserEmail");
         if (email == null) return "redirect:/login";
-        
+
         Optional<User> user = userService.findByEmail(email);
         user.ifPresent(value -> model.addAttribute("user", value));
         return "dashboard";
     }
+
 
     @GetMapping("/applications")
     public String showSubmittedApplications(HttpSession session, Model model) {
@@ -295,7 +309,7 @@ public class MainController {
         Resource resume = new UrlResource(resumePath.toUri());
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resumePath.getFileName() + "\"").body(resume);
     }
-
+    // Updated profile page
     @GetMapping("/profile")
     public String showProfile(HttpSession session, Model model) {
         model.addAttribute("isRecruiter",isRecruiter(session));
@@ -307,17 +321,35 @@ public class MainController {
         Optional<User> user = userService.findByEmail(email);
         if (user.isPresent()) {
             model.addAttribute("user", user.get());
+
+
+            // Load all resumes for this user
+            model.addAttribute(
+                    "resumes",
+                    resumeService.list(email));
+
             return "profile";
         }
+
         return "redirect:/login";
     }
 
     @PostMapping("/profile/update")
-    public String updateProfile(@ModelAttribute("user") User updatedUser, HttpSession session) {
-        String email = (String) session.getAttribute("loggedInUserEmail");
-        if (email == null) return "redirect:/login";
+    public String updateProfile(
+            @ModelAttribute("user") User updatedUser,
+            HttpSession session) {
 
-        userService.updateProfile(email, updatedUser);
+        String email = (String) session.getAttribute(
+                "loggedInUserEmail");
+
+        if (email == null) {
+            return "redirect:/login";
+        }
+
+        userService.updateProfile(
+                email,
+                updatedUser);
+
         return "redirect:/profile?success=true";
     }
 
@@ -332,7 +364,9 @@ public class MainController {
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
+
         session.invalidate();
+
         return "redirect:/login";
     }
 
@@ -346,16 +380,22 @@ public class MainController {
 
 
     @PostMapping("/register")
-    public String registerUser(@Valid @ModelAttribute("user") User user, 
-                               BindingResult bindingResult, 
-                               Model model) {
+    public String registerUser(
+            @Valid @ModelAttribute("user") User user,
+            BindingResult bindingResult,
+            Model model) {
+
         if (bindingResult.hasErrors()) {
             return "register";
         }
         try {
             userService.registerUser(user);
         } catch (RuntimeException e) {
-            model.addAttribute("emailError", e.getMessage());
+
+            model.addAttribute(
+                    "emailError",
+                    e.getMessage());
+
             return "register";
         }
         return "redirect:/register?success";
@@ -396,7 +436,7 @@ public class MainController {
         model.addAttribute("locations", jobRepository.findDistinctLocations());
         model.addAttribute("jobTypes", jobRepository.findDistinctJobTypes());
 
-        //Attributes from the user 
+        //Attributes from the user
         model.addAttribute("keyword", cleanKeyword);
         model.addAttribute("selectedLocation", cleanLocation);
         model.addAttribute("selectedJobType", cleanJobType);
@@ -408,10 +448,10 @@ public class MainController {
 
 
     }
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
 }

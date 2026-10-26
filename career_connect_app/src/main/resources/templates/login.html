@@ -1,108 +1,115 @@
+
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CareerConnect - Log in</title>
-    <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
 
-    <style>
+    <title>CareerConnect - Login</title>
 
-        :root {
-            --ink: #14253b;          /* main text */
-            --ink-soft: #4a5b72;     /* secondary text */
-            --blue-deep: #2f5f96;    /* logo "CAREER" blue */
-            --blue-mid: #5c86b8;     /* logo figures */
-            --blue-light: #dfe9f5;   /* panels */
-            --paper: #f7f9fc;        /* page background */
-            --line: #d3deec;
-            --white: #ffffff;
-        }
+    <link rel="icon" type="image/png"
+          th:href="@{/images/logo-mark.png}">
 
+    <link rel="stylesheet"
+          th:href="@{/css/layout.css}">
 
-        .wrap { max-width: 1080px; padding: 0 24px; }
-
-
-        body { font-family: "Trebuchet MS", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: var(--ink); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
-        header { background: var(--white); border-bottom: 1px solid var(--line); }
-        .header-inner {
-            display: flex; align-items: center; justify-content: space-between;
-            height: 72px;
-        }
-        .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--blue-deep); }
-        .brand img { height: 38px; width: auto; display: block; }
-        .brand span { font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
-
-
-
-        .main-content { flex: 1; display: flex; justify-content: center; align-items: center; padding: 40px 20px; }
-        .form-card { background: white; padding: 35px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); width: 100%; max-width: 400px; }
-        h2 { text-align: center; color: #333; margin-top: 0; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 6px; font-weight: 600; color: #444; font-size: 14px; }
-        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-        input:focus { border-color: #1a73e8; outline: none; }
-        .error { color: #d93025; font-size: 12px; text-align: center; margin-bottom: 12px; }
-        button { width: 100%; background: var(--blue-deep); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-        button:hover { background: #244e7e; }
-        .footer-link { text-align: center; margin-top: 20px; font-size: 14px; color: #555; }
-        .footer-link a { color: #1a73e8; text-decoration: none; font-weight: bold; }
-        .footer-link a:hover { text-decoration: underline; }
-        footer { background: #202124; color: #bdc1c6; text-align: center; padding: 20px; font-size: 13px; }
-        footer .footer-links { margin-bottom: 8px; }
-        footer .footer-links a { color: #8ab4f8; text-decoration: none; margin: 0 10px; }
-        footer .footer-links a:hover { text-decoration: underline; }
-    </style>
+    <link rel="stylesheet"
+          th:href="@{/css/auth.css}">
 </head>
-<body>
 
-    <!-- Header -->
-    <header>
-        <div class="wrap header-inner">
-            <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
-                <img th:src="@{/images/logo-mark.png}" alt="">
-                <span>CareerConnect</span>
-            </a>
-        </div>
-    </header>
+<body class="auth-page">
 
-    <!-- Main Form Area -->
-    <div class="main-content">
-        <div class="form-card">
+    <!-- Common Header -->
+    <header th:replace="~{fragments :: header}"></header>
+
+    <main class="auth-main">
+
+        <div class="auth-card">
+
             <h2>Welcome Back</h2>
-            
-            <div th:if="${loginError}" class="error" th:text="${loginError}"></div>
+
+            <p class="auth-description">
+                Log in to your CareerConnect account.
+            </p>
+
+            <!-- Incorrect email or password -->
+            <div th:if="${loginError}"
+                 class="auth-message auth-error"
+                 th:text="${loginError}">
+            </div>
+
+            <!-- Successful password reset -->
+            <div th:if="${param.resetSuccess}"
+                 class="auth-message auth-success">
+                Your password has been updated successfully.
+                Please log in with your new password.
+            </div>
 
             <form th:action="@{/login}" method="post">
-                <div class="form-group">
-                    <label>Email ID:</label>
-                    <input type="email" name="email" required placeholder="user@example.com" />
+
+                <!-- Email -->
+                <div class="auth-form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input type="email"
+                           id="email"
+                           name="email"
+                           placeholder="user@example.com"
+                           autocomplete="email"
+                           required>
+
                 </div>
 
-                <div class="form-group">
-                    <label>Password:</label>
-                    <input type="password" name="password" required placeholder="••••••••" />
+                <!-- Password -->
+                <div class="auth-form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           placeholder="Enter your password"
+                           autocomplete="current-password"
+                           required>
+
                 </div>
 
-                <button type="submit">Login</button>
+                <!-- Forgot Password -->
+                <div class="forgot-password-link">
+                    <a th:href="@{/forgot-password}">
+                        Forgot password?
+                    </a>
+                </div>
+
+                <!-- Login Button -->
+                <button type="submit" class="auth-btn">
+                    Login
+                </button>
+
             </form>
 
-            <div class="footer-link">
-                First time user? <a th:href="@{/register}">Create an account</a>
+            <!-- Registration -->
+            <div class="auth-footer-link">
+                First time user?
+                <a th:href="@{/register}">
+                    Create an account
+                </a>
             </div>
-        </div>
-    </div>
 
-    <!-- Footer -->
-    <footer>
-        <div class="footer-links">
-            <a href="#">About Us</a> | 
-            <a href="#">Contact Support</a> | 
-            <a href="#">Privacy Policy</a> | 
-            <a href="#">Terms of Service</a>
         </div>
-        <div>&copy; 2026 CareerConnect. SOEN 341 Project.</div>
-    </footer>
+
+    </main>
+
+    <!-- Common Footer -->
+    <footer th:replace="~{fragments :: footer}"></footer>
 
 </body>
 </html>

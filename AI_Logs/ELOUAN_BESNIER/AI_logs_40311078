@@ -1,3 +1,4 @@
+## 1
 #1 Do you have a recommendation to better arrange work items in our sprint on github. We are not able to create hierarchical work items, only issues. 
 I feel like this does not represent correctly the breakdown of tasks
 
@@ -90,6 +91,40 @@ If your GitHub setup doesn't have sub-issues, then I'd use Issues + task checkli
 If you show me the exact hierarchy/work breakdown you're trying to put into your Sprint 1 (like the graph you showed me earlier), I can suggest a GitHub 
 structure that preserves that hierarchy as closely as possible.
 
-
 Review: This chat was to give me visibility on how the work item system work in Github compared to another software like Azure DevOps. The elements brought up 
 will be used to better organize the issues.
+
+## 2
+Tool Used: claude sonnet 5.5
+• Intent: used to debug implementation of the burger menu, where the logo would not change from the burger icon to the x icone when pressing it
+• Prompts This was a prompt sequence. In resume, I provided it the snippet of code that implements my burger menu and explained the issue I had. I also explained
+the expected behavior and the link to the youtube video I was following.
+• Adaptation: The ai recommended me to used the checked keyword with the background being overwritten. I implemented his exemple with my value to test its answer
+and it worked correctly.
+
+## 3
+Tool Used: Online AI logo generator
+• Intent: Create a logo for the website to give it a better visual identity
+• Prompts Career connect, a job posting aggregator and website for recruiter to directly post their listings.
+• Adaptation: The ai created hundreds of choice which were presented to the team. We selected one that suited the majority.
+
+## 4
+Tool Used: claude sonnet 5.5
+• Intent: Used to adapt the identity of the index
+• Prompts This was a prompt sequence. In resume, I provided and exemple of the logo and the index page I had created. I then expressed some preference related
+to the general style I wanted. 
+• Adaptation: The ai created a few version. The page was able to show preview of the different indexes. I selected the one I prefered and brought it back to the 
+IDE. I then did modification to the text, the format of some button, the header format, the wrap size, the footer format and some other adjustment.
+
+## 5 
+Tool Used: claude sonnet 5.5
+• Intent: Better understand how the MVC architecture and Maven work
+• Prompts This was a prompt sequence. In resume, I provided the code after sprint 1 to better understand the work that had been done. I asked question related to 
+how a model works, how the database receives the calls, how the different sections of the UI worked and how the controller brings everything together.
+• Adaptation: Through my reading I compared to the code to better understand it. I then did some testing by implementing the index to get a better feel of how
+the explained concepts could be implemented. I also did some research on google and the thymleaf wiki to research some methods in more details.
+
+
+
+
+

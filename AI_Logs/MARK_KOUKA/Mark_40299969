@@ -1,2 +1,28 @@
-chatgpt was used to rephrase and organize the sprint planning in github format 
+ChatGPT was used to rephrase and organize the Sprint Planning content into a clear GitHub-friendly format.
+
+Chat Link:
 https://chatgpt.com/share/6ab955fe-eeb4-83e9-b343-19b6a19c5e88
+*************************************************************************************
+Task ID/Title: Feature 5 – Job Application Submission and Recruiter Application View
+
+Purpose of AI Use:
+Debugging, Git workflow support, and project configuration.
+
+Chat Link or Prompt/Response:
+ChatGPT conversation used for guidance and troubleshooting.
+
+AI-Suggested Content:
+AI helped me create my branch from the Feature-3-4-alignment branch, understand how the pull request should target the correct branch, change the Java version from 25 to 21, and troubleshoot Maven and MySQL connection errors.
+
+Validation:
+I checked the branch structure in IntelliJ and GitHub, rebuilt the Maven project, ran the Spring Boot application, and reviewed the console errors after each change.
+
+Decision:
+Modified before use and accepted.
+
+Reflection:
+The AI assistance helped me better understand Git branches and pull requests, Java/Maven configuration, and how to troubleshoot Spring Boot database connection problems.
+
+Responsible Person:
+Mark Kouka
+**********************************
