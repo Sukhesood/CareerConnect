@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>Error - CareerConnect</title>
+
+    <link rel="icon"
+          type="image/png"
+          th:href="@{/images/logo-mark.png}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/layout.css}">
+
+    <style>
+        .error-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 50px 20px;
+        }
+
+        .error-card {
+            background: var(--card-bg, white);
+            max-width: 550px;
+            width: 100%;
+            padding: 45px 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color, #ddd);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .error-code {
+            font-size: 75px;
+            font-weight: bold;
+            color: #d93025;
+            margin-bottom: 10px;
+        }
+
+        .error-title {
+            font-size: 26px;
+            color: var(--text-main, #222);
+            margin: 10px 0;
+        }
+
+        .error-message {
+            color: var(--text-secondary, #666);
+            font-size: 15px;
+            line-height: 1.6;
+            margin-top: 15px;
+        }
+
+        .error-actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 11px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--blue-deep, #1d4ed8);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: var(--text-main, #222);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- COMMON HEADER -->
+    <header th:replace="~{fragments :: header}">
+    </header>
+
+    <!-- ERROR CONTENT -->
+    <main class="error-container">
+
+        <div class="error-card">
+
+            <div class="error-code"
+                 th:text="${status != null ? status : 'Error'}">
+                Error
+            </div>
+
+            <h1 class="error-title"
+                th:text="${errorTitle != null ?
+                         errorTitle :
+                         (status == 404 ?
+                         'Page Not Found' :
+                         (status == 403 ?
+                         'Access Denied' :
+                         'Something Went Wrong'))}">
+                Something Went Wrong
+            </h1>
+
+            <p class="error-message"
+               th:text="${errorMessage != null ?
+                        errorMessage :
+                        'We could not complete your request. Please try again later.'}">
+                We could not complete your request.
+            </p>
+
+            <div class="error-actions">
+
+                <a th:href="@{/dashboard}"
+                   class="btn btn-primary">
+                    Back to Dashboard
+                </a>
+
+                <a th:href="@{/}"
+                   class="btn btn-secondary">
+                    Go to Home
+                </a>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- COMMON FOOTER -->
+    <footer th:replace="~{fragments :: footer}">
+    </footer>
+
+</body>
+</html>
