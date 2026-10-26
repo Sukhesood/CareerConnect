@@ -1,153 +1,604 @@
+
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CareerConnect - My profile</title>
-    <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>My Profile - CareerConnect</title>
+
+    <link rel="icon"
+          type="image/png"
+          th:href="@{/images/logo-mark.png}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/layout.css}">
+
     <style>
-        :root {
-            --primary-color: #1a73e8;
-            --blue-light: #dfe9f5;
-            --blue-deep: #2f5f96;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-main: #202124;
-            --text-secondary: #5f6368;
-            --line: #dadce0;
-            --button-hover-color: #244e7e;
-            --blue-mid: #5c86b8;
+        .main-content {
+            flex: 1;
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
         }
-        body {
+
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            color: var(--text-main);
+            margin-top: 0;
+            font-size: 22px;
+            border-bottom: 2px solid #f1f3f4;
+            padding-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        input:disabled {
+            background: #f1f3f4;
+        }
+
+        button, .btn {
+            display: inline-block;
+            background: var(--blue-deep);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        button:hover, .btn:hover {
+            opacity: 0.9;
+        }
+
+        .success {
+            background: #e6f4ea;
+            color: #137333;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .error {
+            background: #fce8e6;
+            color: #b42318;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .resume-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .resume-count {
+            background: #dfe9f5;
+            color: var(--blue-deep);
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 9px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            background: var(--blue-deep);
+            height: 100%;
+        }
+
+        .resume-item {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .resume-name {
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .resume-details {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .resume-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .resume-actions form {
             margin: 0;
-            font-family: "Trebuchet MS", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--ink);
-            background: var(--paper);
-            line-height: 1.6;
         }
 
-        header { background: var(--card-bg); border-bottom: 1px solid var(--line); padding: 0 40px; display: flex; justify-content: space-between; align-items: center; height: 70px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
-        .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--blue-deep); }
-        .brand img { height: 38px; width: auto; display: block; }
-        .brand span { font-size: 21px; font-weight: 800; letter-spacing: -0.3px;}
+        .btn-outline {
+            background: white;
+            color: var(--blue-deep);
+            border: 1px solid var(--blue-deep);
+        }
 
-        header h1 { margin: 0; font-size: 20px; font-weight: 600; color: var(--text-main); }
-        .nav-links { display: flex; align-items: center; gap: 20px; }
-        .nav-links a { text-decoration: none; color: var(--text-secondary); font-weight: 500; font-size: 14px; }
-        .nav-links a:hover { color: var(--blue-mid); }
-        .logout-btn { color: #d93025 !important; border: 1px solid #fad2cf; padding: 6px 14px; border-radius: 6px; }
-        .logout-btn:hover { background: #fce8e6 !important; }
-        
-        .main-content { flex: 1; padding: 40px 20px; max-width: 700px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-        .card { background: var(--card-bg); padding: 35px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); border: 1px solid var(--line); margin-bottom: 25px; }
-        h2 { color: var(--text-main); margin-top: 0; font-size: 22px; margin-bottom: 20px; border-bottom: 2px solid #f1f3f4; padding-bottom: 10px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-secondary); font-size: 13px; }
-        input { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-        input:focus { line: var(--primary-color); outline: none; }
-        input:disabled { background: #f1f3f4; color: #80868b; }
-        button { background: var(--blue-deep); color: white; border: none; padding: 11px 20px; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-        button:hover { background: var(--button-hover-color); }
-        .success { color: #137333; background: #e6f4ea; padding: 10px; border-radius: 6px; text-align: center; margin-bottom: 15px; font-weight: bold; font-size: 13px; }
-        
-        .resume-section { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
-        .resume-info { font-size: 14px; color: var(--text-secondary); }
-        
-        footer { background: var(--card-bg); color: var(--text-secondary); text-align: center; padding: 20px; font-size: 13px; border-top: 1px solid var(--line); }
-        footer a { color: var(--primary-color); text-decoration: none; margin: 0 10px; }
+        .btn-danger {
+            background: #d93025;
+        }
+
+        .upload-area {
+            margin-top: 25px;
+            padding: 20px;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            background: #f9fbfd;
+        }
+
+        .helper-text {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        @media (max-width: 650px) {
+            .card {
+                padding: 20px;
+            }
+
+            .resume-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
     </style>
 </head>
+
 <body>
 
-    <header>
-        <div class="wrap header-inner">
-            <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
-                <img th:src="@{/images/logo-mark.png}" alt="">
-                <span>CareerConnect</span>
-            </a>
-        </div>
-        <div class="nav-links">
-            <a th:href="@{/dashboard}">Dashboard</a>
-            <a th:href="@{/profile}" style="color: var(--primary-color);">My Profile</a>
-            <a th:href="@{/logout}" class="logout-btn">Sign Out</a>
-        </div>
-    </header>
+<!-- COMMON HEADER -->
 
-    <div class="main-content">
-        
-        <!-- Profile Update Card -->
-        <div class="card">
-            <h2>Personal Information</h2>
-            
-            <div th:if="${param.success}" class="success">
-                Profile updated successfully!
+<header th:replace="~{fragments :: header}">
+</header>
+
+
+<!-- PROFILE CONTENT -->
+
+<main class="main-content">
+
+    <!-- PERSONAL INFORMATION -->
+
+    <section class="card">
+
+        <h2>Personal Information</h2>
+
+        <div th:if="${param.success}"
+             class="success">
+            Profile updated successfully!
+        </div>
+
+        <form th:action="@{/profile/update}"
+              th:object="${user}"
+              method="post">
+
+            <div class="form-group">
+
+                <label for="firstName">
+                    First Name
+                </label>
+
+                <input type="text"
+                       id="firstName"
+                       th:field="*{firstName}"
+                       required>
             </div>
 
-            <form th:action="@{/profile/update}" th:object="${user}" method="post">
-                <div class="form-group">
-                    <label>First Name:</label>
-                    <input type="text" th:field="*{firstName}" required />
-                </div>
+            <div class="form-group">
 
-                <div class="form-group">
-                    <label>Last Name:</label>
-                    <input type="text" th:field="*{lastName}" required />
-                </div>
+                <label for="lastName">
+                    Last Name
+                </label>
 
-                <div class="form-group">
-                    <label>Phone Number:</label>
-                    <input type="text" th:field="*{phoneNumber}" required />
-                </div>
+                <input type="text"
+                       id="lastName"
+                       th:field="*{lastName}"
+                       required>
+            </div>
 
-                <div class="form-group">
-                    <label>Address:</label>
-                    <input type="text" th:field="*{address}" required />
-                </div>
+            <div class="form-group">
 
-                <div class="form-group">
-                    <label>Email ID (Cannot be changed):</label>
-                    <input type="email" th:field="*{email}" disabled />
-                </div>
+                <label for="phoneNumber">
+                    Phone Number
+                </label>
 
-                <button type="submit">Save Changes</button>
-            </form>
-        </div>
+                <input type="text"
+                       id="phoneNumber"
+                       th:field="*{phoneNumber}">
+            </div>
 
-        <!-- Resume Upload Card -->
-        <div class="card">
+            <div class="form-group">
+
+                <label for="address">
+                    Address
+                </label>
+
+                <input type="text"
+                       id="address"
+                       th:field="*{address}">
+            </div>
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email (Cannot be changed)
+                </label>
+
+                <input type="email"
+                       id="email"
+                       th:field="*{email}"
+                       disabled>
+            </div>
+
+            <button type="submit">
+                Save Changes
+            </button>
+
+        </form>
+
+    </section>
+
+
+	<!-- ACCOUNT MODE -->
+	<section class="card">
+
+	    <h2>Account Mode</h2>
+
+	    <p class="helper-text">
+	        Choose how you want to use CareerConnect.
+	        You can switch between Job Seeker and Recruiter
+	        at any time.
+	    </p>
+
+	    <div th:if="${param.roleSuccess}" class="success">
+	        Your account mode has been updated successfully!
+	    </div>
+
+	    <div th:if="${param.roleError}" class="error">
+	        Unable to change your account mode.
+	    </div>
+
+	    <p>
+	        <strong>Current mode:</strong>
+	        <span th:text="${user.role == 'RECRUITER'
+	                ? 'Recruiter'
+	                : 'Job Seeker'}">
+	            Job Seeker
+	        </span>
+	    </p>
+
+	    <form th:action="@{/profile/switch-role}"
+	          method="post">
+
+	        <div class="form-group">
+	            <label for="role">Switch account mode</label>
+
+	            <select id="role"
+	                    name="role"
+	                    required
+	                    style="width:100%; padding:11px;
+	                           border:1px solid #dadce0;
+	                           border-radius:6px;">
+
+	                <option value="JOB_SEEKER"
+	                        th:selected="${user.role == 'JOB_SEEKER'}">
+	                    Job Seeker
+	                </option>
+
+	                <option value="RECRUITER"
+	                        th:selected="${user.role == 'RECRUITER'}">
+	                    Recruiter
+	                </option>
+
+	            </select>
+	        </div>
+
+	        <button type="submit">
+	            Save Account Mode
+	        </button>
+
+	    </form>
+
+	</section>
+
+    <!-- RESUME MANAGEMENT -->
+
+    <section class="card">
+
+        <div class="resume-header">
+
             <h2>Resume Management</h2>
-            
-            <div th:if="${param.resumeSuccess}" class="success">
-                Resume uploaded successfully!
+
+            <span class="resume-count"
+                  th:text="${#lists.size(resumes)} + ' / 5 Resumes'">
+                0 / 5 Resumes
+            </span>
+
+        </div>
+
+        <p class="helper-text">
+            You can upload up to 5 resumes.
+            Maximum file size: 4 MB each.
+            Supported formats: PDF and DOCX.
+        </p>
+
+        <!-- PROGRESS BAR -->
+
+        <div class="progress-bar">
+
+            <div class="progress-fill"
+                 th:style="'width: ' +
+                 ${#lists.size(resumes) * 20} + '%'">
             </div>
 
-            <div class="resume-section" style="margin-bottom: 20px;">
-                <div class="resume-info">
-                    <strong>Current Resume:</strong> 
-                    <span th:text="${user.resumeFilename != null ? user.resumeFilename : 'No resume uploaded yet'}"></span>
-                </div>
+        </div>
+
+        <p class="helper-text"
+           th:if="${#lists.size(resumes) < 5}"
+           th:text="${5 - #lists.size(resumes)}
+                    + ' resume slots remaining'">
+        </p>
+
+        <!-- MESSAGES -->
+
+        <div th:if="${resumeMessage}"
+             class="success"
+             role="status"
+             th:text="${resumeMessage}">
+        </div>
+
+        <div th:if="${resumeError}"
+             class="error"
+             role="alert"
+             th:text="${resumeError}">
+        </div>
+
+        <h3>My Uploaded Resumes</h3>
+
+        <p th:if="${#lists.isEmpty(resumes)}"
+           class="helper-text">
+            You have not uploaded any resumes yet.
+        </p>
+
+        <!-- LIST RESUMES -->
+
+        <div th:each="resume : ${resumes}"
+             class="resume-item">
+
+            <div class="resume-name"
+                 th:text="${resume.filename}">
+                Resume.pdf
             </div>
 
-            <form th:action="@{/profile/upload-resume}" method="post" enctype="multipart/form-data">
+            <div class="resume-details">
+
+                <span th:text="${#numbers.formatDecimal(
+                    resume.fileSize / 1024.0, 1, 1)} + ' KB'">
+                </span>
+
+                <span> • Uploaded: </span>
+
+                <span th:text="${#temporals.format(
+                    resume.uploadedAt,
+                    'dd MMM yyyy, HH:mm')}">
+                </span>
+
+            </div>
+
+            <div class="resume-actions">
+
+                <!-- VIEW -->
+
+                <a class="btn btn-outline"
+                   th:href="@{/profile/resumes/{id}(
+                       id=${resume.id})}"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    View
+                </a>
+
+                <!-- DOWNLOAD -->
+
+                <a class="btn btn-outline"
+                   th:href="@{/profile/resumes/{id}/download(
+                       id=${resume.id})}">
+                    Download
+                </a>
+
+                <!-- DELETE -->
+
+                <form th:action="@{/profile/resumes/{id}/delete(
+                        id=${resume.id})}"
+                      method="post">
+
+                    <button type="submit"
+                            class="btn-danger"
+                            onclick="return confirm(
+                            'Are you sure you want to delete this resume?'
+                            );">
+                        Delete
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <!-- UPLOAD FORM -->
+
+        <div class="upload-area"
+             th:if="${#lists.size(resumes) < 5}">
+
+            <h3>Upload New Resume</h3>
+
+            <form th:action="@{/profile/upload-resume}"
+                  method="post"
+                  enctype="multipart/form-data"
+                  id="resumeUploadForm">
+
                 <div class="form-group">
-                    <label>Upload New Resume (PDF / DOCX):</label>
-                    <input type="file" name="resumeFile" accept=".pdf,.doc,.docx" required style="padding: 7px; background: #f9fbfd;" />
+
+                    <label for="resumeFile">
+                        Select Resume (PDF or DOCX)
+                    </label>
+
+                    <input type="file"
+                           id="resumeFile"
+                           name="resumeFile"
+                           accept=".pdf,.docx"
+                           required>
+
                 </div>
-                <button type="submit">Upload Resume</button>
+
+                <p id="fileError"
+                   class="error"
+                   role="alert"
+                   style="display:none;">
+                </p>
+
+                <button type="submit">
+                    Upload Resume
+                </button>
+
             </form>
+
         </div>
 
-    </div>
+        <!-- LIMIT REACHED -->
 
-    <footer>
-        <div class="footer-links">
-            <a href="#">About Us</a>    |
-            <a href="#">Contact Support</a> |
-            <a href="#">Privacy Policy</a>  |
-            <a href="#">Terms of Service</a>
+        <div th:if="${#lists.size(resumes) >= 5}"
+             class="error">
+
+            <strong>Maximum Resume Limit Reached</strong>
+
+            <p>
+                You have uploaded 5 resumes.
+                Delete an existing resume
+                before uploading another.
+            </p>
+
         </div>
-        <div>&copy; 2026 CareerConnect. SOEN 341 Project.</div>
-    </footer>
+
+    </section>
+
+</main>
+
+
+<!-- COMMON FOOTER -->
+
+<footer th:replace="~{fragments :: footer}">
+</footer>
+
+
+<!-- FILE SIZE VALIDATION -->
+
+<script>
+    const uploadForm =
+        document.getElementById("resumeUploadForm");
+
+    if (uploadForm) {
+
+        uploadForm.addEventListener("submit", function(event) {
+
+            const fileInput =
+                document.getElementById("resumeFile");
+
+            const errorBox =
+                document.getElementById("fileError");
+
+            const file = fileInput.files[0];
+
+            errorBox.style.display = "none";
+
+            if (!file) {
+                event.preventDefault();
+                errorBox.textContent =
+                    "Please select a resume.";
+                errorBox.style.display = "block";
+                return;
+            }
+
+            const maxSize = 4 * 1024 * 1024;
+
+            if (file.size > maxSize) {
+
+                event.preventDefault();
+
+                errorBox.textContent =
+                    "Maximum file size is 4 MB.";
+
+                errorBox.style.display = "block";
+                return;
+            }
+
+            const filename = file.name.toLowerCase();
+
+            if (!filename.endsWith(".pdf") &&
+                !filename.endsWith(".docx")) {
+
+                event.preventDefault();
+
+                errorBox.textContent =
+                    "Only PDF and DOCX files are allowed.";
+
+                errorBox.style.display = "block";
+            }
+        });
+    }
+</script>
 
 </body>
 </html>

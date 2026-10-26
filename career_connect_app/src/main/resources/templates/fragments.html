@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<!-- COMMON HEADER -->
+
+<header th:fragment="header">
+
+    <a class="header-brand"
+       th:href="@{/}"
+       aria-label="CareerConnect Home">
+
+        <img th:src="@{/images/logo-mark.png}"
+             alt="CareerConnect Logo">
+
+        <span>CareerConnect</span>
+    </a>
+
+    <!-- Show navigation only when logged in -->
+    <nav class="header-nav"
+         th:if="${session.loggedInUserEmail != null}">
+
+        <a th:href="@{/dashboard}"
+           class="nav-link">
+            Dashboard
+        </a>
+
+        <a th:href="@{/profile}"
+           class="nav-link">
+            My Profile
+        </a>
+
+        <a th:href="@{/logout}"
+           class="logout-btn">
+            Sign Out
+        </a>
+
+    </nav>
+
+</header>
+
+
+<!-- COMMON FOOTER -->
+
+<footer th:fragment="footer">
+
+    <div class="footer-links">
+
+        <a href="#">About Us</a> |
+
+        <a href="#">Contact Support</a> |
+
+        <a href="#">Privacy Policy</a> |
+
+        <a href="#">Terms of Service</a>
+
+    </div>
+
+    <div>
+        &copy; 2026 CareerConnect. SOEN 341 Project.
+    </div>
+
+</footer>
+
+</body>
+</html>

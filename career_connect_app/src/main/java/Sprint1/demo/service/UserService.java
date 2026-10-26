@@ -2,42 +2,89 @@ package Sprint1.demo.service;
 
 
 import Sprint1.demo.model.User;
+
 import Sprint1.demo.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+
 import java.util.Optional;
 
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    private final String UPLOAD_DIR = "uploads/";
-
-    public User registerUser(User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new RuntimeException("Error: Email is already in use!");
-        }
-        return userRepository.save(user);
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
     }
 
-    public boolean authenticate(String email, String password) {
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            return user.getPassword() != null && user.getPassword().equals(password);
+
+public User registerUser(User user) {
+
+    // Check whether the email is already registered
+    if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+        throw new RuntimeException("Error: Email is already in use!");
+    }
+
+    // Every new user starts as a Job Seeker
+    user.setRole("JOB_SEEKER");
+
+    // Encrypt the password before storing it in MySQL
+    user.setPassword(
+            passwordEncoder.encode(user.getPassword())
+    );
+
+    // Save the user in MySQL
+    return userRepository.save(user);
+}
+
+    public boolean authenticate(
+            String email,
+            String password) {
+
+        Optional<User> userOpt =
+                userRepository.findByEmail(email);
+
+        if (userOpt.isEmpty()) {
+            return false;
         }
+
+        User user = userOpt.get();
+        String storedPassword = user.getPassword();
+
+        if (storedPassword == null || password == null) {
+            return false;
+        }
+
+        // Authentication for BCrypt passwords
+        if (storedPassword.matches(
+                "\\$2[aby]\\$\\d{2}\\$.{53}")) {
+
+            return passwordEncoder.matches(
+                    password,
+                    storedPassword);
+        }
+
+        // Temporary migration of older plaintext passwords
+        if (storedPassword.equals(password)) {
+
+            user.setPassword(
+                    passwordEncoder.encode(password));
+
+            userRepository.save(user);
+            return true;
+        }
+
         return false;
     }
+
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -55,28 +102,57 @@ public class UserService {
         }
     }
 
+    @Transactional
+    public void switchRole(String email, String role) {
+
+        if (!"JOB_SEEKER".equals(role)
+                && !"RECRUITER".equals(role)) {
+
+            throw new IllegalArgumentException("Invalid account mode.");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("User not found.")
+                );
+
+        user.setRole(role);
+        userRepository.save(user);
+    }
+
+
     public void saveResume(String email, MultipartFile file) {
+
         try {
+
             Optional<User> userOpt = userRepository.findByEmail(email);
+
             if (userOpt.isPresent() && !file.isEmpty()) {
+
                 User user = userOpt.get();
-                
-                // Create upload directory if it doesn't exist
-                File uploadDir = new File(UPLOAD_DIR);
-                if (!uploadDir.exists()) {
-                    uploadDir.mkdirs();
-                }
 
-                // Generate unique filename
-                String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-                Path path = Paths.get(UPLOAD_DIR + filename);
-                Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+                // Store the original filename
+                user.setResumeFilename(file.getOriginalFilename());
 
-                user.setResumeFilename(filename);
+                // Store the file type
+                user.setResumeContentType(file.getContentType());
+
+                // Store the actual resume
+                user.setResumeData(file.getBytes());
+
+                // Save everything to MySQL
                 userRepository.save(user);
             }
+
         } catch (IOException e) {
-            throw new RuntimeException("Failed to store resume file.", e);
+
+            throw new RuntimeException("Failed to store resume in database.", e);
         }
+    }
+    public User getUserByEmail(String email) {
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+
+        return userOpt.orElse(null);
     }
 }
