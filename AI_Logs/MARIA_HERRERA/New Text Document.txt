@@ -1,0 +1,65 @@
+AI Usage Log, Sprint 2
+SOEN 341 Software Process: CareerConnect
+Team member: Maria Herrera   |   AI tool: Claude (Anthropic)
+
+Task 1.1: Understand and plan the job search and filtering feature (Issue #14, stories #38, #39, #40)
+Purpose of AI Use: Learning and design guidance
+
+AI-Suggested Content:
+•	Explained how the pieces fit together: the page sends the search words in the web address, the controller reads and cleans them, the repository searches the database, and the page shows the results.
+•	Recommended building the Location and Job Type dropdowns from the values that exist in the database, so the user can only pick options that return results.
+•	Explained why the typed values (keyword, selected location, selected job type) are kept separate from the results, so the form stays filled in after a search.
+•	Discussed filtering by distance from the user (like Indeed). It needs location coordinates and a distance calculation, so it was left as possible future work.
+
+Task 1.2: Generate code for the feature
+Purpose of AI Use: Code generation, with explanations
+
+AI-Suggested Content:
+•	Suggested one repository query that searches the keyword in title, company, description and skills, applies the location and job type filters, and sorts the newest jobs first.
+•	Suggested two queries that list the distinct locations and job types for the dropdowns.
+•	Suggested the structure of the jobs controller and the jobs page (search form, result count, "no jobs found" message, "Clear filters" link, job cards with tags).
+•	I typed the code myself while the AI explained it line by line, and I wrote the comments in my own words.
+
+Task 1.3: Debug setup and code errors
+Purpose of AI Use: Debugging
+
+AI-Suggested Content:
+•	Fixed a wrong package name and a wrong import in the controller.
+•	Fixed HTML mistakes (comments written in the wrong style and mismatched tags).
+•	Fixed the MySQL connection errors that stopped the app from starting ("Public Key Retrieval" and "Access denied for user").
+
+Task 1.4: Write acceptance criteria and acceptance tests
+Purpose of AI Use: Requirements and test planning
+
+AI-Suggested Content:
+•	Drafted the acceptance criteria and the acceptance tests for stories 4.1 (search), 4.2 (filter) and 4.3 (jobs page) as sub-issues, with at least two tests per story.
+•	Covered normal cases and edge cases: search with no results, combined filters, clearing filters, and an empty jobs page.
+•	Suggested adding a test that the jobs page can be reached from the dashboard after a teammate changed the "Browse Jobs" link.
+
+Task 1.5: Test the feature and align the page style
+Purpose of AI Use: Verification and design guidance
+
+AI-Suggested Content:
+•	Gave a test plan using real job postings I created: search by title, company, description and skills; filter by location and job type; combined filters; no results; clearing filters; selections kept after searching; optional deadline.
+•	Suggested using the team's colours, header, footer and tag style so the page matches the rest of the application.
+
+Validation:
+I ran the application locally with MySQL and checked every test above with real data, including a keyword that exists only in the skills field. I compared the page with my teammates' pages.
+
+Decision:
+Modified before use and accepted. I wrote and edited the code and the comments myself and questioned the explanations I did not understand. Two AI mistakes were caught and corrected: a wrong claim about whose page would be used for the jobs page, and an expected test result that used the wrong search word.
+
+Reflection:
+This helped me understand how a web request travels from the page to the controller, the database query and back. I also learned how to prove a feature works with real test data and written acceptance tests. Keeping my branch up to date with my teammates' changes is something I need to do more carefully.
+
+Responsible Person:
+Maria Herrera
+
+Appendix: Prompts used
+Summarized from one Claude conversation.
+Prompt 1: Walk me through the job controller and the page, line by line.
+Prompt 2: Why are the typed values and the results kept as separate attributes?
+Prompt 3: What if the user wants to filter jobs by distance, like Indeed?
+Prompt 4: Help me create the acceptance criteria and acceptance tests for stories 4.1, 4.2 and 4.3.
+Prompt 5: Make a plan to cover all tests required for the implemented feature to function as wanted
+Prompt 6: Make my page match my teammates' pages.
