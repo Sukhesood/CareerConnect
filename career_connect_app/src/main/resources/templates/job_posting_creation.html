@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CaCo - job posting creation</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
+
+    <style>
+        :root {
+            --ink: #14253b;
+            --ink-soft: #4a5b72;
+            --blue-deep: #2f5f96;
+            --blue-mid: #5c86b8;
+            --blue-light: #dfe9f5;
+            --paper: #f7f9fc;
+            --line: #d3deec;
+            --white: #ffffff;
+            --error: #b3261e;
+            --error-bg: #fcecea;
+            --success: #1e6b3a;
+            --success-bg: #e6f4ea;
+        }
+
+        /* ---------- Base ---------- */
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Trebuchet MS", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--ink);
+            background: var(--paper);
+            line-height: 1.6;
+        }
+
+        a { color: var(--blue-deep); }
+        a:focus-visible, button:focus-visible, input:focus-visible,
+        select:focus-visible, textarea:focus-visible {
+            outline: 3px solid var(--blue-mid);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        .wrap { max-width: 1440px; margin: 0 auto; padding: 0 24px; }
+
+        /* ---------- Header (same as other pages) ---------- */
+        header { background: var(--white); border-bottom: 1px solid var(--line); }
+        .header-inner {
+            display: flex; align-items: center; justify-content: space-between;
+            height: 72px;
+        }
+        .brand {
+            display: flex; align-items: center; gap: 14px;
+            text-decoration: none; color: var(--blue-deep);
+            font-size: 24px; font-weight: 500;
+        }
+        .brand img { height: 52px; }
+        .brand span { font-size: 21px; font-weight: 800; letter-spacing: -0.3px;}
+
+
+        .burger_menu {
+            color: var(--blue-deep);
+            border: none;
+            border-radius: 6px;
+            padding: 2px 2px;
+            display: inline-flex;
+            align-items: end;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .burger_menu:hover { background-color: var(--blue-light); transition: background-color 0.5s; }
+        #checkbox_v { display: none; }
+
+        .burger_menu::before {
+            content: "";
+            background: url("/images/menu_icon.png") center / contain no-repeat;
+            height: 40px;
+            width: 40px;
+        }
+        #checkbox_v:checked ~ .burger_menu:before {
+            background: url("/images/close_icon.png") center / contain no-repeat;
+            z-index: 999;
+        }
+
+        .items {
+            position: absolute;
+            display: flex;
+            width: 200px;
+            top: 72px;
+            right: 50px;
+            flex-direction: column;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+            align-items: flex-start;
+            justify-content: flex-start;
+            background-color: var(--white);
+            border-width: 1px;
+            border-radius: 8px;
+            z-index: 10;
+        }
+        .item {
+            width: 100%;
+            padding: 15px;
+            border-radius: 0;
+            font-size: 15px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+        .item:hover { background-color: var(--blue-light); }
+        #checkbox_v:checked ~ .items { max-height: 500px; }
+
+        /* ---------- Page intro ---------- */
+        .intro { padding: 56px 0 32px; }
+        .intro h1 {
+            font-size: clamp(2.2rem, 4vw, 3.4rem);
+            line-height: 1.1;
+            margin: 0 0 14px;
+            letter-spacing: -0.5px;
+        }
+        .intro p {
+            margin: 0;
+            max-width: 62ch;
+            font-size: 1.1rem;
+            color: var(--ink-soft);
+        }
+
+        /* ---------- Layout ---------- */
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 320px;
+            gap: 32px;
+            align-items: start;
+            padding-bottom: 80px;
+        }
+
+        /* ---------- Form sections ---------- */
+        fieldset {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--white);
+            padding: 28px 32px 32px;
+            margin: 0 0 24px;
+            min-width: 0;
+        }
+        legend {
+            padding: 0 10px;
+            margin-left: -10px;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--blue-deep);
+        }
+        .hint { margin: 0 0 20px; color: var(--ink-soft); font-size: 0.95rem; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .field { display: flex; flex-direction: column; margin-bottom: 20px; }
+        .field:last-child { margin-bottom: 0; }
+        .grid-2 .field { margin-bottom: 0; }
+        .grid-2 + .field, .field + .grid-2, .grid-2 + .grid-2 { margin-top: 20px; }
+
+        label, .label {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+        .optional { font-weight: 400; color: var(--ink-soft); }
+
+        input[type="text"], input[type="number"], input[type="email"],
+        input[type="url"], input[type="date"], select, textarea {
+            font: inherit;
+            color: var(--ink);
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 11px 14px;
+            width: 100%;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        input:hover, select:hover, textarea:hover { border-color: var(--blue-mid); }
+        input:focus, select:focus, textarea:focus { background: var(--white); border-color: var(--blue-deep); }
+        textarea { min-height: 170px; resize: vertical; }
+        .field.invalid input, .field.invalid select, .field.invalid textarea { border-color: var(--error); background: var(--error-bg); }
+        .error-msg { color: var(--error); font-size: 0.9rem; margin-top: 6px; font-weight: 700; }
+        .help { color: var(--ink-soft); font-size: 0.88rem; margin-top: 6px; }
+
+        /* Salary row */
+        .salary { display: grid; grid-template-columns: 1fr 1fr 130px; gap: 12px; }
+
+        /* Radio / checkbox pills */
+        .pills { display: flex; flex-wrap: wrap; gap: 10px; }
+        .pills input { position: absolute; opacity: 0; pointer-events: none; }
+        .pills label {
+            margin: 0;
+            padding: 9px 18px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--paper);
+            font-weight: 400;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .pills label:hover { border-color: var(--blue-mid); }
+        .pills input:checked + label {
+            background: var(--blue-deep);
+            border-color: var(--blue-deep);
+            color: var(--white);
+        }
+        .pills input:focus-visible + label { outline: 3px solid var(--blue-mid); outline-offset: 3px; }
+
+        /* ---------- Buttons ---------- */
+        .btn {
+            font: inherit;
+            font-weight: 700;
+            padding: 13px 26px;
+            border-radius: 8px;
+            border: 2px solid var(--blue-deep);
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary { background: var(--blue-deep); color: var(--white); }
+        .btn-primary:hover { background: var(--ink); border-color: var(--ink); }
+        .btn-secondary { background: transparent; color: var(--blue-deep); }
+        .btn-secondary:hover {
+            background: var(--blue-deep);
+            border-color: var(--blue-deep);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(47, 95, 150, 0.28);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(20, 37, 59, 0.3); }
+        .btn:active { transform: translateY(0); box-shadow: none; }
+
+        .actions { display: flex; gap: 14px; flex-wrap: wrap; }
+        .logout-item { color: #d93025 !important; padding: 15px; align-items: center; width: 100%; text-decoration: none;}
+        .logout-item:hover { background: #fce8e6 !important; }
+
+
+
+        /* Cover letter checkbox */
+        .check-card {
+            display: flex; align-items: flex-start; gap: 14px;
+            padding: 16px 18px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: var(--paper);
+            cursor: pointer;
+            margin: 0;
+            font-weight: 400;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .check-card:hover { border-color: var(--blue-mid); }
+        .check-card input { position: absolute; opacity: 0; pointer-events: none; }
+        .check-box {
+            flex: 0 0 24px; height: 24px; margin-top: 2px;
+            border: 2px solid var(--blue-mid);
+            border-radius: 6px;
+            background: var(--white);
+            display: inline-flex; align-items: center; justify-content: center;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .check-box::after {
+            content: "";
+            width: 6px; height: 12px;
+            border: solid var(--white);
+            border-width: 0 3px 3px 0;
+            transform: rotate(45deg) scale(0);
+            margin-top: -2px;
+            transition: transform 0.15s ease-out;
+        }
+        .check-card input:checked ~ .check-box { background: var(--blue-deep); border-color: var(--blue-deep); }
+        .check-card input:checked ~ .check-box::after { transform: rotate(45deg) scale(1); }
+        .check-card:has(input:checked) { background: var(--blue-light); border-color: var(--blue-deep); }
+        .check-card input:focus-visible ~ .check-box { outline: 3px solid var(--blue-mid); outline-offset: 3px; }
+        .check-text strong { display: block; font-weight: 700; }
+        .check-text span { color: var(--ink-soft); font-size: 0.9rem; }
+
+        /* Date picker */
+        .datepicker-field { position: relative; }
+        .dp-trigger {
+            font: inherit; color: var(--ink);
+            display: flex; align-items: center; gap: 10px;
+            width: 100%; text-align: left;
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 11px 14px;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .dp-trigger:hover { border-color: var(--blue-mid); }
+        .dp-trigger[aria-expanded="true"] { border-color: var(--blue-deep); background: var(--white); }
+        .dp-trigger svg { flex: 0 0 20px; color: var(--blue-deep); }
+        .dp-value { flex: 1; }
+        .dp-value.placeholder { color: var(--ink-soft); }
+
+        .dp-pop {
+            position: absolute; z-index: 20;
+            top: calc(100% + 8px); left: 0;
+            width: 320px; max-width: calc(100vw - 48px);
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 16px 40px rgba(20, 37, 59, 0.18);
+            padding: 16px;
+            opacity: 0; visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.18s, transform 0.18s, visibility 0.18s;
+        }
+        .dp-pop.open { opacity: 1; visibility: visible; transform: translateY(0); }
+
+        .dp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .dp-title { font-weight: 700; font-size: 1.05rem; color: var(--ink); }
+        .dp-nav {
+            width: 36px; height: 36px;
+            border: none; border-radius: 8px;
+            background: transparent; color: var(--blue-deep);
+            font-size: 1.3rem; line-height: 1; cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .dp-nav:hover { background: var(--blue-light); }
+
+        .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+        .dp-dow { text-align: center; font-size: 0.8rem; color: var(--ink-soft); padding: 6px 0; font-weight: 700; }
+        .dp-day {
+            font: inherit; font-size: 0.95rem; color: var(--ink);
+            aspect-ratio: 1; border: none; border-radius: 50%;
+            background: transparent; cursor: pointer;
+            transition: background-color 0.15s, color 0.15s;
+        }
+        .dp-day:hover:not(:disabled):not(.selected) { background: var(--blue-light); }
+        .dp-day.today { box-shadow: inset 0 0 0 2px var(--blue-mid); }
+        .dp-day.selected { background: var(--blue-deep); color: var(--white); font-weight: 700; }
+        .dp-day:disabled { color: #b4c0d0; cursor: not-allowed; }
+        .dp-day.blank { visibility: hidden; }
+
+        .dp-quick { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+        .dp-chip {
+            font: inherit; font-size: 0.85rem; color: var(--blue-deep);
+            background: var(--blue-light); border: none; border-radius: 999px;
+            padding: 6px 12px; cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .dp-chip:hover { background: var(--blue-deep); color: var(--white); }
+        .dp-clear { background: transparent; text-decoration: underline; margin-left: auto; }
+        .dp-clear:hover { background: transparent; color: var(--ink); }
+
+        /* ---------- Side panel ---------- */
+        aside {
+            position: sticky;
+            top: 24px;
+            background: var(--blue-light);
+            border-radius: 16px;
+            padding: 28px;
+        }
+        aside h2 { margin: 0 0 12px; font-size: 1.2rem; color: var(--blue-deep); }
+        aside ul { margin: 0 0 24px; padding-left: 20px; color: var(--ink-soft); }
+        aside li { margin-bottom: 8px; }
+        aside .actions { flex-direction: column; }
+        aside .btn { width: 100%; }
+
+        .alert {
+            background: var(--error-bg);
+            border: 1px solid var(--error);
+            color: var(--error);
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
+        .alert-success{
+            background: var(--success-bg);
+            border: 1px solid var(--success);
+            color: var(--success);
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 960px) {
+            .layout { grid-template-columns: 1fr; }
+            aside { position: static; order: -1; }
+        }
+        @media (max-width: 600px) {
+            .grid-2, .salary { grid-template-columns: 1fr; }
+            fieldset { padding: 22px 20px 26px; }
+            .items { right: 24px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="wrap header-inner">
+        <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
+            <img th:src="@{/images/logo-mark.png}" alt="">
+            <span>CareerConnect</span>
+        </a>
+
+
+
+            <input type="checkbox" name="" id="checkbox_v">
+            <label class="burger_menu" for="checkbox_v">
+            </label>
+            <div class="items">
+                <a class="item" th:href="@{/profile}">My profile</a>
+                <a class="item" th:href="@{/dashboard}">Dashboard</a>
+                <a class="logout-item"  style="" th:href="@{/logout}">Sign out</a>
+
+        </div>
+
+    </div>
+</header>
+
+<main class="wrap">
+
+    <section class="intro">
+        <h1 th:text="${editingJobId != null} ? 'Edit job posting' : 'Post a job opening'">Post a job opening</h1>
+        <p th:text="${editingJobId != null} ? 'Update the details below. Your changes will be visible to job seekers right away.' : 'Fill in the details below. Job seekers will see this listing alongside every other opening on CareerConnect.'">Fill in the details below. Job seekers will see this listing alongside every other opening on CareerConnect.</p>
+    </section>
+
+
+    <form class="layout" id="job-form"
+    th:action="${editingJobId != null} ? @{/job_posting/{id}/edit(id=${editingJobId})} : @{/job_posting_creation}"
+    th:object="${jobListing}" method="post" novalidate>
+
+        <div>
+            <div class="alert" role="alert" th:if="${#fields.hasErrors('*')}">
+                Some fields need your attention. Check the highlighted fields below.
+            </div>
+            <div class="alert-success" role="status" th:if="${success}" th:text="${success}"></div>
+
+            <!-- Basics -->
+            <fieldset>
+                <legend>The role</legend>
+
+                <div class="field" th:classappend="${#fields.hasErrors('title')} ? 'invalid'">
+                    <label for="title">Job title</label>
+                    <input type="text" id="title" th:field="*{title}" maxlength="120"
+                           placeholder="e.g. Junior Java Developer" required>
+                    <span class="error-msg" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+                </div>
+
+                <div class="grid-2">
+                    <div class="field" th:classappend="${#fields.hasErrors('companyName')} ? 'invalid'">
+                        <label for="company">Company name</label>
+                        <input type="text" id="company" th:field="*{companyName}" maxlength="120" required>
+                        <span class="error-msg" th:if="${#fields.hasErrors('companyName')}" th:errors="*{companyName}"></span>
+                    </div>
+
+                    <div class="field" th:classappend="${#fields.hasErrors('location')} ? 'invalid'">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" th:field="*{location}" maxlength="120"
+                               placeholder="City, province or state" required>
+                        <span class="error-msg" th:if="${#fields.hasErrors('location')}" th:errors="*{location}"></span>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <span class="label" id="workmode-label">Work arrangement</span>
+                    <div class="pills" role="radiogroup" aria-labelledby="workmode-label">
+                        <input type="radio" id="wm-onsite" th:field="*{workMode}" value="ONSITE">
+                        <label for="wm-onsite">On-site</label>
+                        <input type="radio" id="wm-hybrid" th:field="*{workMode}" value="HYBRID">
+                        <label for="wm-hybrid">Hybrid</label>
+                        <input type="radio" id="wm-remote" th:field="*{workMode}" value="REMOTE">
+                        <label for="wm-remote">Remote</label>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <span class="label" id="type-label">Employment type</span>
+                    <div class="pills" role="radiogroup" aria-labelledby="type-label">
+                        <input type="radio" id="et-full" th:field="*{jobType}" value="FULL_TIME">
+                        <label for="et-full">Full-time</label>
+                        <input type="radio" id="et-part" th:field="*{jobType}" value="PART_TIME">
+                        <label for="et-part">Part-time</label>
+                        <input type="radio" id="et-contract" th:field="*{jobType}" value="CONTRACT">
+                        <label for="et-contract">Contract</label>
+                        <input type="radio" id="et-intern" th:field="*{jobType}" value="INTERNSHIP">
+                        <label for="et-intern">Internship</label>
+                    </div>
+                    <span class="error-msg" th:if="${#fields.hasErrors('jobType')}" th:errors="*{jobType}"></span>
+                </div>
+            </fieldset>
+
+            <!-- Description -->
+            <fieldset>
+                <legend>What the job involves</legend>
+
+                <div class="field" th:classappend="${#fields.hasErrors('description')} ? 'invalid'">
+                    <label for="description">Description</label>
+                    <textarea id="description" th:field="*{description}" maxlength="5000"
+                              placeholder="Describe the role, the team and a typical week." required></textarea>
+                    <span class="error-msg" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
+                </div>
+
+                <div class="field" th:classappend="${#fields.hasErrors('requirement')} ? 'invalid'">
+                    <label for="requirements">Requirements</label>
+                    <textarea id="requirements" th:field="*{requirement}" maxlength="3000"
+                              placeholder="Skills, experience and education you are looking for. Put one per line."></textarea>
+                    <span class="help">One requirement per line.</span>
+                    <span class="error-msg" th:if="${#fields.hasErrors('requirement')}" th:errors="*{requirement}"></span>
+                </div>
+
+                <div class="field">
+                    <label for="skills">Key skills <span class="optional">(optional)</span></label>
+                    <input type="text" id="skills" th:field="*{skills}" placeholder="Java, Spring Boot, SQL">
+                    <span class="help">Separate skills with commas. They help match your listing with candidates.</span>
+                </div>
+            </fieldset>
+
+            <!-- Pay -->
+            <fieldset>
+                <legend>Pay <span class="optional" style="font-size:1rem;font-weight:400;">(optional)</span></legend>
+                <p class="hint">Listings with a salary range get more views.</p>
+
+                <div class="field" th:classappend="${#fields.hasErrors('salaryMax')} ? 'invalid'">
+                    <span class="label" id="salary-label">Salary range</span>
+                    <div class="salary" role="group" aria-labelledby="salary-label">
+                        <input type="number" th:field="*{salaryMin}" min="0" step="500" placeholder="Minimum" aria-label="Minimum salary">
+                        <input type="number" th:field="*{salaryMax}" min="0" step="500" placeholder="Maximum" aria-label="Maximum salary">
+                        <select th:field="*{salaryPeriod}" aria-label="Pay period">
+                            <option value="YEAR">per year</option>
+                            <option value="HOUR">per hour</option>
+                            <option value="MONTH">per month</option>
+                        </select>
+                    </div>
+                    <span class="error-msg" th:if="${#fields.hasErrors('salaryMax')}" th:errors="*{salaryMax}"></span>
+                </div>
+            </fieldset>
+
+            <!-- Applying -->
+            <fieldset>
+                <legend>How to apply</legend>
+
+                <div class="grid-2">
+                    <div class="field" th:classappend="${#fields.hasErrors('applyUrl')} ? 'invalid'">
+                        <label for="applyUrl">Application link</label>
+                        <input type="url" id="applyUrl" th:field="*{applyUrl}" placeholder="https://yourcompany.com/careers/123">
+                        <span class="error-msg" th:if="${#fields.hasErrors('applyUrl')}" th:errors="*{applyUrl}"></span>
+                    </div>
+
+                </div>
+
+                <div class="field" style="margin-top:20px;">
+                    <label class="check-card" for="coverLetterRequired">
+                        <input type="checkbox" id="coverLetterRequired" th:field="*{coverLetterRequired}">
+                        <span class="check-box" aria-hidden="true"></span>
+                        <span class="check-text">
+                            <strong>Cover letter required</strong>
+                            <span>Candidates will be asked to include a cover letter with their application.</span>
+                        </span>
+                    </label>
+                </div>
+
+                <div class="field datepicker-field" id="deadline-field" style="margin-top:20px; max-width: 320px;"
+                     th:classappend="${#fields.hasErrors('deadline')} ? 'invalid'">
+                    <span class="label" id="deadline-label">Application deadline <span class="optional">(optional)</span></span>
+                    <!-- Holds the real value (yyyy-MM-dd) sent to the server -->
+                    <input type="hidden" id="deadline" th:field="*{deadline}">
+                    <button type="button" class="dp-trigger" id="deadline-trigger"
+                            aria-haspopup="dialog" aria-expanded="false" aria-labelledby="deadline-label deadline-display">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+                        <span class="dp-value placeholder" id="deadline-display">No deadline</span>
+                    </button>
+                    <div class="dp-pop" id="dp-pop" role="dialog" aria-label="Choose a deadline">
+                        <div class="dp-head">
+                            <button type="button" class="dp-nav" id="dp-prev" aria-label="Previous month">&#8249;</button>
+                            <span class="dp-title" id="dp-title" aria-live="polite"></span>
+                            <button type="button" class="dp-nav" id="dp-next" aria-label="Next month">&#8250;</button>
+                        </div>
+                        <div class="dp-grid" id="dp-grid" role="grid"></div>
+                        <div class="dp-quick">
+                            <button type="button" class="dp-chip" data-add-days="7">In 1 week</button>
+                            <button type="button" class="dp-chip" data-add-days="14">In 2 weeks</button>
+                            <button type="button" class="dp-chip" data-add-days="30">In 30 days</button>
+                            <button type="button" class="dp-chip dp-clear" id="dp-clear">Clear</button>
+                        </div>
+                    </div>
+                    <span class="error-msg" th:if="${#fields.hasErrors('deadline')}" th:errors="*{deadline}"></span>
+                </div>
+                <p class="help" style="margin-top:16px;">Provide at least an application link or a contact email.</p>
+            </fieldset>
+        </div>
+
+        <!-- Side panel -->
+        <aside>
+            <h2>Before you publish</h2>
+            <ul>
+                <li>Use a clear, standard job title.</li>
+                <li>Mention the location, even for remote roles.</li>
+                <li>List the must-have requirements first.</li>
+            </ul>
+            <div class="actions">
+                <button type="submit" class="btn btn-primary" th:text="${editingJobId != null} ? 'Save changes' : 'Publish listing'">Publish listing</button>
+                <!---<button type="submit" class="btn btn-secondary" name="draft" value="true" formnovalidate>Save as draft</button>---->
+                <a class="btn btn-secondary" th:href="${editingJobId != null} ? @{/my_job_postings} : @{/dashboard}">Cancel</a>
+            </div>
+        </aside>
+    </form>
+</main>
+
+<script>
+    (function () {
+        var hidden = document.getElementById('deadline');
+        var trigger = document.getElementById('deadline-trigger');
+        var display = document.getElementById('deadline-display');
+        var pop = document.getElementById('dp-pop');
+        var grid = document.getElementById('dp-grid');
+        var title = document.getElementById('dp-title');
+        var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        var DOW = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+        var today = new Date(); today.setHours(0, 0, 0, 0);
+        var selected = parse(hidden.value);
+        var view = new Date((selected || today).getFullYear(), (selected || today).getMonth(), 1);
+        var focusDay = selected || today;
+
+        function pad(n) { return n < 10 ? '0' + n : '' + n; }
+        function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+        function parse(v) {
+            var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || '');
+            return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+        }
+        function same(a, b) { return a && b && iso(a) === iso(b); }
+
+        function updateDisplay() {
+            if (selected) {
+                display.textContent = selected.toLocaleDateString('en-CA', { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' });
+                display.classList.remove('placeholder');
+            } else {
+                display.textContent = 'No deadline';
+                display.classList.add('placeholder');
+            }
+        }
+
+        function render() {
+            title.textContent = MONTHS[view.getMonth()] + ' ' + view.getFullYear();
+            grid.innerHTML = '';
+            DOW.forEach(function (d) {
+                var h = document.createElement('div');
+                h.className = 'dp-dow'; h.textContent = d; h.setAttribute('role', 'columnheader');
+                grid.appendChild(h);
+            });
+            var first = new Date(view.getFullYear(), view.getMonth(), 1).getDay();
+            var days = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+            for (var i = 0; i < first; i++) {
+                var b = document.createElement('span'); b.className = 'dp-day blank'; grid.appendChild(b);
+            }
+            for (var d = 1; d <= days; d++) {
+                var date = new Date(view.getFullYear(), view.getMonth(), d);
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'dp-day';
+                btn.textContent = d;
+                btn.dataset.date = iso(date);
+                btn.setAttribute('aria-label', date.toLocaleDateString('en-CA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+                btn.tabIndex = same(date, focusDay) ? 0 : -1;
+                if (date < today) btn.disabled = true;
+                if (same(date, today)) btn.classList.add('today');
+                if (same(date, selected)) { btn.classList.add('selected'); btn.setAttribute('aria-pressed', 'true'); }
+                grid.appendChild(btn);
+            }
+        }
+
+        function choose(date) {
+            selected = date;
+            hidden.value = date ? iso(date) : '';
+            if (date) { view = new Date(date.getFullYear(), date.getMonth(), 1); focusDay = date; }
+            updateDisplay(); render();
+        }
+
+        function open() {
+            pop.classList.add('open');
+            trigger.setAttribute('aria-expanded', 'true');
+            view = new Date(focusDay.getFullYear(), focusDay.getMonth(), 1);
+            render();
+            var t = grid.querySelector('.dp-day[tabindex="0"]:not(:disabled)') || grid.querySelector('.dp-day:not(:disabled)');
+            if (t) t.focus();
+        }
+        function close(returnFocus) {
+            pop.classList.remove('open');
+            trigger.setAttribute('aria-expanded', 'false');
+            if (returnFocus) trigger.focus();
+        }
+        function moveMonth(delta) {
+            view = new Date(view.getFullYear(), view.getMonth() + delta, 1);
+            focusDay = new Date(view.getFullYear(), view.getMonth(), Math.min(focusDay.getDate(), new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate()));
+            render();
+        }
+        function focusOn(date) {
+            if (date < today) date = today;
+            focusDay = date;
+            view = new Date(date.getFullYear(), date.getMonth(), 1);
+            render();
+            var el = grid.querySelector('.dp-day[data-date="' + iso(date) + '"]');
+            if (el) el.focus();
+        }
+
+        trigger.addEventListener('click', function () {
+            pop.classList.contains('open') ? close(false) : open();
+        });
+        document.getElementById('dp-prev').addEventListener('click', function () { moveMonth(-1); });
+        document.getElementById('dp-next').addEventListener('click', function () { moveMonth(1); });
+        document.getElementById('dp-clear').addEventListener('click', function () { choose(null); close(true); });
+
+        grid.addEventListener('click', function (e) {
+            var b = e.target.closest('.dp-day[data-date]');
+            if (!b || b.disabled) return;
+            choose(parse(b.dataset.date)); close(true);
+        });
+
+        pop.querySelectorAll('[data-add-days]').forEach(function (chip) {
+            chip.addEventListener('click', function () {
+                var d = new Date(today); d.setDate(d.getDate() + parseInt(chip.dataset.addDays, 10));
+                choose(d); close(true);
+            });
+        });
+
+        grid.addEventListener('keydown', function (e) {
+            var d = new Date(focusDay);
+            switch (e.key) {
+                case 'ArrowLeft': d.setDate(d.getDate() - 1); break;
+                case 'ArrowRight': d.setDate(d.getDate() + 1); break;
+                case 'ArrowUp': d.setDate(d.getDate() - 7); break;
+                case 'ArrowDown': d.setDate(d.getDate() + 7); break;
+                case 'PageUp': d.setMonth(d.getMonth() - 1); break;
+                case 'PageDown': d.setMonth(d.getMonth() + 1); break;
+                default: return;
+            }
+            e.preventDefault();
+            focusOn(d);
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && pop.classList.contains('open')) close(true);
+        });
+        document.addEventListener('click', function (e) {
+            if (!document.getElementById('deadline-field').contains(e.target)) close(false);
+        });
+
+        updateDisplay();
+    })();
+</script>
+</body>
+</html>
