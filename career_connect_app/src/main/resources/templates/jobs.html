@@ -321,6 +321,9 @@
 
         <!--Shows if there is a deadline to apply for the job listing-->
         <small class="job-date" th:if="${job.deadline != null}" th:text="' | Apply by ' + ${job.deadline}"></small>
+        <form th:action="@{/job_postings/{id}/apply(id=${job.id})}" method="post" style="margin-top: 14px;">
+            <button type="submit" style="border: 0; border-radius: 6px; background: #2f5f96; color: white; padding: 9px 16px; font: inherit; font-weight: 700; cursor: pointer;">Apply</button>
+        </form>
     </div>
 </div>
 
