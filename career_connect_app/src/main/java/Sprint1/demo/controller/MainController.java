@@ -13,6 +13,11 @@ import Sprint1.demo.service.ResumeService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -39,7 +44,7 @@ import java.util.stream.Collectors;
 @Controller
 public class MainController {
 	 private final UserService userService ;
-     private final resumeService resumeService;
+     private final ResumeService resumeService;
      private final JobPostingService jobPostingService;
 	 private final JobApplicationRepository jobApplicationRepository;
      private final JobRepository jobRepository;
@@ -72,8 +77,6 @@ public class MainController {
         model.addAttribute("isAuth", isAuth(session));
         return "index";
     }
-
-    @GetMapping("/login")
 
 
     @GetMapping({"/job_posting_creation"})
@@ -353,14 +356,6 @@ public class MainController {
         return "redirect:/profile?success=true";
     }
 
-    @PostMapping("/profile/upload-resume")
-    public String uploadResume(@RequestParam("resumeFile") MultipartFile file, HttpSession session) {
-        String email = (String) session.getAttribute("loggedInUserEmail");
-        if (email == null) return "redirect:/login";
-
-        userService.saveResume(email, file);
-        return "redirect:/profile?resumeSuccess=true";
-    }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
