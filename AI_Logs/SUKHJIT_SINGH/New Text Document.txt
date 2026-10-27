@@ -443,3 +443,48 @@ Reviewed the AI-generated suggestions and checked how the changes fit into the e
 I used Gemini to understand how binary files can be stored in MySQL using Spring Boot and what changes were needed in the existing Java classes.
 
 **Related GitHub Issue:** #67 – Faulty Resume Storage Method
+
+
+
+
+
+
+
+
+3. AI log For Sprint2: Feature 1 And Feature 2
+1. Resume Management
+What I asked AI:
+How can I allow users to upload multiple resumes, limit each file to 4 MB, allow a maximum of 5 resumes per user, and let users delete any resume?
+
+What AI provided:
+Java Spring Boot code for ResumeController, ResumeService, ResumeRepository, and Resume model, along with HTML changes for uploading, displaying, and deleting resumes stored in MySQL.
+2. User Profile
+What I asked AI:
+How can I create a user profile page where users can view and edit their information, manage resumes, and switch between Job Seeker and Recruiter roles?
+
+What AI provided:
+Suggestions and code for profile.html, profile management functionality, and integration with existing Spring Boot controllers and services while maintaining the same header and footer as the dashboard.
+3. Forgot Password
+What I asked AI:
+How can I add a forgot-password feature to the login page so users can securely reset their passwords through email?
+
+What AI provided:
+Spring Boot implementation guidance for password-reset tokens, email delivery using Gmail SMTP, reset-password pages, and BCrypt password encoding.
+4. Error Handling
+What I asked AI:
+How can I create a common error page with the same header and footer as dashboard.html?
+
+What AI provided:
+Code and guidance for centralized exception handling and a reusable error page consistent with the application's layout.
+5. Resume Upload Error
+What I asked AI:
+How can I fix the ambiguous mapping error where MainController and ResumeController both handle /profile/upload-resume?
+
+What AI provided:
+An explanation that two controller methods were mapped to the same endpoint and guidance to remove the duplicate mapping.
+
+AI Tool Used: ChatGPT (OpenAI)
+
+Project: CareerConnect – SOEN 341, Sprint 2
+
+What I learn: It helps me to learn more interact with JMS and more management techniques in MVC Model.
