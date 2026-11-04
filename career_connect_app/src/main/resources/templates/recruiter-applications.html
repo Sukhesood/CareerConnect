@@ -61,14 +61,15 @@
             <div class="application-list">
                 <article class="application-card" th:each="jobApplication : ${entry.value}">
                     <div class="application-header"><p class="applicant"><strong th:text="${jobApplication.applicant.firstName + ' ' + jobApplication.applicant.lastName}">Applicant name</strong> &middot; <span th:text="${jobApplication.applicant.email}">email@example.com</span></p><span class="status" th:text="${jobApplication.status}">Applied</span></div>
-                    <a class="resume-link" th:if="${jobApplication.applicant.resumeFilename != null}" th:href="@{/recruiter/applications/{id}/resume(id=${jobApplication.id})}">Download resume</a>
-                    <p class="no-resume" th:unless="${jobApplication.applicant.resumeFilename != null}">No resume uploaded.</p>
+                    <a class="resume-link" th:if="${jobApplication.selectedResume != null}" th:href="@{/recruiter/applications/{id}/resume(id=${jobApplication.id})}">Download selected resume</a>
+                    <p class="no-resume" th:unless="${jobApplication.selectedResume != null}">No resume was selected for this application.</p>
+                    <a class="resume-link" th:if="${jobApplication.hasCoverLetter()}" th:href="@{/recruiter/applications/{id}/cover-letter(id=${jobApplication.id})}">Download cover letter</a>
                     <p class="date" th:if="${jobApplication.submittedAt != null}">Submitted <span th:text="${#temporals.format(jobApplication.submittedAt, 'MMMM d, yyyy')}">January 1, 2026</span></p>
                     <p class="date" th:unless="${jobApplication.submittedAt != null}">Submission date unavailable</p>
                     <form class="status-form" th:action="@{/recruiter/applications/{id}/status(id=${jobApplication.id})}" method="post">
                         <label th:for="${'status-' + jobApplication.id}">Status</label>
                         <select name="status" th:id="${'status-' + jobApplication.id}">
-                            <option th:each="s : ${ {'Applied', 'Under Review', 'Interview', 'Offered', 'Rejected'} }" th:value="${s}" th:text="${s}" th:selected="${s == jobApplication.status}">Applied</option>
+                            <option th:each="s : ${applicationStatuses}" th:value="${s}" th:text="${s}" th:selected="${s == jobApplication.status}">Applied</option>
                         </select>
                         <button type="submit">Update status</button>
                     </form>

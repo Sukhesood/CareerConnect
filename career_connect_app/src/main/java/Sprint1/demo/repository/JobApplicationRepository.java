@@ -10,11 +10,11 @@ import java.util.Optional;
 
 @Repository
 public interface JobApplicationRepository extends JpaRepository<JobApplication, Long> {
-    @EntityGraph(attributePaths = {"applicant", "jobListing"})
+    @EntityGraph(attributePaths = {"applicant", "jobListing", "selectedResume"})
     List<JobApplication> findByApplicant_EmailOrderBySubmittedAtDesc(String email);
     boolean existsByApplicant_EmailAndJobListing_Id(String email, Long jobListingId);
-    @EntityGraph(attributePaths = {"applicant", "jobListing"})
+    @EntityGraph(attributePaths = {"applicant", "jobListing", "selectedResume"})
     List<JobApplication> findByJobListing_Recruiter_EmailOrderBySubmittedAtDesc(String email);
-    @EntityGraph(attributePaths = {"applicant", "jobListing"})
+    @EntityGraph(attributePaths = {"applicant", "jobListing", "selectedResume"})
     Optional<JobApplication> findByIdAndJobListing_Recruiter_Email(Long id, String email);
 }

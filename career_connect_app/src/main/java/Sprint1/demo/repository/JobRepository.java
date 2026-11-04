@@ -28,12 +28,18 @@ public interface JobRepository extends JpaRepository<JobListing, Long> {
                    OR LOWER(j.skills) LIKE LOWER(CONCAT('%', :keyword, '%')))
               AND (:location = '' OR LOWER(j.location) = LOWER(:location))
               AND (:jobType = '' OR LOWER(j.jobType) = LOWER(:jobType))
+              AND NOT EXISTS (
+                  SELECT application FROM JobApplication application
+                  WHERE application.jobListing = j
+                    AND application.applicant.email = :applicantEmail
+              )
             ORDER BY j.postedDate DESC, j.id DESC
             """)
 
    List<JobListing> search(@Param("keyword") String keyword,
                             @Param("location") String location,
-                            @Param("jobType") String jobType);
+                            @Param("jobType") String jobType,
+                            @Param("applicantEmail") String applicantEmail);
 
     @Query("SELECT DISTINCT j.location FROM JobListing j WHERE j.location IS NOT NULL AND j.location <> '' ORDER BY j.location")
     List<String> findDistinctLocations();

@@ -55,7 +55,7 @@
             <p class="date" th:if="${jobApplication.submittedAt != null}">Applied <span th:text="${#temporals.format(jobApplication.submittedAt, 'MMMM d, yyyy')}">January 1, 2026</span></p>
             <p class="date" th:unless="${jobApplication.submittedAt != null}">Application date unavailable</p>
             <ol class="tracker" aria-label="Application progress" th:unless="${jobApplication.status == 'Rejected'}"
-            th:with="steps=${ {'Applied', 'Under Review', 'Interview', 'Offered'} }, current=${steps.indexOf(jobApplication.status)}">
+            th:with="steps=${applicationStatuses}, current=${steps.indexOf(jobApplication.status)}">
             <li th:each="step, it : ${steps}" th:text="${step}"
                 th:classappend="${it.index < current} ? 'done' : (${it.index == current} ? 'current' : '')">Applied</li>
         </ol>
