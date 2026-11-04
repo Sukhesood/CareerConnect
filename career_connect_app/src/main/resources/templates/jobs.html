@@ -317,6 +317,7 @@
         </p>
         <!--Abbreviates job posting description if longer than 220 characters by adding "..."-->
         <p class="job-description" th:text="${#strings.abbreviate(job.description, 220)}"></p>
+        <a class="clear-link" th:href="@{/job_postings/{id}(id=${job.id})}">View full details</a>
 
         <!--Shows date that the job was posted if there is a date-->
         <small class="job-date" th:if="${job.postedDate != null}" th:text="'Posted ' + ${job.postedDate}"></small>

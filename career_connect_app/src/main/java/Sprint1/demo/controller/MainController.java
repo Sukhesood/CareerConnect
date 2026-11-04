@@ -236,6 +236,28 @@ public class MainController {
         return "job-postings";
     }
 
+    @GetMapping("/job_postings/{jobId}")
+    public String showJobDetails(@PathVariable Long jobId, HttpSession session, Model model,
+                                 RedirectAttributes redirect) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        Optional<JobListing> job = jobPostingService.getJobListing(jobId);
+        if (job.isEmpty()) {
+            redirect.addFlashAttribute("error", "The job posting could not be found.");
+            return "redirect:/job_postings";
+        }
+        if (jobApplicationRepository.existsByApplicant_EmailAndJobListing_Id(email, jobId)) {
+            redirect.addFlashAttribute("error", "You have already applied to this job.");
+            return "redirect:/job_postings";
+        }
+
+        model.addAttribute("job", job.get());
+        model.addAttribute("resumes", resumeService.list(email));
+        return "job-details";
+    }
+
     @PostMapping("/job_postings/{jobId}/apply")
     public String applyToJob(@PathVariable Long jobId,
                              @RequestParam(value = "resumeId", required = false) Long resumeId,
@@ -292,15 +314,32 @@ public class MainController {
     }
 
     @GetMapping("/recruiter/applications")
-    public String showRecruiterApplications(HttpSession session, Model model) {
+    public String showRecruiterApplications(@RequestParam(value = "status", defaultValue = "") String status,
+                                            HttpSession session, Model model) {
         if (!isAuth(session)) return "redirect:/login";
         if (!isRecruiter(session)) return "redirect:/dashboard";
 
         String email = (String) session.getAttribute("loggedInUserEmail");
-        List<JobApplication> applications = jobApplicationRepository.findByJobListing_Recruiter_EmailOrderBySubmittedAtDesc(email);
+        List<JobApplication> allApplications = jobApplicationRepository.findByJobListing_Recruiter_EmailOrderBySubmittedAtDesc(email);
+        String selectedStatus = APPLICATION_STATUSES.contains(status) ? status : "";
+        List<JobApplication> applications = selectedStatus.isEmpty()
+                ? allApplications
+                : allApplications.stream()
+                        .filter(application -> selectedStatus.equals(application.getStatus()))
+                        .toList();
         Map<JobListing, List<JobApplication>> applicationsByJob = applications.stream().collect(Collectors.groupingBy(JobApplication::getJobListing, LinkedHashMap::new, Collectors.toList()));
+        Map<String, Long> statusCounts = new LinkedHashMap<>();
+        for (String applicationStatus : APPLICATION_STATUSES) {
+            statusCounts.put(applicationStatus, allApplications.stream()
+                    .filter(application -> applicationStatus.equals(application.getStatus()))
+                    .count());
+        }
         model.addAttribute("applicationsByJob", applicationsByJob);
         model.addAttribute("applicationStatuses", APPLICATION_STATUSES);
+        model.addAttribute("selectedStatus", selectedStatus);
+        model.addAttribute("statusCounts", statusCounts);
+        model.addAttribute("totalApplications", allApplications.size());
+        model.addAttribute("displayedApplications", applications.size());
         return "recruiter-applications";
     }
 
