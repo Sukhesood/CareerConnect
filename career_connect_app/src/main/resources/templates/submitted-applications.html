@@ -24,6 +24,7 @@
         h2 { margin: 0 0 6px; color: var(--blue); font-size: 22px; }
         .company { margin: 0; font-weight: 700; }
         .status { padding: 6px 10px; white-space: nowrap; border-radius: 16px; background: var(--blue-light); color: var(--blue); font-size: 13px; font-weight: 700; }
+        .status-rejected { background: #fce8e6; color: #b3261e; }
         .date { margin: 16px 0 0; color: var(--muted); font-size: 14px; }
         .empty-state { padding: 32px; text-align: center; background: white; border: 1px dashed var(--border); border-radius: 10px; color: var(--muted); }
         .empty-state h2 { color: var(--text); }
@@ -37,7 +38,9 @@
         .tracker li.done::before { background: var(--blue); border-color: var(--blue); }
         .tracker li.current::before { background: white; border-color: var(--blue); box-shadow: 0 0 0 4px var(--blue-light); }
         .tracker li.done::after, .tracker li.current::after { background: var(--blue); }
-        .tracker-rejected { margin: 20px 0 0; padding: 10px 14px; border-radius: 8px; background: #fce8e6; color: #b3261e; border: 1px solid #f5c2bc; font-size: 14px; font-weight: 700; }
+        .tracker.rejected li.current { color: #b3261e; }
+        .tracker.rejected li.current::before { border-color: #b3261e; box-shadow: 0 0 0 4px #fce8e6; }
+        .tracker.rejected li.current::after { background: #b3261e; }
         @media (max-width: 600px) { header { padding: 0 20px; } main { padding: 32px 18px; } .application-header { flex-direction: column; } }
     </style>
 </head>
@@ -51,15 +54,14 @@
     <p class="intro">Review the jobs you have applied to and their current status.</p>
     <section class="application-list" aria-label="Submitted applications">
         <article class="application-card" th:each="jobApplication : ${applications}">
-            <div class="application-header"><div><h2 th:text="${jobApplication.jobListing.title}">Job title</h2><p class="company" th:text="${jobApplication.jobListing.companyName}">Company</p></div><span class="status" th:text="${jobApplication.status}">Applied</span></div>
+            <div class="application-header"><div><h2 th:text="${jobApplication.jobListing.title}">Job title</h2><p class="company" th:text="${jobApplication.jobListing.companyName}">Company</p></div><span class="status" th:classappend="${jobApplication.status == 'Rejected'} ? 'status-rejected'" th:text="${jobApplication.status}">Applied</span></div>
             <p class="date" th:if="${jobApplication.submittedAt != null}">Applied <span th:text="${#temporals.format(jobApplication.submittedAt, 'MMMM d, yyyy')}">January 1, 2026</span></p>
             <p class="date" th:unless="${jobApplication.submittedAt != null}">Application date unavailable</p>
-            <ol class="tracker" aria-label="Application progress" th:unless="${jobApplication.status == 'Rejected'}"
-            th:with="steps=${ {'Applied', 'Under Review', 'Interview', 'Offered'} }, current=${steps.indexOf(jobApplication.status)}">
+            <ol class="tracker" aria-label="Application progress" th:classappend="${jobApplication.status == 'Rejected'} ? 'rejected'"
+            th:with="steps=${applicationStatuses}, current=${steps.indexOf(jobApplication.status)}">
             <li th:each="step, it : ${steps}" th:text="${step}"
                 th:classappend="${it.index < current} ? 'done' : (${it.index == current} ? 'current' : '')">Applied</li>
         </ol>
-        <p class="tracker-rejected" th:if="${jobApplication.status == 'Rejected'}">This application was not selected.</p>
         </article>
         <div class="empty-state" th:if="${#lists.isEmpty(applications)}"><h2>No applications yet</h2><p>When you apply to a job, it will appear here.</p></div>
     </section>

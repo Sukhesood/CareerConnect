@@ -3,6 +3,7 @@ package Sprint1.demo.controller;
 import Sprint1.demo.model.JobListing;
 import Sprint1.demo.model.JobListingForm;
 import Sprint1.demo.model.JobApplication;
+import Sprint1.demo.model.Resume;
 import Sprint1.demo.model.User;
 import Sprint1.demo.repository.JobApplicationRepository;
 import Sprint1.demo.repository.JobRepository;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -166,6 +168,23 @@ public class MainController {
         return "redirect:/my_job_postings";
     }
 
+    @PostMapping("/job_posting/{id}/delete")
+    public String deleteJobPosting(@PathVariable Long id, HttpSession session, RedirectAttributes redirect) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (!isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        Optional<JobListing> job = jobPostingService.getOwnedJobListing(id, email);
+        if (job.isEmpty()) {
+            redirect.addFlashAttribute("error", "That job posting could not be found.");
+            return "redirect:/my_job_postings";
+        }
+
+        jobPostingService.deleteJobListing(job.get());
+        redirect.addFlashAttribute("success", "The job posting was deleted. Existing applications were marked as Rejected.");
+        return "redirect:/my_job_postings";
+    }
+
 
 
     @GetMapping({"/login"})
@@ -219,6 +238,7 @@ public class MainController {
 
         String email = (String) session.getAttribute("loggedInUserEmail");
         model.addAttribute("applications", jobApplicationRepository.findByApplicant_EmailOrderBySubmittedAtDesc(email));
+        model.addAttribute("applicationStatuses", APPLICATION_STATUSES);
         return "submitted-applications";
     }
 
@@ -229,11 +249,37 @@ public class MainController {
 
         String email = (String) session.getAttribute("loggedInUserEmail");
         model.addAttribute("jobListings", jobPostingService.getAvailableJobListings(email));
+        model.addAttribute("resumes", resumeService.list(email));
         return "job-postings";
     }
 
+    @GetMapping("/job_postings/{jobId}")
+    public String showJobDetails(@PathVariable Long jobId, HttpSession session, Model model,
+                                 RedirectAttributes redirect) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        Optional<JobListing> job = jobPostingService.getJobListing(jobId);
+        if (job.isEmpty()) {
+            redirect.addFlashAttribute("error", "The job posting could not be found.");
+            return "redirect:/job_postings";
+        }
+        if (jobApplicationRepository.existsByApplicant_EmailAndJobListing_Id(email, jobId)) {
+            redirect.addFlashAttribute("error", "You have already applied to this job.");
+            return "redirect:/job_postings";
+        }
+
+        model.addAttribute("job", job.get());
+        model.addAttribute("resumes", resumeService.list(email));
+        return "job-details";
+    }
+
     @PostMapping("/job_postings/{jobId}/apply")
-    public String applyToJob(@PathVariable Long jobId, HttpSession session, RedirectAttributes redirect) {
+    public String applyToJob(@PathVariable Long jobId,
+                             @RequestParam(value = "resumeId", required = false) Long resumeId,
+                             @RequestParam(value = "coverLetter", required = false) MultipartFile coverLetter,
+                             HttpSession session, RedirectAttributes redirect) {
         if (!isAuth(session)) return "redirect:/login";
         if (isRecruiter(session)) return "redirect:/dashboard";
 
@@ -248,24 +294,78 @@ public class MainController {
             redirect.addFlashAttribute("error", "You have already applied to this job.");
             return "redirect:/job_postings";
         }
+        List<Resume> resumes = resumeService.list(email);
+        Optional<Resume> selectedResume = resumes.stream()
+                .filter(resume -> resume.getId().equals(resumeId))
+                .findFirst();
+        if (selectedResume.isEmpty()) {
+            redirect.addFlashAttribute("error", resumes.isEmpty()
+                    ? "Upload a resume on your profile before applying."
+                    : "Please choose one of your uploaded resumes before applying.");
+            return "redirect:/job_postings";
+        }
+        if (jobListing.get().isCoverLetterRequired() && (coverLetter == null || coverLetter.isEmpty())) {
+            redirect.addFlashAttribute("error", "This job requires a cover letter. Please choose a PDF or DOCX file.");
+            return "redirect:/job_postings";
+        }
 
         JobApplication application = new JobApplication();
         application.setApplicant(applicant.get());
         application.setJobListing(jobListing.get());
+        application.setSelectedResume(selectedResume.get());
+        if (jobListing.get().isCoverLetterRequired()) {
+            try {
+                ResumeService.UploadedDocument uploadedLetter =
+                        resumeService.prepareApplicationDocument(coverLetter, "cover letter");
+                application.setCoverLetterFilename(uploadedLetter.filename());
+                application.setCoverLetterContentType(uploadedLetter.contentType());
+                application.setCoverLetterData(uploadedLetter.data());
+            } catch (IllegalArgumentException | IllegalStateException exception) {
+                redirect.addFlashAttribute("error", exception.getMessage());
+                return "redirect:/job_postings";
+            }
+        }
         jobApplicationRepository.save(application);
         redirect.addFlashAttribute("success", "Your application was submitted.");
         return "redirect:/job_postings";
     }
 
     @GetMapping("/recruiter/applications")
-    public String showRecruiterApplications(HttpSession session, Model model) {
+    public String showRecruiterApplications(@RequestParam(value = "status", defaultValue = "") String status,
+                                            HttpSession session, Model model) {
         if (!isAuth(session)) return "redirect:/login";
         if (!isRecruiter(session)) return "redirect:/dashboard";
 
         String email = (String) session.getAttribute("loggedInUserEmail");
-        List<JobApplication> applications = jobApplicationRepository.findByJobListing_Recruiter_EmailOrderBySubmittedAtDesc(email);
+        List<JobApplication> allApplications = jobApplicationRepository.findByJobListing_Recruiter_EmailOrderBySubmittedAtDesc(email);
+        List<JobApplication> activeApplications = allApplications.stream()
+                .filter(application -> !application.getJobListing().isDeleted())
+                .toList();
+        List<JobApplication> deletedApplications = allApplications.stream()
+                .filter(application -> application.getJobListing().isDeleted())
+                .toList();
+        String selectedStatus = APPLICATION_STATUSES.contains(status) ? status : "";
+        List<JobApplication> applications = selectedStatus.isEmpty()
+                ? activeApplications
+                : activeApplications.stream()
+                        .filter(application -> selectedStatus.equals(application.getStatus()))
+                        .toList();
         Map<JobListing, List<JobApplication>> applicationsByJob = applications.stream().collect(Collectors.groupingBy(JobApplication::getJobListing, LinkedHashMap::new, Collectors.toList()));
+        Map<JobListing, List<JobApplication>> deletedApplicationsByJob = deletedApplications.stream().collect(Collectors.groupingBy(JobApplication::getJobListing, LinkedHashMap::new, Collectors.toList()));
+        Map<String, Long> statusCounts = new LinkedHashMap<>();
+        for (String applicationStatus : APPLICATION_STATUSES) {
+            statusCounts.put(applicationStatus, activeApplications.stream()
+                    .filter(application -> applicationStatus.equals(application.getStatus()))
+                    .count());
+        }
         model.addAttribute("applicationsByJob", applicationsByJob);
+        model.addAttribute("deletedApplicationsByJob", deletedApplicationsByJob);
+        model.addAttribute("applicationStatuses", APPLICATION_STATUSES);
+        model.addAttribute("selectedStatus", selectedStatus);
+        model.addAttribute("statusCounts", statusCounts);
+        model.addAttribute("totalApplications", activeApplications.size());
+        model.addAttribute("displayedApplications", applications.size());
+        model.addAttribute("deletedApplicationsCount", deletedApplications.size());
         return "recruiter-applications";
     }
 
@@ -303,14 +403,26 @@ public class MainController {
 
         String email = (String) session.getAttribute("loggedInUserEmail");
         Optional<JobApplication> application = jobApplicationRepository.findByIdAndJobListing_Recruiter_Email(applicationId, email);
-        if (application.isEmpty() || application.get().getApplicant().getResumeFilename() == null) return ResponseEntity.notFound().build();
+        if (application.isEmpty() || application.get().getSelectedResume() == null) return ResponseEntity.notFound().build();
 
-        Path uploadsFolder = Paths.get("uploads").toAbsolutePath().normalize();
-        Path resumePath = uploadsFolder.resolve(application.get().getApplicant().getResumeFilename()).normalize();
-        if (!resumePath.startsWith(uploadsFolder) || !Files.exists(resumePath)) return ResponseEntity.notFound().build();
+        Resume resume = application.get().getSelectedResume();
+        Resource resumeFile = new ByteArrayResource(resume.getData());
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resume.getFilename() + "\"").body(resumeFile);
+    }
 
-        Resource resume = new UrlResource(resumePath.toUri());
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resumePath.getFileName() + "\"").body(resume);
+    @GetMapping("/recruiter/applications/{applicationId}/cover-letter")
+    public ResponseEntity<Resource> downloadApplicantCoverLetter(@PathVariable Long applicationId, HttpSession session) {
+        if (!isAuth(session) || !isRecruiter(session)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        Optional<JobApplication> application = jobApplicationRepository.findByIdAndJobListing_Recruiter_Email(applicationId, email);
+        if (application.isEmpty() || !application.get().hasCoverLetter()) return ResponseEntity.notFound().build();
+
+        Resource coverLetter = new ByteArrayResource(application.get().getCoverLetterData());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + application.get().getCoverLetterFilename() + "\"")
+                .body(coverLetter);
     }
     // Updated profile page
     @GetMapping("/profile")
@@ -422,14 +534,16 @@ public class MainController {
         String cleanKeyword = keyword.trim();
         String cleanLocation = location.trim();
         String cleanJobType = jobType.trim();
+        String email = (String) session.getAttribute("loggedInUserEmail");
 
         //Calls search query returning list of matching jobs
-        List<JobListing> jobs = jobRepository.search(cleanKeyword, cleanLocation, cleanJobType);
+        List<JobListing> jobs = jobRepository.search(cleanKeyword, cleanLocation, cleanJobType, email);
 
         //Attributes from the database
         model.addAttribute("jobs", jobs);
         model.addAttribute("locations", jobRepository.findDistinctLocations());
         model.addAttribute("jobTypes", jobRepository.findDistinctJobTypes());
+        model.addAttribute("resumes", resumeService.list(email));
 
         //Attributes from the user
         model.addAttribute("keyword", cleanKeyword);
