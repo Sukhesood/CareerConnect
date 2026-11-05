@@ -168,6 +168,23 @@ public class MainController {
         return "redirect:/my_job_postings";
     }
 
+    @PostMapping("/job_posting/{id}/delete")
+    public String deleteJobPosting(@PathVariable Long id, HttpSession session, RedirectAttributes redirect) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (!isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        Optional<JobListing> job = jobPostingService.getOwnedJobListing(id, email);
+        if (job.isEmpty()) {
+            redirect.addFlashAttribute("error", "That job posting could not be found.");
+            return "redirect:/my_job_postings";
+        }
+
+        jobPostingService.deleteJobListing(job.get());
+        redirect.addFlashAttribute("success", "The job posting was deleted. Existing applications were marked as Rejected.");
+        return "redirect:/my_job_postings";
+    }
+
 
 
     @GetMapping({"/login"})
@@ -321,25 +338,34 @@ public class MainController {
 
         String email = (String) session.getAttribute("loggedInUserEmail");
         List<JobApplication> allApplications = jobApplicationRepository.findByJobListing_Recruiter_EmailOrderBySubmittedAtDesc(email);
+        List<JobApplication> activeApplications = allApplications.stream()
+                .filter(application -> !application.getJobListing().isDeleted())
+                .toList();
+        List<JobApplication> deletedApplications = allApplications.stream()
+                .filter(application -> application.getJobListing().isDeleted())
+                .toList();
         String selectedStatus = APPLICATION_STATUSES.contains(status) ? status : "";
         List<JobApplication> applications = selectedStatus.isEmpty()
-                ? allApplications
-                : allApplications.stream()
+                ? activeApplications
+                : activeApplications.stream()
                         .filter(application -> selectedStatus.equals(application.getStatus()))
                         .toList();
         Map<JobListing, List<JobApplication>> applicationsByJob = applications.stream().collect(Collectors.groupingBy(JobApplication::getJobListing, LinkedHashMap::new, Collectors.toList()));
+        Map<JobListing, List<JobApplication>> deletedApplicationsByJob = deletedApplications.stream().collect(Collectors.groupingBy(JobApplication::getJobListing, LinkedHashMap::new, Collectors.toList()));
         Map<String, Long> statusCounts = new LinkedHashMap<>();
         for (String applicationStatus : APPLICATION_STATUSES) {
-            statusCounts.put(applicationStatus, allApplications.stream()
+            statusCounts.put(applicationStatus, activeApplications.stream()
                     .filter(application -> applicationStatus.equals(application.getStatus()))
                     .count());
         }
         model.addAttribute("applicationsByJob", applicationsByJob);
+        model.addAttribute("deletedApplicationsByJob", deletedApplicationsByJob);
         model.addAttribute("applicationStatuses", APPLICATION_STATUSES);
         model.addAttribute("selectedStatus", selectedStatus);
         model.addAttribute("statusCounts", statusCounts);
-        model.addAttribute("totalApplications", allApplications.size());
+        model.addAttribute("totalApplications", activeApplications.size());
         model.addAttribute("displayedApplications", applications.size());
+        model.addAttribute("deletedApplicationsCount", deletedApplications.size());
         return "recruiter-applications";
     }
 

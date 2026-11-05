@@ -52,6 +52,10 @@
         .filter-bar select { font: inherit; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: white; }
         .filter-bar button { border: 0; border-radius: 6px; background: var(--blue); color: white; padding: 9px 14px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
         .clear-filter { color: var(--blue); font-size: 14px; font-weight: 700; text-decoration: none; padding: 9px 2px; }
+        .deleted-postings { margin-top: 32px; }
+        .deleted-postings h2 { color: #7a3b00; }
+        .deleted-note { margin: 0 0 16px; color: var(--muted); }
+        .deleted-badge { background: #fff3df; color: #7a3b00; }
         @media (max-width: 600px) { header { padding: 0 20px; } main { padding: 32px 18px; } .job-header, .application-header { flex-direction: column; } }
     </style>
 </head>
@@ -96,7 +100,26 @@
                 </article>
             </div>
         </section>
-        <div class="empty-state" th:if="${#maps.isEmpty(applicationsByJob)}"><h2>No applications received yet</h2><p>Applications for your job postings will appear here.</p></div>
+        <div class="empty-state" th:if="${#maps.isEmpty(applicationsByJob) and #maps.isEmpty(deletedApplicationsByJob)}"><h2>No applications received yet</h2><p>Applications for your job postings will appear here.</p></div>
+    </section>
+    <section class="deleted-postings" th:if="${!#maps.isEmpty(deletedApplicationsByJob)}" aria-label="Deleted job postings">
+        <h2>Deleted job postings</h2>
+        <p class="deleted-note" th:text="${deletedApplicationsCount + ' application(s) from deleted postings are kept here for reference.'}">Applications from deleted postings are kept here for reference.</p>
+        <section class="job-list">
+            <section class="job-section" th:each="entry : ${deletedApplicationsByJob}">
+                <div class="job-header"><div><h2 th:text="${entry.key.title}">Deleted job title</h2><p class="company" th:text="${entry.key.companyName}">Company</p></div><span class="application-count" th:text="${#lists.size(entry.value) + ' application(s)'}">1 application</span></div>
+                <div class="application-list">
+                    <article class="application-card" th:each="jobApplication : ${entry.value}">
+                        <div class="application-header"><p class="applicant"><strong th:text="${jobApplication.applicant.firstName + ' ' + jobApplication.applicant.lastName}">Applicant name</strong> &middot; <span th:text="${jobApplication.applicant.email}">email@example.com</span></p><span class="status deleted-badge">Posting deleted</span></div>
+                        <a class="resume-link" th:if="${jobApplication.selectedResume != null}" th:href="@{/recruiter/applications/{id}/resume(id=${jobApplication.id})}">Download selected resume</a>
+                        <p class="no-resume" th:unless="${jobApplication.selectedResume != null}">No resume was selected for this application.</p>
+                        <a class="resume-link" th:if="${jobApplication.hasCoverLetter()}" th:href="@{/recruiter/applications/{id}/cover-letter(id=${jobApplication.id})}">Download cover letter</a>
+                        <p class="date" th:if="${jobApplication.submittedAt != null}">Submitted <span th:text="${#temporals.format(jobApplication.submittedAt, 'MMMM d, yyyy')}">January 1, 2026</span></p>
+                        <p class="date" th:unless="${jobApplication.submittedAt != null}">Submission date unavailable</p>
+                    </article>
+                </div>
+            </section>
+        </section>
     </section>
 </main>
 </body>

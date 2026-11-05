@@ -14,9 +14,13 @@ public class JobPostingService {
 
     private final UserRepository userRepository;
     private final JobRepository jobRepository;
-    public JobPostingService(UserRepository userRepository, JobRepository jobRepository) {
+    private final JobApplicationRepository jobApplicationRepository;
+
+    public JobPostingService(UserRepository userRepository, JobRepository jobRepository,
+                             JobApplicationRepository jobApplicationRepository) {
         this.userRepository = userRepository;
         this.jobRepository=jobRepository;
+        this.jobApplicationRepository = jobApplicationRepository;
     }
 
 
@@ -54,7 +58,7 @@ public class JobPostingService {
         if (recruiterEmail == null) {
             return List.of();
         }
-        return jobRepository.findByRecruiter_EmailOrderByPostedDateDescIdDesc(recruiterEmail);
+        return jobRepository.findByRecruiter_EmailAndDeletedFalseOrderByPostedDateDescIdDesc(recruiterEmail);
     }
 
     public List<JobListing> getAvailableJobListings(String applicantEmail) {
@@ -65,7 +69,7 @@ public class JobPostingService {
     }
 
     public java.util.Optional<JobListing> getJobListing(Long jobId) {
-        return jobRepository.findById(jobId);
+        return jobRepository.findByIdAndDeletedFalse(jobId);
     }
 
     // US 3.3 (#35): a job listing, but only if the given recruiter created it
@@ -73,7 +77,7 @@ public class JobPostingService {
         if (jobId == null || recruiterEmail == null) {
             return java.util.Optional.empty();
         }
-        return jobRepository.findByIdAndRecruiter_Email(jobId, recruiterEmail);
+        return jobRepository.findByIdAndRecruiter_EmailAndDeletedFalse(jobId, recruiterEmail);
     }
 
     // US 3.3 (#35): copy a saved job listing into a form so the edit page opens pre-filled
@@ -114,6 +118,18 @@ public class JobPostingService {
         job.setCoverLetterRequired(form.isCoverLetterRequired());
         job.setDeadline(form.getDeadline());
         return jobRepository.save(job);
+    }
+
+    @Transactional
+    public void deleteJobListing(JobListing job) {
+        List<JobApplication> applications = jobApplicationRepository.findByJobListing_Id(job.getId());
+        for (JobApplication application : applications) {
+            application.setStatus("Rejected");
+        }
+        jobApplicationRepository.saveAll(applications);
+
+        job.setDeleted(true);
+        jobRepository.save(job);
     }
 
 }
