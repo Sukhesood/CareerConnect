@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CareerConnect - Job Details</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
+    <style>
+        :root { --blue: #2f5f96; --blue-light: #eaf1f8; --page: #f8f9fa; --text: #202124; --muted: #5f6368; --border: #d3deec; --warning: #8a4b00; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--page); color: var(--text); font-family: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+        header { height: 72px; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; background: white; border-bottom: 1px solid var(--border); }
+        .brand { display: flex; align-items: center; gap: 12px; color: var(--blue); text-decoration: none; font-size: 21px; font-weight: 800; }
+        .brand img { height: 38px; }
+        .back-link { color: var(--muted); font-size: 14px; font-weight: 700; text-decoration: none; }
+        .back-link:hover { color: var(--blue); }
+        main { max-width: 940px; margin: 0 auto; padding: 44px 24px 64px; }
+        .card { padding: 30px; background: white; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 2px 10px rgba(20, 37, 59, 0.05); }
+        .top { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+        h1 { margin: 0 0 8px; color: var(--blue); font-size: 32px; }
+        h2 { margin: 28px 0 10px; font-size: 18px; }
+        .company { margin: 0; font-size: 17px; font-weight: 800; }
+        .meta, .copy { color: var(--muted); line-height: 1.65; }
+        .copy { white-space: pre-line; }
+        .badge { padding: 7px 11px; white-space: nowrap; border-radius: 16px; background: var(--blue-light); color: var(--blue); font-size: 13px; font-weight: 800; }
+        .details { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-top: 24px; }
+        .detail { padding: 14px; background: var(--page); border: 1px solid var(--border); border-radius: 8px; }
+        .detail strong { display: block; margin-bottom: 5px; font-size: 13px; color: var(--muted); }
+        .notice { margin-top: 20px; padding: 11px 13px; border-radius: 8px; background: #fff4e5; color: var(--warning); font-size: 14px; font-weight: 700; }
+        .apply-area { margin-top: 30px; padding-top: 24px; border-top: 1px solid var(--border); }
+        label { display: block; margin: 14px 0 6px; color: var(--muted); font-size: 14px; font-weight: 700; }
+        select, input[type="file"] { max-width: 100%; font: inherit; }
+        select { width: 100%; max-width: 420px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 6px; background: white; }
+        .apply-button { margin-top: 20px; border: 0; border-radius: 6px; background: var(--blue); color: white; padding: 11px 18px; font: inherit; font-weight: 800; cursor: pointer; }
+        .apply-button:hover { background: #244b77; }
+        @media (max-width: 600px) { header { padding: 0 20px; } main { padding: 28px 18px; } .card { padding: 21px; } .top { flex-direction: column; } }
+    </style>
+</head>
+<body>
+<header>
+    <a class="brand" th:href="@{/}" aria-label="CareerConnect home"><img th:src="@{/images/logo-mark.png}" alt=""><span>CareerConnect</span></a>
+    <a class="back-link" th:href="@{/job_postings}">← Back to jobs</a>
+</header>
+<main>
+    <article class="card">
+        <div class="top"><div><h1 th:text="${job.title}">Job title</h1><p class="company" th:text="${job.companyName}">Company</p><p class="meta" th:text="${job.location + ' · ' + job.workMode}">Montreal · Hybrid</p></div><span class="badge" th:text="${job.jobType}">Full-time</span></div>
+        <div class="details">
+            <div class="detail" th:if="${job.deadline != null}"><strong>Apply by</strong><span th:text="${job.deadline}">2026-01-01</span></div>
+            <div class="detail" th:if="${job.salaryMin != null || job.salaryMax != null}"><strong>Salary</strong><span th:if="${job.salaryMin != null}" th:text="${'$' + job.salaryMin}">$0</span><span th:if="${job.salaryMin != null && job.salaryMax != null}"> – </span><span th:if="${job.salaryMax != null}" th:text="${'$' + job.salaryMax}">$0</span><span th:if="${job.salaryPeriod != null}" th:text="${' / ' + job.salaryPeriod}"> / year</span></div>
+            <div class="detail" th:if="${job.postedDate != null}"><strong>Posted</strong><span th:text="${job.postedDate}">2026-01-01</span></div>
+        </div>
+        <h2>About this role</h2><p class="copy" th:text="${job.description}">Job description</p>
+        <div th:if="${job.requirement != null && !job.requirement.isBlank()}"><h2>Requirements</h2><p class="copy" th:text="${job.requirement}">Requirements</p></div>
+        <div th:if="${job.skills != null && !job.skills.isBlank()}"><h2>Skills</h2><p class="copy" th:text="${job.skills}">Skills</p></div>
+        <p class="notice" th:if="${job.coverLetterRequired}">A cover letter is required for this application.</p>
+        <section class="apply-area"><h2>Apply for this job</h2><form th:action="@{/job_postings/{id}/apply(id=${job.id})}" method="post" enctype="multipart/form-data">
+            <label th:if="${!#lists.isEmpty(resumes)}" for="resumeId">Choose resume to send</label>
+            <select th:if="${!#lists.isEmpty(resumes)}" id="resumeId" name="resumeId" required><option value="">Choose a resume</option><option th:each="resume : ${resumes}" th:value="${resume.id}" th:text="${resume.filename}">Resume.pdf</option></select>
+            <input th:if="${#lists.isEmpty(resumes)}" type="hidden" name="resumeId" value=""><p class="notice" th:if="${#lists.isEmpty(resumes)}">Upload a resume on your Profile before applying.</p>
+            <label th:if="${job.coverLetterRequired}" for="coverLetter">Upload cover letter (PDF or DOCX, max 4 MB)</label>
+            <input th:if="${job.coverLetterRequired}" id="coverLetter" name="coverLetter" type="file" accept=".pdf,.docx" required>
+            <button class="apply-button" type="submit">Submit application</button>
+        </form></section>
+    </article>
+</main>
+</body>
+</html>

@@ -201,6 +201,8 @@
 .job-company { margin: 0 0 10px; font-size: 15px; font-weight: 500; }
 .job-description { margin: 0 0 8px; font-size: 14px; line-height: 1.5; color: var(--text-secondary); }
 .job-date { font-size: 12px; color: var(--text-secondary); }
+.cover-letter-required { display: inline-block; margin: 14px 0 0; padding: 6px 10px; border-radius: 16px; background: #fff4e5; color: #8a4b00; font-size: 13px; font-weight: 700; }
+.cover-letter-upload { display: block; margin-top: 10px; font-size: 14px; color: var(--text-secondary); }
 .tag {
     background-color: #f0f0f0;
     border-radius: 8px;
@@ -315,13 +317,24 @@
         </p>
         <!--Abbreviates job posting description if longer than 220 characters by adding "..."-->
         <p class="job-description" th:text="${#strings.abbreviate(job.description, 220)}"></p>
+        <a class="clear-link" th:href="@{/job_postings/{id}(id=${job.id})}">View full details</a>
 
         <!--Shows date that the job was posted if there is a date-->
         <small class="job-date" th:if="${job.postedDate != null}" th:text="'Posted ' + ${job.postedDate}"></small>
 
         <!--Shows if there is a deadline to apply for the job listing-->
         <small class="job-date" th:if="${job.deadline != null}" th:text="' | Apply by ' + ${job.deadline}"></small>
-        <form th:action="@{/job_postings/{id}/apply(id=${job.id})}" method="post" style="margin-top: 14px;">
+        <p class="cover-letter-required" th:if="${job.coverLetterRequired}">Cover letter required to apply</p>
+        <form th:action="@{/job_postings/{id}/apply(id=${job.id})}" method="post" enctype="multipart/form-data" style="margin-top: 14px;">
+      <label class="cover-letter-upload" th:if="${!#lists.isEmpty(resumes)}" th:for="${'resume-search-' + job.id}">Choose resume to send</label>
+      <select th:if="${!#lists.isEmpty(resumes)}" th:id="${'resume-search-' + job.id}" name="resumeId" required>
+          <option value="">Choose a resume</option>
+          <option th:each="resume : ${resumes}" th:value="${resume.id}" th:text="${resume.filename}">Resume.pdf</option>
+      </select>
+      <input th:if="${#lists.isEmpty(resumes)}" type="hidden" name="resumeId" value="">
+      <p class="cover-letter-upload" th:if="${#lists.isEmpty(resumes)}">Upload a resume on your Profile before applying.</p>
+            <label class="cover-letter-upload" th:if="${job.coverLetterRequired}" th:for="${'cover-letter-search-' + job.id}">Upload cover letter (PDF or DOCX, max 4 MB)</label>
+            <input th:if="${job.coverLetterRequired}" th:id="${'cover-letter-search-' + job.id}" name="coverLetter" type="file" accept=".pdf,.docx" required>
             <button type="submit" style="border: 0; border-radius: 6px; background: #2f5f96; color: white; padding: 9px 16px; font: inherit; font-weight: 700; cursor: pointer;">Apply</button>
         </form>
     </div>

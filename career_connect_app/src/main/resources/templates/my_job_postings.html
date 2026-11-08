@@ -155,6 +155,11 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba(47, 95, 150, 0.28);
         }
+        .btn-danger { background: #b3261e; border-color: #b3261e; color: var(--white); }
+        .btn-danger:hover {
+            background: #8f1d17; border-color: #8f1d17;
+            transform: translateY(-2px); box-shadow: 0 6px 14px rgba(179, 38, 30, 0.28);
+        }
         .btn-small { padding: 8px 18px; font-size: 0.95rem; }
         .btn:active { transform: translateY(0); box-shadow: none; }
 
@@ -340,7 +345,14 @@
                 <span class="posted" th:if="${job.postedDate != null}"
                       th:text="'Posted ' + ${#temporals.format(job.postedDate, 'MMM d, yyyy')}">Posted Oct 16, 2026</span>
                 <!-- US 3.3 (#35): edit page for this posting -->
-                <a class="btn btn-secondary btn-small" th:href="@{/job_posting/{id}/edit(id=${job.id})}">Edit</a>
+                <div style="display: flex; gap: 8px;">
+                    <a class="btn btn-secondary btn-small" th:href="@{/recruiter/applications(jobId=${job.id})}" th:text="${applicationCounts.get(job.id) + ' application(s)'}">0 application(s)</a>
+                    <a class="btn btn-secondary btn-small" th:href="@{/job_posting/{id}/edit(id=${job.id})}">Edit</a>
+                    <form th:action="@{/job_posting/{id}/delete(id=${job.id})}" method="post" style="margin: 0;"
+                          onsubmit="return confirm('Delete this job posting? Existing applications will be marked as Rejected.');">
+                        <button class="btn btn-danger btn-small" type="submit">Delete</button>
+                    </form>
+                </div>
             </div>
         </li>
     </ul>

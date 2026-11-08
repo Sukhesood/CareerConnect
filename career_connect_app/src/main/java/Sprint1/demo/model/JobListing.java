@@ -40,6 +40,7 @@ public class JobListing {
     private LocalDate deadline;
     private String salaryPeriod;
     private LocalDate postedDate;
+    private boolean deleted;
 
     @PrePersist
     protected void onCreate() {
@@ -214,5 +215,13 @@ public class JobListing {
 
     public void setPostedDate(LocalDate postedDate) {
         this.postedDate = postedDate;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }
