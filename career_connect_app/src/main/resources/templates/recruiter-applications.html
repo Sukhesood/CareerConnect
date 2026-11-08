@@ -49,7 +49,7 @@
         .summary-label { display: block; margin-top: 5px; color: var(--muted); font-size: 13px; font-weight: 700; }
         .filter-bar { display: flex; align-items: end; gap: 12px; flex-wrap: wrap; margin: 0 0 24px; padding: 16px; background: white; border: 1px solid var(--border); border-radius: 10px; }
         .filter-bar label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 13px; font-weight: 700; }
-        .filter-bar select { font: inherit; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: white; }
+        .filter-bar select, .filter-bar input { font: inherit; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: white; }
         .filter-bar button { border: 0; border-radius: 6px; background: var(--blue); color: white; padding: 9px 14px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
         .clear-filter { color: var(--blue); font-size: 14px; font-weight: 700; text-decoration: none; padding: 9px 2px; }
         .deleted-postings { margin-top: 32px; }
@@ -69,14 +69,18 @@
     <p class="intro">Review applications grouped by the job posting they were submitted for.</p>
     <p class="message success" th:if="${success}" th:text="${success}">Status updated.</p>
     <p class="message error" th:if="${error}" th:text="${error}">An error occurred.</p>
+    <p class="message error" th:if="${filterError}" th:text="${filterError}">The start date must be on or before the end date.</p>
     <section class="summary-grid" aria-label="Application summary">
         <a class="summary-card" th:classappend="${selectedStatus.isEmpty()} ? 'active'" th:href="@{/recruiter/applications}"><span class="summary-number" th:text="${totalApplications}">0</span><span class="summary-label">All applications</span></a>
         <a class="summary-card" th:each="applicationStatus : ${applicationStatuses}" th:classappend="${selectedStatus == applicationStatus} ? 'active'" th:href="@{/recruiter/applications(status=${applicationStatus})}"><span class="summary-number" th:text="${statusCounts.get(applicationStatus)}">0</span><span class="summary-label" th:text="${applicationStatus}">Applied</span></a>
     </section>
     <form class="filter-bar" method="get" th:action="@{/recruiter/applications}">
+        <div><label for="job-filter">Job posting</label><select id="job-filter" name="jobId"><option value="">All job postings</option><option th:each="jobPosting : ${jobPostings}" th:value="${jobPosting.id}" th:text="${jobPosting.title + ' - ' + jobPosting.companyName}" th:selected="${selectedJobId == jobPosting.id}">Job posting</option></select></div>
         <div><label for="status-filter">Filter by status</label><select id="status-filter" name="status"><option value="">All statuses</option><option th:each="applicationStatus : ${applicationStatuses}" th:value="${applicationStatus}" th:text="${applicationStatus}" th:selected="${selectedStatus == applicationStatus}">Applied</option></select></div>
+        <div><label for="from-date">Submitted from</label><input id="from-date" type="date" name="fromDate" th:value="${fromDate}"></div>
+        <div><label for="to-date">Submitted to</label><input id="to-date" type="date" name="toDate" th:value="${toDate}"></div>
         <button type="submit">Apply filter</button>
-        <a class="clear-filter" th:if="${!selectedStatus.isEmpty()}" th:href="@{/recruiter/applications}">Clear</a>
+        <a class="clear-filter" th:if="${!selectedStatus.isEmpty() or selectedJobId != null or fromDate != null or toDate != null}" th:href="@{/recruiter/applications}">Clear</a>
         <span class="application-count" th:text="${displayedApplications + ' shown'}">0 shown</span>
     </form>
     <section class="job-list" aria-label="Received applications grouped by job posting">

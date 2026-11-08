@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -119,7 +120,13 @@ public class MainController {
         if (!isRecruiter(session)) return "redirect:/dashboard";
 
         String email = (String) session.getAttribute("loggedInUserEmail");
-        model.addAttribute("jobListings", jobPostingService.getJobListingsForRecruiter(email));
+        List<JobListing> jobListings = jobPostingService.getJobListingsForRecruiter(email);
+        Map<Long, Long> applicationCounts = new LinkedHashMap<>();
+        for (JobListing jobListing : jobListings) {
+            applicationCounts.put(jobListing.getId(), jobApplicationRepository.countByJobListing_Id(jobListing.getId()));
+        }
+        model.addAttribute("jobListings", jobListings);
+        model.addAttribute("applicationCounts", applicationCounts);
         model.addAttribute("today", LocalDate.now());
         return "my_job_postings";
     }
@@ -332,6 +339,9 @@ public class MainController {
 
     @GetMapping("/recruiter/applications")
     public String showRecruiterApplications(@RequestParam(value = "status", defaultValue = "") String status,
+                                            @RequestParam(value = "jobId", required = false) Long jobId,
+                                            @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+                                            @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
                                             HttpSession session, Model model) {
         if (!isAuth(session)) return "redirect:/login";
         if (!isRecruiter(session)) return "redirect:/dashboard";
@@ -345,11 +355,13 @@ public class MainController {
                 .filter(application -> application.getJobListing().isDeleted())
                 .toList();
         String selectedStatus = APPLICATION_STATUSES.contains(status) ? status : "";
-        List<JobApplication> applications = selectedStatus.isEmpty()
-                ? activeApplications
-                : activeApplications.stream()
-                        .filter(application -> selectedStatus.equals(application.getStatus()))
-                        .toList();
+        boolean invalidDateRange = fromDate != null && toDate != null && fromDate.isAfter(toDate);
+        List<JobApplication> applications = invalidDateRange ? List.of() : activeApplications.stream()
+                .filter(application -> selectedStatus.isEmpty() || selectedStatus.equals(application.getStatus()))
+                .filter(application -> jobId == null || jobId.equals(application.getJobListing().getId()))
+                .filter(application -> fromDate == null || (application.getSubmittedAt() != null && !application.getSubmittedAt().toLocalDate().isBefore(fromDate)))
+                .filter(application -> toDate == null || (application.getSubmittedAt() != null && !application.getSubmittedAt().toLocalDate().isAfter(toDate)))
+                .toList();
         Map<JobListing, List<JobApplication>> applicationsByJob = applications.stream().collect(Collectors.groupingBy(JobApplication::getJobListing, LinkedHashMap::new, Collectors.toList()));
         Map<JobListing, List<JobApplication>> deletedApplicationsByJob = deletedApplications.stream().collect(Collectors.groupingBy(JobApplication::getJobListing, LinkedHashMap::new, Collectors.toList()));
         Map<String, Long> statusCounts = new LinkedHashMap<>();
@@ -366,6 +378,11 @@ public class MainController {
         model.addAttribute("totalApplications", activeApplications.size());
         model.addAttribute("displayedApplications", applications.size());
         model.addAttribute("deletedApplicationsCount", deletedApplications.size());
+        model.addAttribute("jobPostings", jobPostingService.getJobListingsForRecruiter(email));
+        model.addAttribute("selectedJobId", jobId);
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("toDate", toDate);
+        model.addAttribute("filterError", invalidDateRange ? "The start date must be on or before the end date." : null);
         return "recruiter-applications";
     }
 

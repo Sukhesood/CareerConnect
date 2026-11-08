@@ -14,6 +14,7 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
     List<JobApplication> findByApplicant_EmailOrderBySubmittedAtDesc(String email);
     boolean existsByApplicant_EmailAndJobListing_Id(String email, Long jobListingId);
     List<JobApplication> findByJobListing_Id(Long jobListingId);
+    long countByJobListing_Id(Long jobListingId);
     @EntityGraph(attributePaths = {"applicant", "jobListing", "selectedResume"})
     List<JobApplication> findByJobListing_Recruiter_EmailOrderBySubmittedAtDesc(String email);
     @EntityGraph(attributePaths = {"applicant", "jobListing", "selectedResume"})
