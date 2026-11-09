@@ -54,14 +54,10 @@
 </head>
 <body>
 
-    <header>
-        <div class="wrap header-inner">
-            <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
-                <img th:src="@{/images/logo-mark.png}" alt="">
-                <span>CareerConnect</span>
-            </a>
-        </div>
-    </header>
+<!-- common header -->
+
+<header  th:replace="~{fragments :: header-seeker}"></header>
+
 
     <!-- Main Content Area -->
     <div class="main-content">

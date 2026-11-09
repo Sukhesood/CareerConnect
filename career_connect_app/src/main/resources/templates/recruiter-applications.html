@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>CareerConnect - Received Applications</title>
     <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
+
     <style>
         :root { --blue: #2f5f96; --blue-light: #eaf1f8; --page: #f8f9fa; --text: #202124; --muted: #5f6368; --border: #d3deec; }
         * { box-sizing: border-box; }
@@ -14,7 +15,7 @@
         .brand img { height: 38px; }
         .nav-link { color: var(--muted); font-size: 14px; font-weight: 600; text-decoration: none; }
         .nav-link:hover { color: var(--blue); }
-        main { max-width: 1080px; margin: 0 auto; padding: 48px 24px 64px; }
+        main { max-width: 1440px; margin: 0 360px; padding: 48px 24px 64px; }
         h1 { margin: 0 0 10px; font-size: 34px; }
         .intro { margin: 0 0 32px; color: var(--muted); font-size: 16px; }
         .job-list { display: grid; gap: 24px; }
@@ -46,10 +47,11 @@
     </style>
 </head>
 <body>
-<header>
-    <a class="brand" th:href="@{/}" aria-label="CareerConnect home"><img th:src="@{/images/logo-mark.png}" alt=""><span>CareerConnect</span></a>
-    <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
-</header>
+<!-- common header -->
+
+<header  th:replace="~{fragments :: header-recruiter}"></header>
+
+
 <main>
     <h1>Received Applications</h1>
     <p class="intro">Review applications grouped by the job posting they were submitted for.</p>

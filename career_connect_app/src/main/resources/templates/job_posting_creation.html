@@ -6,6 +6,7 @@
     <title>CaCo - job posting creation</title>
     <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
 
+
     <style>
         :root {
             --ink: #14253b;
@@ -41,74 +42,8 @@
             border-radius: 4px;
         }
 
-        .wrap { max-width: 1440px; margin: 0 auto; padding: 0 24px; }
+        .wrap { max-width: 1440px; padding: 0 24px; }
 
-        /* ---------- Header (same as other pages) ---------- */
-        header { background: var(--white); border-bottom: 1px solid var(--line); }
-        .header-inner {
-            display: flex; align-items: center; justify-content: space-between;
-            height: 72px;
-        }
-        .brand {
-            display: flex; align-items: center; gap: 14px;
-            text-decoration: none; color: var(--blue-deep);
-            font-size: 24px; font-weight: 500;
-        }
-        .brand img { height: 38px; width: auto; display: block; }
-        .brand span { font-size: 21px; font-weight: 800; letter-spacing: -0.3px;}
-
-
-        .burger_menu {
-            color: var(--blue-deep);
-            border: none;
-            border-radius: 6px;
-            padding: 2px 2px;
-            display: inline-flex;
-            align-items: end;
-            justify-content: space-between;
-            cursor: pointer;
-        }
-        .burger_menu:hover { background-color: var(--blue-light); transition: background-color 0.5s; }
-        #checkbox_v { display: none; }
-
-        .burger_menu::before {
-            content: "";
-            background: url("/images/menu_icon.png") center / contain no-repeat;
-            height: 40px;
-            width: 40px;
-        }
-        #checkbox_v:checked ~ .burger_menu:before {
-            background: url("/images/close_icon.png") center / contain no-repeat;
-            z-index: 999;
-        }
-
-        .items {
-            position: absolute;
-            display: flex;
-            width: 200px;
-            top: 72px;
-            right: 50px;
-            flex-direction: column;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-in-out;
-            align-items: flex-start;
-            justify-content: flex-start;
-            background-color: var(--white);
-            border-width: 1px;
-            border-radius: 8px;
-            z-index: 10;
-        }
-        .item {
-            width: 100%;
-            padding: 15px;
-            border-radius: 0;
-            font-size: 15px;
-            font-weight: 800;
-            text-decoration: none;
-        }
-        .item:hover { background-color: var(--blue-light); }
-        #checkbox_v:checked ~ .items { max-height: 500px; }
 
         /* ---------- Page intro ---------- */
         .intro { padding: 56px 0 32px; }
@@ -234,8 +169,7 @@
         .btn:active { transform: translateY(0); box-shadow: none; }
 
         .actions { display: flex; gap: 14px; flex-wrap: wrap; }
-        .logout-item { color: #d93025 !important; padding: 15px; align-items: center; width: 100%; text-decoration: none;}
-        .logout-item:hover { background: #fce8e6 !important; }
+
 
 
 
@@ -397,27 +331,10 @@
 </head>
 <body>
 
-<header>
-    <div class="wrap header-inner">
-        <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
-            <img th:src="@{/images/logo-mark.png}" alt="">
-            <span>CareerConnect</span>
-        </a>
+<!-- common header -->
 
+<header  th:replace="~{fragments :: header-recruiter}"></header>
 
-
-            <input type="checkbox" name="" id="checkbox_v">
-            <label class="burger_menu" for="checkbox_v">
-            </label>
-            <div class="items">
-                <a class="item" th:href="@{/profile}">My profile</a>
-                <a class="item" th:href="@{/dashboard}">Dashboard</a>
-                <a class="logout-item"  style="" th:href="@{/logout}">Sign out</a>
-
-        </div>
-
-    </div>
-</header>
 
 <main class="wrap">
 

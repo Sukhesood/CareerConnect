@@ -38,6 +38,12 @@ header {
     z-index: 1000;
 }
 
+
+
+.header-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 72px;
+}
 .header-brand {
     display: flex;
     align-items: center;

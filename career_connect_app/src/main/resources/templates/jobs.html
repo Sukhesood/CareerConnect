@@ -238,26 +238,11 @@
 </head>
 <body>
 
-<header>
-    <div class="wrap header-inner">
-        <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
-            <img th:src="@{/images/logo-mark.png}"  alt="">
-            <span>CareerConnect</span>
-        </a>
+<!-- common header -->
 
 
+<header  th:replace="~{fragments :: header-seeker}"></header>
 
-        <input type="checkbox" name="" id="checkbox_v">
-        <label class="burger_menu" for="checkbox_v">
-        </label>
-        <div class="items">
-            <a class="item" th:href="@{/dashboard}">Dashboard</a>
-            <a class="logout-item"  style="" th:href="@{/logout}">Sign out</a>
-
-        </div>
-
-    </div>
-</header>
 
 <div class="main-content">
 

@@ -13,8 +13,6 @@
           type="image/png"
           th:href="@{/images/logo-mark.png}">
 
-    <link rel="stylesheet"
-          th:href="@{/css/layout.css}">
 
 
     <style>
@@ -56,9 +54,6 @@
             display: flex; align-items: center; justify-content: space-between;
             height: 72px;
         }
-        .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--blue-deep); }
-        .brand img { height: 38px; width: auto; display: block; }
-        .brand span { font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
 
         /* Professional Header */
         header {
@@ -83,58 +78,6 @@
             color: var(--text-main);
             letter-spacing: -0.3px;
         }
-
-        .header-nav {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .nav-link {
-            text-decoration: none;
-            color: var(--text-secondary);
-            font-weight: 500;
-            font-size: 14px;
-            transition: color 0.2s;
-        }
-
-        .nav-link:hover {
-            color: var(--blue-mid);
-        }
-
-        .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: var(--text-secondary);
-            background: var(--bg-color);
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-        }
-
-        .logout-btn {
-            background: transparent;
-            color: #d93025;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 500;
-            font-size: 14px;
-            border: 1px solid #fad2cf;
-            transition: all 0.2s ease;
-        }
-
-        .logout-btn:hover {
-            background: #fce8e6;
-            border-color: #f5c2bc;
-        }
-
-
-
-
-
 
         .profile-btn {
             display: inline-block;
@@ -181,27 +124,13 @@
 </head>
 
 <body>
-
-<header>
-    <div class="wrap header-inner">
-        <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
-            <img th:src="@{/images/logo-mark.png}" alt="">
-            <span>CareerConnect</span>
-        </a>
-    </div>
-    <div class="header-nav">
-        <a th:if="${isRecruiter}" th:href="@{/job_posting_creation}" class="nav-link">Create</a>
-        <a th:if="${isRecruiter}" th:href="@{/my_job_postings}" class="nav-link">My Job Postings</a>
-        <a th:if="${isRecruiter}" th:href="@{/recruiter/applications}" class="nav-link">Applications</a>
-        <a th:unless="${isRecruiter}" th:href="@{/jobs}" class="nav-link">Browse Jobs</a>
-        <a th:unless="${isRecruiter}" th:href="@{/applications}" class="nav-link">My Applications</a>
-        <a th:href="@{/profile}" class="nav-link">My Profile</a>
-        <div class="user-badge">
-            <span>🟢 Portal Active</span>
-        </div>
-        <a th:href="@{/logout}" class="logout-btn">Sign Out</a>
-    </div>
-</header>
+ <!-- common header -->
+ <div th:if="${isRecruiter}">
+    <header  th:replace="~{fragments :: header-recruiter}"></header>
+ </div>
+ <div th:if="${!isRecruiter}">
+     <header  th:replace="~{fragments :: header-seeker}"></header>
+ </div>
 
     <!-- DASHBOARD CONTENT -->
     <main class="main-content">
