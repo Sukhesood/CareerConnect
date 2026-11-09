@@ -29,8 +29,11 @@
         .location { margin: 14px 0 0; font-size: 14px; }
         .description { margin: 12px 0 0; }
         .job-type { padding: 6px 10px; white-space: nowrap; border-radius: 16px; background: var(--blue-light); color: var(--blue); font-size: 13px; font-weight: 700; }
+        .cover-letter-required { display: inline-block; margin: 14px 0 0; padding: 6px 10px; border-radius: 16px; background: #fff4e5; color: #8a4b00; font-size: 13px; font-weight: 700; }
         .apply-button { margin-top: 18px; border: 0; border-radius: 6px; background: var(--blue); color: white; padding: 10px 16px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
         .apply-button:hover { background: #244b77; }
+        .details-link { display: inline-block; margin: 18px 0 0 10px; color: var(--blue); font-size: 14px; font-weight: 700; text-decoration: none; }
+        .details-link:hover { text-decoration: underline; }
         .empty-state { padding: 32px; text-align: center; background: white; border: 1px dashed var(--border); border-radius: 10px; color: var(--muted); }
         .empty-state h2 { color: var(--text); }
         @media (max-width: 600px) { header { padding: 0 20px; } main { padding: 32px 18px; } .job-header { flex-direction: column; } }
@@ -51,7 +54,21 @@
             <div class="job-header"><div><h2 th:text="${job.title}">Job title</h2><p class="company" th:text="${job.companyName}">Company</p></div><span class="job-type" th:text="${job.jobType}">Full-time</span></div>
             <p class="location" th:text="${job.location + ' · ' + job.workMode}">Montreal, QC · Hybrid</p>
             <p class="description" th:text="${job.description}">Job description</p>
-            <form th:action="@{/job_postings/{id}/apply(id=${job.id})}" method="post"><button class="apply-button" type="submit">Apply</button></form>
+            <a class="details-link" th:href="@{/job_postings/{id}(id=${job.id})}">View full details</a>
+            <p class="cover-letter-required" th:if="${job.coverLetterRequired}">Cover letter required to apply</p>
+            <form th:action="@{/job_postings/{id}/apply(id=${job.id})}" method="post" enctype="multipart/form-data">
+                <label th:if="${!#lists.isEmpty(resumes)}" th:for="${'resume-' + job.id}" class="cover-letter-required">Choose resume to send</label>
+                <select th:if="${!#lists.isEmpty(resumes)}" th:id="${'resume-' + job.id}" name="resumeId" required>
+                    <option value="">Choose a resume</option>
+                    <option th:each="resume : ${resumes}" th:value="${resume.id}" th:text="${resume.filename}">Resume.pdf</option>
+                </select>
+                <input th:if="${#lists.isEmpty(resumes)}" type="hidden" name="resumeId" value="">
+                <p th:if="${#lists.isEmpty(resumes)}" class="cover-letter-required">Upload a resume on your Profile before applying.</p>
+                <label th:if="${job.coverLetterRequired}" th:for="${'cover-letter-' + job.id}" class="cover-letter-required">Upload cover letter (PDF or DOCX, max 4 MB)</label>
+                <input th:if="${job.coverLetterRequired}" th:id="${'cover-letter-' + job.id}" name="coverLetter" type="file" accept=".pdf,.docx" required>
+                <br th:if="${job.coverLetterRequired}">
+                <button class="apply-button" type="submit">Apply</button>
+            </form>
         </article>
         <div class="empty-state" th:if="${#lists.isEmpty(jobListings)}"><h2>No available job postings</h2><p>You have applied to every job posting currently available.</p></div>
     </section>
