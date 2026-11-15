@@ -1,10 +1,7 @@
 package Sprint1.demo.controller;
 
-import Sprint1.demo.model.JobListing;
-import Sprint1.demo.model.JobListingForm;
-import Sprint1.demo.model.JobApplication;
-import Sprint1.demo.model.Resume;
-import Sprint1.demo.model.User;
+import Sprint1.demo.model.*;
+import Sprint1.demo.repository.ApplicationSummaryRepository;
 import Sprint1.demo.repository.JobApplicationRepository;
 import Sprint1.demo.repository.JobRepository;
 import Sprint1.demo.service.JobPostingService;
@@ -14,6 +11,7 @@ import Sprint1.demo.service.ResumeService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.UrlResource;
@@ -38,10 +36,8 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -51,13 +47,15 @@ public class MainController {
      private final JobPostingService jobPostingService;
 	 private final JobApplicationRepository jobApplicationRepository;
      private final JobRepository jobRepository;
+     private final ApplicationSummaryRepository applicationSummaryRepository;
 	   public MainController(UserService userService, JobPostingService jobPostingService, JobApplicationRepository jobApplicationRepository,
-                             JobRepository jobRepository, ResumeService resumeService) {
+                             JobRepository jobRepository, ResumeService resumeService, ApplicationSummaryRepository applicationSummaryRepository) {
 	       this.userService = userService;
            this.jobPostingService=jobPostingService;
 	       this.jobApplicationRepository = jobApplicationRepository;
            this.jobRepository=jobRepository;
            this.resumeService=resumeService;
+           this.applicationSummaryRepository=applicationSummaryRepository;
 	   }
     private boolean isAuth(HttpSession session) {
         return (null != session.getAttribute("loggedInUserEmail"));
@@ -234,20 +232,34 @@ public class MainController {
 
         Optional<User> user = userService.findByEmail(email);
         user.ifPresent(value -> model.addAttribute("user", value));
+
+        List<Map<String, Object>> countStatus =sankeyData(session);
+        Map<String, Long> statusCount = new LinkedHashMap<>();
+        for (String stage : STAGES) {
+            statusCount.put(stage, 0L);                    // fixed order, zeros included
+        }
+        long total = 0;
+        for (Map<String, Object> l : countStatus) {
+            String source = (String) l.get("source");
+            String target = (String) l.get("target");
+            long value = ((Number) l.get("value")).longValue();
+
+            // everything leaving the first stage = all applications
+            if (source.equals("stage:" + STAGES.get(0))) {
+                total += value;
+            }
+            // links ending in Active/Closed = applications whose furthest stage is `source`
+            if (target.startsWith("active:") || target.startsWith("closed:")) {
+                statusCount.merge(source.substring("stage:".length()), value, Long::sum);
+            }
+        }
+
+        model.addAttribute("statusCount", statusCount);
+        model.addAttribute("totalApplications", total);
+
         return "dashboard";
     }
 
-
-    @GetMapping("/applications")
-    public String showSubmittedApplications(HttpSession session, Model model) {
-        if (!isAuth(session)) return "redirect:/login";
-        if (isRecruiter(session)) return "redirect:/dashboard";
-
-        String email = (String) session.getAttribute("loggedInUserEmail");
-        model.addAttribute("applications", jobApplicationRepository.findByApplicant_EmailOrderBySubmittedAtDesc(email));
-        model.addAttribute("applicationStatuses", APPLICATION_STATUSES);
-        return "submitted-applications";
-    }
 
     @GetMapping("/job_postings")
     public String showJobPostings(HttpSession session, Model model) {
@@ -257,6 +269,9 @@ public class MainController {
         String email = (String) session.getAttribute("loggedInUserEmail");
         model.addAttribute("jobListings", jobPostingService.getAvailableJobListings(email));
         model.addAttribute("resumes", resumeService.list(email));
+
+
+
         return "job-postings";
     }
 
@@ -332,10 +347,132 @@ public class MainController {
                 return "redirect:/job_postings";
             }
         }
+
+
         jobApplicationRepository.save(application);
         redirect.addFlashAttribute("success", "Your application was submitted.");
+
+        ApplicationSummary applicationSummary = createApplicationSummary(application, jobListing, session);
+
+        applicationSummaryRepository.save(applicationSummary);
+
+
         return "redirect:/job_postings";
     }
+
+    private static @NonNull ApplicationSummary createApplicationSummary(JobApplication application, Optional<JobListing> jobListing, HttpSession session) {
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        LocalDate date;
+        if (jobListing.get().getDeadline()==null){
+            date= LocalDate.of(0, 1, 1);
+        }
+        else {
+            date=jobListing.get().getDeadline();
+        }
+
+        ApplicationSummary applicationSummary = new ApplicationSummary();
+        applicationSummary.setAppliedDate(application.getSubmittedAt());
+        applicationSummary.setClosingDate(date);
+        applicationSummary.setCompany(jobListing.get().getCompanyName());
+        applicationSummary.setCreationDate(jobListing.get().getPostedDate());
+        applicationSummary.setTitle(jobListing.get().getTitle());
+        applicationSummary.setStatus(application.getStatus());
+        applicationSummary.setId_application(application.getId());
+        applicationSummary.setEmail(email);
+        applicationSummary.setState("Active");
+        return applicationSummary;
+    }
+
+    @GetMapping ("/applications")
+    public String myApplications(@RequestParam(required = false) String status,
+                                 @RequestParam(required = false) String keyword,
+                                 @RequestParam(required = false) String state,
+                                 @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+                                 @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+                                 HttpSession session, Model model){
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        if (email == null) return "redirect:/login";
+        if (isRecruiter(session)) return "redirect:/dashboard";
+        if (fromDate != null && toDate != null && fromDate.isAfter(toDate)) {
+            model.addAttribute("filterError", "The start date must be on or before the end date.");
+            fromDate = toDate = null;
+        }
+
+        model.addAttribute("applications", jobApplicationRepository.findByApplicant_EmailOrderBySubmittedAtDesc(email));
+        model.addAttribute("applicationStatuses", APPLICATION_STATUSES);
+
+
+        String statusParam  = (status == null || status.isBlank()) ? null : status;
+        String keywordParam = (keyword == null) ? "" : keyword.trim();
+        String stateParam = (state == null || state.isBlank()) ? null : state;
+
+
+
+        List<ApplicationSummary> applicationSummary = applicationSummaryRepository.search(email, statusParam, keywordParam, fromDate, toDate, stateParam);
+
+
+        model.addAttribute("applicationSummaries", applicationSummary);
+        model.addAttribute("applicationStatuses", APPLICATION_STATUSES);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("selectedStatus", statusParam);
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("toDate", toDate);
+        model.addAttribute("state", state);
+
+
+        return "/submitted-applications";
+    }
+
+    private static final List<String> STAGES = List.of("Applied", "Under Review", "Interview", "Offered");
+    private Map<String, Object> link(String source, String target, long value) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("source", source);
+        m.put("target", target);
+        m.put("value", value);
+        return m;
+    }
+    @GetMapping("/graph/applications")
+    @ResponseBody
+    public List<Map<String, Object>> sankeyData(HttpSession session) {
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        if (email == null) return List.of();
+
+        // status -> (state -> count)
+        Map<String, Map<String, Long>> counts = new HashMap<>();
+        for (Object[] row : applicationSummaryRepository.countByStatusAndState(email)) {
+            if (row[0] == null) continue;
+            String state = row[1] != null ? (String) row[1] : "Active";   // null state = still active
+            counts.computeIfAbsent((String) row[0], k -> new HashMap<>())
+                    .merge(state, ((Number) row[2]).longValue(), Long::sum);
+        }
+
+        int n = STAGES.size();
+
+        long[] atStage = new long[n];   // applications whose furthest stage is i
+        long[] reached = new long[n];   // applications that got to stage i or further
+        for (int i = n - 1; i >= 0; i--) {
+            atStage[i] = counts.getOrDefault(STAGES.get(i), Map.of())
+                    .values().stream().mapToLong(Long::longValue).sum();
+            reached[i] = atStage[i] + (i < n - 1 ? reached[i + 1] : 0);
+        }
+
+        List<Map<String, Object>> links = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            String stage = STAGES.get(i);
+
+            if (i < n - 1 && reached[i + 1] > 0) {
+                links.add(link("stage:" + stage, "stage:" + STAGES.get(i + 1), reached[i + 1]));
+            }
+            long closed = counts.getOrDefault(stage, Map.of()).getOrDefault("Closed", 0L);
+            long active = atStage[i] - closed;   // everything not Closed is still in progress
+
+            if (closed > 0) links.add(link("stage:" + stage, "closed:" + stage, closed));
+            if (active > 0) links.add(link("stage:" + stage, "active:" + stage, active));
+        }
+        return links;
+    }
+
 
     @GetMapping("/recruiter/applications")
     public String showRecruiterApplications(@RequestParam(value = "status", defaultValue = "") String status,
@@ -359,8 +496,8 @@ public class MainController {
         List<JobApplication> applications = invalidDateRange ? List.of() : activeApplications.stream()
                 .filter(application -> selectedStatus.isEmpty() || selectedStatus.equals(application.getStatus()))
                 .filter(application -> jobId == null || jobId.equals(application.getJobListing().getId()))
-                .filter(application -> fromDate == null || (application.getSubmittedAt() != null && !application.getSubmittedAt().toLocalDate().isBefore(fromDate)))
-                .filter(application -> toDate == null || (application.getSubmittedAt() != null && !application.getSubmittedAt().toLocalDate().isAfter(toDate)))
+                .filter(application -> fromDate == null || (application.getSubmittedAt() != null && !application.getSubmittedAt().isBefore(fromDate)))
+                .filter(application -> toDate == null || (application.getSubmittedAt() != null && !application.getSubmittedAt().isAfter(toDate)))
                 .toList();
         Map<JobListing, List<JobApplication>> applicationsByJob = applications.stream().collect(Collectors.groupingBy(JobApplication::getJobListing, LinkedHashMap::new, Collectors.toList()));
         Map<JobListing, List<JobApplication>> deletedApplicationsByJob = deletedApplications.stream().collect(Collectors.groupingBy(JobApplication::getJobListing, LinkedHashMap::new, Collectors.toList()));
@@ -399,6 +536,18 @@ public class MainController {
 
         String email = (String) session.getAttribute("loggedInUserEmail");
         Optional<JobApplication> application = jobApplicationRepository.findByIdAndJobListing_Recruiter_Email(applicationId, email);
+        applicationSummaryRepository.findByApplicationId(applicationId).ifPresent(
+                applicationSummary -> {
+                    if (status.equals("Rejected")) {
+                        applicationSummary.setState("Closed");
+                    }
+                    else{
+                        applicationSummary.setStatus(status);
+                        applicationSummaryRepository.save(applicationSummary);
+                    }
+
+                });
+
         if (application.isEmpty()) {
             redirect.addFlashAttribute("error", "That application could not be found.");
             return "redirect:/recruiter/applications";
