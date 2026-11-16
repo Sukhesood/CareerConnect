@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,7 +35,7 @@ public class JobApplication {
     private Resume selectedResume;
 
     private String status = "Applied";
-    private LocalDateTime submittedAt;
+    private LocalDate submittedAt;
 
     private String coverLetterFilename;
     private String coverLetterContentType;
@@ -47,7 +48,7 @@ public class JobApplication {
 
     @PrePersist
     protected void setSubmissionTime() {
-        if (submittedAt == null) submittedAt = LocalDateTime.now();
+        if (submittedAt == null) submittedAt = LocalDate.now();
     }
 
     public Long getId() { return id; }
@@ -59,8 +60,8 @@ public class JobApplication {
     public void setSelectedResume(Resume selectedResume) { this.selectedResume = selectedResume; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
-    public LocalDateTime getSubmittedAt() { return submittedAt; }
-    public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }
+    public LocalDate getSubmittedAt() { return submittedAt; }
+    public void setSubmittedAt(LocalDate submittedAt) { this.submittedAt = submittedAt; }
     public String getCoverLetterFilename() { return coverLetterFilename; }
     public void setCoverLetterFilename(String coverLetterFilename) { this.coverLetterFilename = coverLetterFilename; }
     public String getCoverLetterContentType() { return coverLetterContentType; }
