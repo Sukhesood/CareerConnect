@@ -201,9 +201,13 @@
 
 <!-- COMMON HEADER -->
 
-<header th:replace="~{fragments :: header}">
-</header>
-
+<!-- common header -->
+<div th:if="${isRecruiter}">
+    <header  th:replace="~{fragments :: header-recruiter}"></header>
+</div>
+<div th:if="${!isRecruiter}">
+    <header  th:replace="~{fragments :: header-seeker}"></header>
+</div>
 
 <!-- PROFILE CONTENT -->
 

@@ -26,3 +26,27 @@ The AI assistance helped me better understand Git branches and pull requests, Ja
 Responsible Person:
 Mark Kouka
 **********************************
+Task ID/Title:
+Sprint 3 Planning and GitHub User Story Organization
+
+Purpose of AI Use:
+Rephrasing and organizing Sprint Planning content into a clear GitHub-friendly format.
+
+Chat Link or Prompt/Response:
+https://chatgpt.com/share/6ab955fe-eeb4-83e9-b343-19b6a19c5e88
+
+AI-Suggested Content:
+ChatGPT helped transform the Sprint 3 planning requirements into organized GitHub content. This included structuring the recruiter dashboard and posting-management feature, breaking it into user stories, and formatting the content so it could be added clearly to GitHub issues.
+
+Validation:
+I reviewed the generated content, compared it with the Sprint 3 requirements, and created/reorganized the related GitHub feature and user-story issues.
+
+Decision:
+Modified before use and accepted.
+
+Reflection:
+The AI helped me make the Sprint Planning information clearer and easier to organize in GitHub. I still reviewed the requirements and decided how the feature, user stories, and issue structure should be organized.
+
+Responsible Person:
+Mark Kouka
+*****************

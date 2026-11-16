@@ -98,9 +98,131 @@ will be used to better organize the issues.
 Tool Used: claude sonnet 5.5
 • Intent: used to debug implementation of the burger menu, where the logo would not change from the burger icon to the x icone when pressing it
 • Prompts This was a prompt sequence. In resume, I provided it the snippet of code that implements my burger menu and explained the issue I had. I also explained
-the expected behavior and the link to the youtube video I was following.
-• Adaptation: The ai recommended me to used the checked keyword with the background being overwritten. I implemented his exemple with my value to test its answer
-and it worked correctly.
+=====================================================================
+QUESTION 1
+=====================================================================
+
+This is the implementation of a burger menu for a website. I am having issues with the icon not alternating between open and close, do you have any idea of the cause of the bug
+
+```
+.burger_menu label::before {
+    position: absolute;
+    content:"";
+    top: 0;
+    left: 0;
+    font-size: 30px;
+    background-image: url("/images/menu_icon.png");
+}
+#checkbox_v:checked ~ .burger_menu::before{
+    background-image: url("/images/close_icon.png");
+}
+```
+
+=====================================================================
+ANSWER 1
+=====================================================================
+
+Yes, the bug is in your second selector. The two rules don't target the same element, so the checked rule never affects the icon.
+
+**The cause**
+
+- Your icon is drawn on `.burger_menu label::before` (the `::before` of the **label** inside `.burger_menu`).
+- Your checked rule sets the background on `.burger_menu::before` (the `::before` of the **`.burger_menu` container itself**).
+
+Since the checked rule styles a different pseudo-element, the label's icon never changes. Even if it did target the right element, specificity would also be an issue (see below).
+
+**The fix**
+
+Make the checked selector point to the same element:
+
+```css
+#checkbox_v:checked ~ .burger_menu label::before {
+    background-image: url("/images/close_icon.png");
+}
+```
+
+**Two other things to check**
+
+1. **Sibling relationship.** The `~` combinator only works if `.burger_menu` comes **after** `#checkbox_v` in the HTML and shares the same parent. For example:
+
+   ```html
+   <input type="checkbox" id="checkbox_v">
+   <div class="burger_menu">
+       <label for="checkbox_v"></label>
+   </div>
+   ```
+
+   If the checkbox is inside `.burger_menu` instead, use `#checkbox_v:checked ~ label::before`, or restructure so the checkbox precedes the container.
+
+2. **Specificity.** `#checkbox_v:checked ~ .burger_menu label::before` has an ID in it, so it beats `.burger_menu label::before` and will override the background properly. This is already the case with the fixed selector, so no `!important` is needed.
+
+**Bonus: things that often make a `::before` icon invisible**
+
+A pseudo-element with only a `background-image` and `content: ""` has zero size, so make sure the label (or the `::before`) has dimensions:
+
+```css
+.burger_menu label::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 30px;
+    height: 30px;
+    background-image: url("/images/menu_icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+```
+
+Note that `font-size: 30px` has no effect on a background image, so it won't size the icon. Use `width`/`height` instead. Also check that the label's parent has `position: relative`, otherwise the absolute positioning will anchor to a different ancestor.
+
+If it still doesn't toggle after this, share your HTML structure and I can pinpoint the sibling issue.
+
+
+=====================================================================
+QUESTION 2
+=====================================================================
+
+would using background: for both instead work better?
+
+=====================================================================
+ANSWER 2
+=====================================================================
+
+Not for fixing the toggle. The bug is the selector mismatch, and it behaves the same whether you use `background:` or `background-image:`.
+
+The shorthand can actually cause a new problem in the checked rule. `background:` resets every other background property (`size`, `repeat`, `position`, etc.) to its default. If you set `background-size: contain` and `no-repeat` in the base rule, then use `background: url(...)` in the checked rule, the close icon would lose that sizing and probably render at its native size, tiled.
+
+The safest pattern is shorthand in the base rule and `background-image` only in the override:
+
+```css
+.burger_menu label::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 30px;
+    height: 30px;
+    background: url("/images/menu_icon.png") center / contain no-repeat;
+}
+
+#checkbox_v:checked ~ .burger_menu label::before {
+    background-image: url("/images/close_icon.png");
+}
+```
+
+The override changes only the image and inherits the size, position, and repeat from the base rule, so you don't have to repeat them.
+
+If you prefer shorthand in both, it works as long as the checked rule repeats the full value:
+
+```css
+#checkbox_v:checked ~ .burger_menu label::before {
+    background: url("/images/close_icon.png") center / contain no-repeat;
+}
+```
+
+That's more duplication, though, and easier to get out of sync if you later change the icon size.
+• Adaptation: The ai recommended me to used the checked keyword with the background being overwritten. I tested the implementation and it worked.
 
 ## 3
 Tool Used: Online AI logo generator
@@ -110,19 +232,18 @@ Tool Used: Online AI logo generator
 
 ## 4
 Tool Used: claude sonnet 5.5
-• Intent: Used to adapt the identity of the index
-• Prompts This was a prompt sequence. In resume, I provided and exemple of the logo and the index page I had created. I then expressed some preference related
-to the general style I wanted. 
-• Adaptation: The ai created a few version. The page was able to show preview of the different indexes. I selected the one I prefered and brought it back to the 
-IDE. I then did modification to the text, the format of some button, the header format, the wrap size, the footer format and some other adjustment.
-
-## 5 
-Tool Used: claude sonnet 5.5
-• Intent: Better understand how the MVC architecture and Maven work
-• Prompts This was a prompt sequence. In resume, I provided the code after sprint 1 to better understand the work that had been done. I asked question related to 
-how a model works, how the database receives the calls, how the different sections of the UI worked and how the controller brings everything together.
+• Intent: Better understand how the MVC architecture and Maven work+ setting up the environment
 • Adaptation: Through my reading I compared to the code to better understand it. I then did some testing by implementing the index to get a better feel of how
-the explained concepts could be implemented. I also did some research on google and the thymleaf wiki to research some methods in more details.
+the explained concepts could be implemented. I also did some research on google and the thymleaf wiki to research some methods in more details. I tested the recommended steps to 
+have the environment work by executing his recommendation and see if it worked.
+
+
+Tool Used: claude sonnet 5.5
+• Intent: Used to create an identity for the website based on the webpage that were already created.
+• Adaptation: The ai created an early version. I brought it back to the IDE. I then did modification to the text, the format of some button, 
+the header format, the wrap size, the footer format and some other adjustment. It also provided a controller, however it was not used as a controller already existed.
+
+Both of these points above were done in the same discussion that can be found here: https://claude.ai/share/a8120779-b77a-4865-bb7d-874a9d778414
 
 
 

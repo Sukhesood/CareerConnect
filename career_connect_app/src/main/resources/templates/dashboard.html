@@ -13,8 +13,6 @@
           type="image/png"
           th:href="@{/images/logo-mark.png}">
 
-    <link rel="stylesheet"
-          th:href="@{/css/layout.css}">
 
 
     <style>
@@ -56,9 +54,6 @@
             display: flex; align-items: center; justify-content: space-between;
             height: 72px;
         }
-        .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--blue-deep); }
-        .brand img { height: 38px; width: auto; display: block; }
-        .brand span { font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
 
         /* Professional Header */
         header {
@@ -83,58 +78,6 @@
             color: var(--text-main);
             letter-spacing: -0.3px;
         }
-
-        .header-nav {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .nav-link {
-            text-decoration: none;
-            color: var(--text-secondary);
-            font-weight: 500;
-            font-size: 14px;
-            transition: color 0.2s;
-        }
-
-        .nav-link:hover {
-            color: var(--blue-mid);
-        }
-
-        .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: var(--text-secondary);
-            background: var(--bg-color);
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-        }
-
-        .logout-btn {
-            background: transparent;
-            color: #d93025;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 500;
-            font-size: 14px;
-            border: 1px solid #fad2cf;
-            transition: all 0.2s ease;
-        }
-
-        .logout-btn:hover {
-            background: #fce8e6;
-            border-color: #f5c2bc;
-        }
-
-
-
-
-
 
         .profile-btn {
             display: inline-block;
@@ -177,31 +120,67 @@
         footer .footer-links a:hover {
             text-decoration: underline;
         }
+
+        .stats-strip {
+            display: flex;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;              /* clips the corners so the segments look like one bar */
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .stat {
+            flex: 1;
+            min-width: 0;
+            padding: 16px 20px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat:last-child {
+            border-right: none;
+        }
+
+        .stat-total {
+            background: #eaf1fb;           /* highlighted first cell, like your screenshot */
+        }
+
+        .stat-num {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--blue-deep);
+            line-height: 1.1;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 700px) {
+            .stats-strip { overflow-x: auto; }
+            .stat { flex: 0 0 120px; }     /* scrolls sideways on phones instead of squeezing */
+        }
+
+
+
+
     </style>
 </head>
 
 <body>
-
-<header>
-    <div class="wrap header-inner">
-        <a class="brand" th:href="@{/}" aria-label="CareerConnect home">
-            <img th:src="@{/images/logo-mark.png}" alt="">
-            <span>CareerConnect</span>
-        </a>
-    </div>
-    <div class="header-nav">
-        <a th:if="${isRecruiter}" th:href="@{/job_posting_creation}" class="nav-link">Create</a>
-        <a th:if="${isRecruiter}" th:href="@{/my_job_postings}" class="nav-link">My Job Postings</a>
-        <a th:if="${isRecruiter}" th:href="@{/recruiter/applications}" class="nav-link">Applications</a>
-        <a th:unless="${isRecruiter}" th:href="@{/jobs}" class="nav-link">Browse Jobs</a>
-        <a th:unless="${isRecruiter}" th:href="@{/applications}" class="nav-link">My Applications</a>
-        <a th:href="@{/profile}" class="nav-link">My Profile</a>
-        <div class="user-badge">
-            <span>🟢 Portal Active</span>
-        </div>
-        <a th:href="@{/logout}" class="logout-btn">Sign Out</a>
-    </div>
-</header>
+ <!-- common header -->
+ <div th:if="${isRecruiter}">
+    <header  th:replace="~{fragments :: header-recruiter}"></header>
+ </div>
+ <div th:if="${!isRecruiter}">
+     <header  th:replace="~{fragments :: header-seeker}"></header>
+ </div>
 
     <!-- DASHBOARD CONTENT -->
     <main class="main-content">
@@ -227,7 +206,89 @@
             </a>
 
         </div>
+        <div class="card"  th:if="${!isRecruiter}">
+            <h2 style="justify-content: flex-start">
+                Application backlog
+            </h2>
 
+            <div class="stats-strip">
+
+                <div class="stat stat-total">
+                    <span class="stat-num" th:text="${totalApplications}">0</span>
+                    <span class="stat-label">All applications</span>
+                </div>
+
+                <div class="stat" th:each="entry : ${statusCount}">
+                    <span class="stat-num" th:text="${entry.value}">0</span>
+                    <span class="stat-label" th:text="${entry.key}">Status</span>
+                </div>
+
+            </div>
+
+
+
+
+            <div id="sankey" style="width:100%; height:400px;"></div>
+            <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+            <script>
+                fetch('/graph/applications')
+                    .then(r => r.json())
+                    .then(links => {
+                        if (links.length === 0) {
+                            document.getElementById('sankey').textContent = 'No applications yet.';
+                            return;
+                        }
+                        const ids = [...new Set(links.flatMap(l => [l.source, l.target]))];
+                        const idx = Object.fromEntries(ids.map((n, i) => [n, i]));
+
+                        const labels = ids.map(id =>
+                            id.startsWith('closed:') ? 'Closed' :
+                                id.startsWith('active:') ? 'Active' :
+                                    id.substring(id.indexOf(':') + 1));
+
+                        const colors = ids.map(id =>
+                            id.startsWith('closed:') ? '#c0392b' :
+                                id.startsWith('active:') ? '#27ae60' : '#2e86c1');
+
+                        const STAGES = ['Applied', 'Under Review', 'Interview', 'Offered'];  // same order as in the controller
+                        const cols = STAGES.length;                       // last stage's Active/Closed get one extra column
+                        const colX = c => 0.01 + c * (0.98 / cols);       // x must stay between 0 and 1 (exclusive)
+
+                        const nodeX = [];
+                        const nodeY = [];
+                        ids.forEach(id => {
+                            const name = id.substring(id.indexOf(':') + 1);
+                            const i = STAGES.indexOf(name);
+                            if (id.startsWith('stage:')) {
+                                nodeX.push(colX(i));
+                                nodeY.push(0.3);                          // main row, near the top
+                            } else {
+                                nodeX.push(colX(i + 1));                  // column after its stage
+                                nodeY.push(id.startsWith('closed:') ? 0.85 : 0.65);   // below the main row
+                            }
+                        });
+
+                        Plotly.newPlot('sankey', [{
+                            type: 'sankey',
+                            orientation: 'h',
+                            arrangement: 'snap',                          // uses x/y as a starting point, nudges nodes apart if they collide
+                            node: { label: labels, color: colors, pad: 20, thickness: 20, x: nodeX, y: nodeY,
+                                hovertemplate:'%{value}<extra></extra>'},
+                            link: {
+                                source: links.map(l => idx[l.source]),
+                                target: links.map(l => idx[l.target]),
+                                value:  links.map(l => l.value),
+                                hovertemplate: '%{value}<extra></extra>',
+                                color:  links.map(l =>
+                                    l.target.startsWith('closed:') ? 'rgba(192,57,43,0.35)' :
+                                        l.target.startsWith('active:') ? 'rgba(39,174,96,0.35)' :
+                                            'rgba(46,134,193,0.35)')
+                            }
+                            }], { margin: { l: 10, r: 10, t: 10, b: 10 } },
+                            { displayModeBar: false });
+                    });
+            </script>
+        </div>
     </main>
 
     <!-- COMMON FOOTER -->

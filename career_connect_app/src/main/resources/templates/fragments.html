@@ -7,21 +7,58 @@
 
 <!-- COMMON HEADER -->
 
-<header th:fragment="header">
+<header th:fragment="header-recruiter">
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <div class="header-inner">
+        <a class="header-brand" th:href="@{/}" aria-label="CareerConnect home">
+            <img th:src="@{/images/logo-mark.png}" alt="">
+            <span>CareerConnect</span>
+        </a>
+    </div>
 
-    <a class="header-brand"
-       th:href="@{/}"
-       aria-label="CareerConnect Home">
+        <!-- Show navigation only when logged in -->
+        <nav class="header-nav"
+             th:if="${session.loggedInUserEmail != null}">
 
-        <img th:src="@{/images/logo-mark.png}"
-             alt="CareerConnect Logo">
+            <a th:href="@{/job_posting_creation}" class="nav-link">Create</a>
+            <a th:href="@{/my_job_postings}" class="nav-link">My Job Postings</a>
+            <a th:href="@{/recruiter/applications}" class="nav-link">Applications</a>
 
-        <span>CareerConnect</span>
-    </a>
 
+            <a th:href="@{/dashboard}"
+               class="nav-link">
+                Dashboard
+            </a>
+
+
+            <a th:href="@{/profile}"
+               class="nav-link">
+                My Profile
+            </a>
+
+            <a th:href="@{/logout}"
+               class="logout-btn">
+                Sign Out
+            </a>
+        </nav>
+</header>
+
+
+<header th:fragment="header-seeker">
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <div class="header-inner">
+        <a class="header-brand" th:href="@{/}" aria-label="CareerConnect home">
+            <img th:src="@{/images/logo-mark.png}" alt="">
+            <span>CareerConnect</span>
+        </a>
+    </div>
     <!-- Show navigation only when logged in -->
     <nav class="header-nav"
          th:if="${session.loggedInUserEmail != null}">
+
+        <a th:href="@{/jobs}" class="nav-link">Browse Jobs</a>
+        <a th:href="@{/applications}" class="nav-link">My Applications</a>
+
 
         <a th:href="@{/dashboard}"
            class="nav-link">
@@ -37,16 +74,13 @@
            class="logout-btn">
             Sign Out
         </a>
-
     </nav>
-
 </header>
-
 
 <!-- COMMON FOOTER -->
 
 <footer th:fragment="footer">
-
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
     <div class="footer-links">
 
         <a href="#">About Us</a> |
