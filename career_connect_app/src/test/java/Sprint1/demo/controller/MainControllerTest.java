@@ -4,6 +4,7 @@ import Sprint1.demo.model.JobApplication;
 import Sprint1.demo.model.JobListing;
 import Sprint1.demo.model.Resume;
 import Sprint1.demo.model.User;
+import Sprint1.demo.repository.ApplicationSummaryRepository;
 import Sprint1.demo.repository.JobApplicationRepository;
 import Sprint1.demo.repository.JobRepository;
 import Sprint1.demo.service.JobPostingService;
@@ -41,12 +42,13 @@ class MainControllerTest {
     @Mock private ResumeService resumeService;
     @Mock private HttpSession session;
     @Mock private RedirectAttributes redirectAttributes;
+    @Mock private ApplicationSummaryRepository applicationSummaryRepository;
 
     private MainController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new MainController(userService, jobPostingService, jobApplicationRepository, jobRepository, resumeService);
+        controller = new MainController(userService, jobPostingService, jobApplicationRepository, jobRepository, resumeService, applicationSummaryRepository);
         User recruiter = new User();
         recruiter.setRole("RECRUITER");
         when(session.getAttribute("loggedInUserEmail")).thenReturn("recruiter@example.com");
@@ -137,7 +139,7 @@ class MainControllerTest {
         JobApplication application = new JobApplication();
         application.setJobListing(job);
         application.setStatus(status);
-        application.setSubmittedAt(LocalDateTime.of(submittedDate, java.time.LocalTime.NOON));
+        application.setSubmittedAt(submittedDate);
         return application;
     }
 }
