@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CareerConnect - Received Applications</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-mark.png}">
+
+    <style>
+        :root { --blue: #2f5f96; --blue-light: #eaf1f8; --page: #f8f9fa; --text: #202124; --muted: #5f6368; --border: #d3deec; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--page); color: var(--text); font-family: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+        header { height: 72px; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; background: white; border-bottom: 1px solid var(--border); }
+        .brand { display: flex; align-items: center; gap: 12px; color: var(--blue); text-decoration: none; font-size: 21px; font-weight: 800; }
+        .brand img { height: 38px; }
+        .nav-link { color: var(--muted); font-size: 14px; font-weight: 600; text-decoration: none; }
+        .nav-link:hover { color: var(--blue); }
+        main { max-width: 1440px; margin: 0 240px; padding: 48px 24px 64px; }
+        h1 { margin: 0 0 10px; font-size: 34px; }
+        .intro { margin: 0 0 32px; color: var(--muted); font-size: 16px; }
+        .job-list { display: grid; gap: 24px; }
+        .job-section { padding: 24px; background: white; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 2px 8px rgba(20, 37, 59, 0.05); }
+        .job-header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+        h2 { margin: 0 0 6px; color: var(--blue); font-size: 22px; }
+        .company { margin: 0; font-weight: 700; }
+        .application-count { color: var(--muted); font-size: 14px; }
+        .application-list { display: grid; gap: 14px; margin-top: 18px; }
+        .application-card { padding: 18px; background: var(--page); border: 1px solid var(--border); border-radius: 8px; }
+        .application-header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+        .applicant, .date { margin: 16px 0 0; color: var(--muted); font-size: 14px; }
+        .status { padding: 6px 10px; white-space: nowrap; border-radius: 16px; background: var(--blue-light); color: var(--blue); font-size: 13px; font-weight: 700; }
+        .resume-link { display: inline-block; margin-top: 16px; color: white; background: var(--blue); border-radius: 6px; padding: 8px 12px; font-size: 14px; font-weight: 700; text-decoration: none; }
+        .resume-link:hover { background: #244b77; }
+        .no-resume { margin: 16px 0 0; color: var(--muted); font-size: 14px; }
+        .empty-state { padding: 32px; text-align: center; background: white; border: 1px dashed var(--border); border-radius: 10px; color: var(--muted); }
+        .empty-state h2 { color: var(--text); }
+                /* US 6.3 (#68): change application status */
+                .message { margin: 0 0 18px; padding: 12px 14px; border-radius: 8px; font-size: 14px; }
+        .message.success { background: #e8f5e9; color: #216e39; border: 1px solid #b7dfba; }
+        .message.error { background: #fce8e6; color: #b3261e; border: 1px solid #f5c2bc; }
+        .status-form { display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+        .status-form label { color: var(--muted); font-size: 14px; font-weight: 700; }
+        .status-form select { font: inherit; font-size: 14px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; background: white; }
+        .status-form button { border: 0; border-radius: 6px; background: var(--blue); color: white; padding: 8px 14px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+        .status-form button:hover { background: #244b77; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 12px; margin: 0 0 24px; }
+        .summary-card { display: block; padding: 16px; background: white; border: 1px solid var(--border); border-radius: 10px; text-decoration: none; color: var(--text); box-shadow: 0 2px 8px rgba(20, 37, 59, 0.04); }
+        .summary-card:hover, .summary-card.active { border-color: var(--blue); background: var(--blue-light); }
+        .summary-number { display: block; font-size: 26px; color: var(--blue); font-weight: 800; }
+        .summary-label { display: block; margin-top: 5px; color: var(--muted); font-size: 13px; font-weight: 700; }
+        .filter-bar { display: flex; align-items: end; gap: 12px; flex-wrap: wrap; margin: 0 0 24px; padding: 16px; background: white; border: 1px solid var(--border); border-radius: 10px; }
+        .filter-bar label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 13px; font-weight: 700; }
+        .filter-bar select, .filter-bar input { font: inherit; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: white; }
+        .filter-bar button { border: 0; border-radius: 6px; background: var(--blue); color: white; padding: 9px 14px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+        .clear-filter { color: var(--blue); font-size: 14px; font-weight: 700; text-decoration: none; padding: 9px 2px; }
+        .deleted-postings { margin-top: 32px; }
+        .deleted-postings h2 { color: #7a3b00; }
+        .deleted-note { margin: 0 0 16px; color: var(--muted); }
+        .deleted-badge { background: #fff3df; color: #7a3b00; }
+        @media (max-width: 600px) { header { padding: 0 20px; } main { padding: 32px 18px; } .job-header, .application-header { flex-direction: column; } }
+    </style>
+</head>
+<body>
+<!-- common header -->
+
+<header  th:replace="~{fragments :: header-recruiter}"></header>
+
+
+<main>
+    <h1>Received Applications</h1>
+    <p class="intro">Review applications grouped by the job posting they were submitted for.</p>
+    <p class="message success" th:if="${success}" th:text="${success}">Status updated.</p>
+    <p class="message error" th:if="${error}" th:text="${error}">An error occurred.</p>
+    <p class="message error" th:if="${filterError}" th:text="${filterError}">The start date must be on or before the end date.</p>
+    <section class="summary-grid" aria-label="Application summary">
+        <a class="summary-card" th:classappend="${selectedStatus.isEmpty()} ? 'active'" th:href="@{/recruiter/applications}"><span class="summary-number" th:text="${totalApplications}">0</span><span class="summary-label">All applications</span></a>
+        <a class="summary-card" th:each="applicationStatus : ${applicationStatuses}" th:classappend="${selectedStatus == applicationStatus} ? 'active'" th:href="@{/recruiter/applications(status=${applicationStatus})}"><span class="summary-number" th:text="${statusCounts.get(applicationStatus)}">0</span><span class="summary-label" th:text="${applicationStatus}">Applied</span></a>
+    </section>
+    <form class="filter-bar" method="get" th:action="@{/recruiter/applications}">
+        <div><label for="job-filter">Job posting</label><select id="job-filter" name="jobId"><option value="">All job postings</option><option th:each="jobPosting : ${jobPostings}" th:value="${jobPosting.id}" th:text="${jobPosting.title + ' - ' + jobPosting.companyName}" th:selected="${selectedJobId == jobPosting.id}">Job posting</option></select></div>
+        <div><label for="status-filter">Filter by status</label><select id="status-filter" name="status"><option value="">All statuses</option><option th:each="applicationStatus : ${applicationStatuses}" th:value="${applicationStatus}" th:text="${applicationStatus}" th:selected="${selectedStatus == applicationStatus}">Applied</option></select></div>
+        <div><label for="from-date">Submitted from</label><input id="from-date" type="date" name="fromDate" th:value="${fromDate}"></div>
+        <div><label for="to-date">Submitted to</label><input id="to-date" type="date" name="toDate" th:value="${toDate}"></div>
+        <button type="submit">Apply filter</button>
+        <a class="clear-filter" th:if="${!selectedStatus.isEmpty() or selectedJobId != null or fromDate != null or toDate != null}" th:href="@{/recruiter/applications}">Clear</a>
+        <span class="application-count" th:text="${displayedApplications + ' shown'}">0 shown</span>
+    </form>
+    <section class="job-list" aria-label="Received applications grouped by job posting">
+        <section class="job-section" th:each="entry : ${applicationsByJob}">
+            <div class="job-header"><div><h2 th:text="${entry.key.title}">Job title</h2><p class="company" th:text="${entry.key.companyName}">Company</p></div><span class="application-count" th:text="${#lists.size(entry.value) + ' application(s)'}">1 application</span></div>
+            <div class="application-list">
+                <article class="application-card" th:each="jobApplication : ${entry.value}">
+                    <div class="application-header"><p class="applicant"><strong th:text="${jobApplication.applicant.firstName + ' ' + jobApplication.applicant.lastName}">Applicant name</strong> &middot; <span th:text="${jobApplication.applicant.email}">email@example.com</span></p><span class="status" th:text="${jobApplication.status}">Applied</span></div>
+                    <a class="resume-link" th:if="${jobApplication.selectedResume != null}" th:href="@{/recruiter/applications/{id}/resume(id=${jobApplication.id})}">Download selected resume</a>
+                    <p class="no-resume" th:unless="${jobApplication.selectedResume != null}">No resume was selected for this application.</p>
+                    <a class="resume-link" th:if="${jobApplication.hasCoverLetter()}" th:href="@{/recruiter/applications/{id}/cover-letter(id=${jobApplication.id})}">Download cover letter</a>
+                    <p class="date" th:if="${jobApplication.submittedAt != null}">Submitted <span th:text="${#temporals.format(jobApplication.submittedAt, 'MMMM d, yyyy')}">January 1, 2026</span></p>
+                    <p class="date" th:unless="${jobApplication.submittedAt != null}">Submission date unavailable</p>
+					<!-- Update application status -->
+					<form class="status-form"
+					      th:action="@{/recruiter/applications/{id}/status(id=${jobApplication.id})}"
+					      method="post">
+
+					    <label th:for="${'status-' + jobApplication.id}">
+					        Status
+					    </label>
+
+					    <select name="status"
+					            th:id="${'status-' + jobApplication.id}">
+					        <option th:each="s : ${applicationStatuses}"
+					                th:value="${s}"
+					                th:text="${s}"
+					                th:selected="${s == jobApplication.status}">
+					            Applied
+					        </option>
+					    </select>
+
+					    <button type="submit">Update status</button>
+					</form>
+					<a class="resume-link"
+					   th:href="@{/recruiter/applications/{id}/interview(id=${jobApplication.id})}">
+					    Invite to interview
+					</a>
+					
+					</article>
+                </article>
+            </div>
+        </section>
+        <div class="empty-state" th:if="${#maps.isEmpty(applicationsByJob) and #maps.isEmpty(deletedApplicationsByJob)}"><h2>No applications received yet</h2><p>Applications for your job postings will appear here.</p></div>
+    </section>
+    <section class="deleted-postings" th:if="${!#maps.isEmpty(deletedApplicationsByJob)}" aria-label="Deleted job postings">
+        <h2>Deleted job postings</h2>
+        <p class="deleted-note" th:text="${deletedApplicationsCount + ' application(s) from deleted postings are kept here for reference.'}">Applications from deleted postings are kept here for reference.</p>
+        <section class="job-list">
+            <section class="job-section" th:each="entry : ${deletedApplicationsByJob}">
+                <div class="job-header"><div><h2 th:text="${entry.key.title}">Deleted job title</h2><p class="company" th:text="${entry.key.companyName}">Company</p></div><span class="application-count" th:text="${#lists.size(entry.value) + ' application(s)'}">1 application</span></div>
+                <div class="application-list">
+                    <article class="application-card" th:each="jobApplication : ${entry.value}">
+                        <div class="application-header"><p class="applicant"><strong th:text="${jobApplication.applicant.firstName + ' ' + jobApplication.applicant.lastName}">Applicant name</strong> &middot; <span th:text="${jobApplication.applicant.email}">email@example.com</span></p><span class="status deleted-badge">Posting deleted</span></div>
+                        <a class="resume-link" th:if="${jobApplication.selectedResume != null}" th:href="@{/recruiter/applications/{id}/resume(id=${jobApplication.id})}">Download selected resume</a>
+                        <p class="no-resume" th:unless="${jobApplication.selectedResume != null}">No resume was selected for this application.</p>
+                        <a class="resume-link" th:if="${jobApplication.hasCoverLetter()}" th:href="@{/recruiter/applications/{id}/cover-letter(id=${jobApplication.id})}">Download cover letter</a>
+                        <p class="date" th:if="${jobApplication.submittedAt != null}">Submitted <span th:text="${#temporals.format(jobApplication.submittedAt, 'MMMM d, yyyy')}">January 1, 2026</span></p>
+                        <p class="date" th:unless="${jobApplication.submittedAt != null}">Submission date unavailable</p>
+                    </article>
+                </div>
+            </section>
+        </section>
+    </section>
+</main>
+</body>
+</html>
