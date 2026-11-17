@@ -245,6 +245,50 @@ the header format, the wrap size, the footer format and some other adjustment. I
 
 Both of these points above were done in the same discussion that can be found here: https://claude.ai/share/a8120779-b77a-4865-bb7d-874a9d778414
 
+#5
+Tool Used: claude sonnet 5.5
+Purpose of AI Use: Debugging JPA query
+Chat Link or Prompt/Response: https://claude.ai/share/0ccd1b92-d852-44f4-a123-b0abc516d696
+Validation: The output was tested through rereading the result, manually testing the code and running test cases.
+Decision: Accepted with modification
+Reflection: I learned the basic JPA query and some of the common cause of errors.
+
+#6
+Tool Used: claude sonnet 5.5
+Purpose of AI Use: Creating a draft of UI for backlog
+Chat Link or Prompt/Response: https://claude.ai/share/d1b09f51-4ecc-43c9-ad34-d2db13daae9c
+Validation: The output was tested through interaction and implementation in a branch
+Decision: Rejected
+Reflection: The AI put too much weight in image of reference given and does not adapt the code to a desired
+style correctly.
+
+#7
+Tool Used: claude sonnet 5.5
+Purpose of AI Use: Creating a draft of UI for backlog
+Chat Link or Prompt/Response: https://claude.ai/share/d1b09f51-4ecc-43c9-ad34-d2db13daae9c
+Validation: The output was tested through interaction and implementation in a branch
+Decision: Rejected
+Reflection: The AI put too much weight in image of reference given and does not adapt the code to a desired
+style correctly.
+
+#8
+Tool Used: claude sonnet 5.5
+Purpose of AI Use: Understand quickly the cause of the error
+Chat Link or Prompt/Response: https://claude.ai/share/ee8f0aaa-3073-4972-85c7-3e50c34c16fd
+Validation: After reading the error, I understood the issue and solved it; I did go find its reference in the error file to
+avoid hallucinations.
+Decision: Accepted
+Reflection: This is a very efficient way to find an error in a long bug report.
+
+#9
+Tool Used: claude sonnet 5.5
+Purpose of AI Use: help me reason and solve a bug in the code
+Chat Link or Prompt/Response: https://claude.ai/share/b21de348-fc44-412f-9599-fd34279ee9b8
+Validation: The discussion helped me find the cause and details that were accumulating to generate an
+unwanted behavior.
+Decision: Accepted partially
+Reflection: The main benefice of the ai is its ability to spot missmatch in the code and discordant details
+which might cause code errors.
 
 
 
