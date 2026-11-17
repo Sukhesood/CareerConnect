@@ -31,8 +31,18 @@
         label { display: block; margin: 14px 0 6px; color: var(--muted); font-size: 14px; font-weight: 700; }
         select, input[type="file"] { max-width: 100%; font: inherit; }
         select { width: 100%; max-width: 420px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 6px; background: white; }
-        .apply-button { margin-top: 20px; border: 0; border-radius: 6px; background: var(--blue); color: white; padding: 11px 18px; font: inherit; font-weight: 800; cursor: pointer; }
+        .apply-button, .ai-button { height: 46px; box-sizing: border-box; margin-top: 20px; padding: 0 18px; border: 1px solid var(--blue); border-radius: 6px; font: inherit; font-weight: 800; cursor: pointer; }
+        /* Submit: blue with white text */
+        .apply-button { background: var(--blue); color: white; }
         .apply-button:hover { background: #244b77; }
+            /* Cover letter box: same look as the resume dropdown, but wider */
+          textarea {display: block; width: 100%; max-width: 640px; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font: inherit; background: white; box-sizing: border-box; }
+         /* "Write with AI" button: blue outline so it looks different from the Submit button */
+         .ai-button { background: white; color: var(--blue); }
+         .ai-button:hover { background: #eef3f9; }
+         /* "Generating..." message */
+         .letter-status { margin: 8px 0 0; color: var(--muted); font-size: 14px; } 
+         .hint { margin: 0 0 6px; color: var(--muted); font-size: 13px; }
         @media (max-width: 600px) { header { padding: 0 20px; } main { padding: 28px 18px; } .card { padding: 21px; } .top { flex-direction: column; } }
     </style>
 </head>
@@ -59,9 +69,38 @@
             <input th:if="${#lists.isEmpty(resumes)}" type="hidden" name="resumeId" value=""><p class="notice" th:if="${#lists.isEmpty(resumes)}">Upload a resume on your Profile before applying.</p>
             <label th:if="${job.coverLetterRequired}" for="coverLetter">Upload cover letter (PDF or DOCX, max 4 MB)</label>
             <input th:if="${job.coverLetterRequired}" id="coverLetter" name="coverLetter" type="file" accept=".pdf,.docx" required>
+            <!-- Cover letter section: the seeker can ask the AI for a draft, then edit it -->
+<label for="coverLetterText">Cover letter</label>
+<p class="hint">Optional. Write your own or let the AI draft one.</p>
+<textarea id="coverLetterText" name="coverLetterText" rows="10" placeholder="Click Write with AI to get a draft, or write your own"></textarea>
+<button type="button" id="generateLetterBtn" class="ai-button"
+        th:attr="data-url=@{/job_postings/{id}/cover-letter/draft(id=${job.id})}">Write with AI</button>
+<p id="letterStatus" class="letter-status" style="display:none;">Generating...</p>
             <button class="apply-button" type="submit">Submit application</button>
         </form></section>
     </article>
 </main>
+<body>
+<script>
+    // When "Write with AI" is clicked, ask the server for a draft and put it in the box
+    document.getElementById("generateLetterBtn").addEventListener("click", async function () {
+        const status = document.getElementById("letterStatus");
+        const box = document.getElementById("coverLetterText");
+
+        status.textContent = "Generating...";
+        status.style.display = "block";
+
+        try {
+            const response = await fetch(this.dataset.url);
+            if (!response.ok) {
+                throw new Error("Request failed");
+            }
+            box.value = await response.text();
+            status.style.display = "none";
+        } catch (error) {
+            status.textContent = "Could not generate a letter. Please try again.";
+        }
+    });
+    </script>
 </body>
 </html>
