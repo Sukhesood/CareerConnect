@@ -9,11 +9,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableScheduling
 @EnableAsync
 public class CarrerConnectApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(CarrerConnectApplication.class, args);
+	}
 
-    public static void main(String[] args) {
-
-        SpringApplication.run(
-                CarrerConnectApplication.class, args
-        );
-    }
 }

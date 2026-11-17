@@ -1,4 +1,3 @@
-
 package Sprint1.demo.service;
 
 import Sprint1.demo.model.*;
@@ -65,8 +64,7 @@ public class JobPostingService {
         job.setSalaryMax(form.getSalaryMax());
         job.setSalaryPeriod(form.getSalaryPeriod());
         job.setApplyUrl(form.getApplyUrl());
-        job.setCoverLetterRequired(
-                form.isCoverLetterRequired());
+        job.setCoverLetterRequired(form.isCoverLetterRequired());
         job.setDeadline(form.getDeadline());
 
         // Associate the recruiter with the job
@@ -137,11 +135,7 @@ public class JobPostingService {
         if (jobId == null || recruiterEmail == null) {
             return Optional.empty();
         }
-
-        return jobRepository
-                .findByIdAndRecruiter_EmailAndDeletedFalse(
-                        jobId,
-                        recruiterEmail);
+        return jobRepository.findByIdAndRecruiter_EmailAndDeletedFalse(jobId, recruiterEmail);
     }
 
     // ==================================================
@@ -164,8 +158,7 @@ public class JobPostingService {
         form.setSalaryMax(job.getSalaryMax());
         form.setSalaryPeriod(job.getSalaryPeriod());
         form.setApplyUrl(job.getApplyUrl());
-        form.setCoverLetterRequired(
-                job.isCoverLetterRequired());
+        form.setCoverLetterRequired(job.isCoverLetterRequired());
         form.setDeadline(job.getDeadline());
 
         return form;
@@ -193,8 +186,7 @@ public class JobPostingService {
         job.setSalaryMax(form.getSalaryMax());
         job.setSalaryPeriod(form.getSalaryPeriod());
         job.setApplyUrl(form.getApplyUrl());
-        job.setCoverLetterRequired(
-                form.isCoverLetterRequired());
+        job.setCoverLetterRequired(form.isCoverLetterRequired());
         job.setDeadline(form.getDeadline());
 
         // NEW: Keep the company relationship updated
@@ -221,13 +213,9 @@ public class JobPostingService {
     public void deleteJobListing(JobListing job) {
 
         // Find applications submitted for this job
-        List<JobApplication> applications =
-                jobApplicationRepository
-                        .findByJobListing_Id(job.getId());
-
+        List<JobApplication> applications = jobApplicationRepository.findByJobListing_Id(job.getId());
         // Reject all applications
         for (JobApplication application : applications) {
-
             application.setStatus("Rejected");
         }
 
@@ -236,7 +224,6 @@ public class JobPostingService {
 
         // Soft delete the job
         job.setDeleted(true);
-
         jobRepository.save(job);
     }
 }

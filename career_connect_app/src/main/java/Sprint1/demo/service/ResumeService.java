@@ -156,6 +156,47 @@ if (resumeCount >= MAX_RESUMES) {
         }
     }
 
+    // Validates a document that will be stored with a job application, not in a profile.
+    public UploadedDocument prepareApplicationDocument(MultipartFile file, String documentName) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Please choose a " + documentName + ".");
+        }
+        if (file.getSize() > MAX_SIZE) {
+            throw new IllegalArgumentException(documentName + " must not exceed 4 MB.");
+        }
+
+        String filename = file.getOriginalFilename();
+        if (filename == null || filename.isBlank()) {
+            throw new IllegalArgumentException("Invalid filename.");
+        }
+        filename = filename.replace('\\', '/');
+        filename = filename.substring(filename.lastIndexOf('/') + 1);
+        filename = filename.replaceAll("[\\p{Cntrl}]", "_");
+        if (filename.length() > 200) {
+            throw new IllegalArgumentException("Filename is too long.");
+        }
+
+        String lowerName = filename.toLowerCase(Locale.ROOT);
+        try {
+            byte[] bytes = file.getBytes();
+            if (bytes.length > MAX_SIZE) {
+                throw new IllegalArgumentException(documentName + " must not exceed 4 MB.");
+            }
+            if (lowerName.endsWith(".pdf") && isPdf(bytes)) {
+                return new UploadedDocument(filename, "application/pdf", bytes);
+            }
+            if (lowerName.endsWith(".docx") && isDocx(bytes)) {
+                return new UploadedDocument(filename,
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", bytes);
+            }
+            throw new IllegalArgumentException("Only valid PDF and DOCX files are allowed.");
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to read " + documentName + ".", e);
+        }
+    }
+
+    public record UploadedDocument(String filename, String contentType, byte[] data) { }
+
     private boolean isPdf(byte[] bytes) {
 
         return bytes.length >= 5

@@ -38,11 +38,50 @@ AI-Suggested Content:
 •	Generated a resume.html page (upload, view, replace, remove, error messages), the upload settings for application.properties, and a MySQL table script.
 •	Validation in the code: PDF only (checked by the file's content, not just the extension) and a 5 MB limit, both in the browser and on the server.
 •	Suggested the Git workflow: feature branch, commit referencing #8, pull request with "Closes #8", and a teammate review.
- 
-Appendix: Prompts used
-The prompts below were sent in a single conversation covering Tasks 1.1 to 1.4. The full AI responses are available at the chat link.
-Prompt 1: i have a project to do with classmates and we are allowed the help of AI so i will send screenshots for context of the project
+
+Appendix: Prompts used (Sprint 1)
+All prompts were sent in a single conversation.
+Prompt 1: i have a project to do with classmates and we are allowed the help of AI so i will send context of the project
 Prompt 2: (Shared screenshots of the SOEN 341 project description, Sprint 1 activities, AI usage log requirements, submission instructions and rubric.)
-Prompt 3: ok my task is to work on the implementation of the second feature which is resume upload
-Prompt 4: so can i not do any work for it until the user login is downloaded
-Prompt 5: (Shared a screenshot of GitHub Issue #8.) okay i created a new issue for the resume upload feature i now want to start the code for it can help me out with it
+Prompt 3: help with resume upload feature
+ 
+AI Usage Log, Sprint 2
+SOEN 341 Software Process: CareerConnect
+Team member: Rabih El Marouk   |   AI tool: Claude (Anthropic)
+
+Task 2.1: Implement US 3.5, recruiter's My Job Postings page (#37)
+Purpose of AI Use: Code generation
+AI-Suggested Content:
+•	Repository query returning only the logged-in recruiter's job listings, newest first.
+•	Service method, a /my_job_postings route restricted to recruiters, and a my_job_postings.html page with job cards, Open/Closed status and an empty state.
+•	A "My Job Postings" link on the dashboard for recruiters.
+Validation: Ran the app locally and tested with no postings, with several postings, with a second recruiter, and as a job seeker (redirected).
+Final decision: Kept the AI code. A teammate later found that the "You have N job postings" text failed with 2 or more postings; the fix was merged and I now test with multiple items.
+Reflection: The AI could not run the app, so my own testing was necessary to catch errors.
+
+Task 2.2: Implement US 3.3, editing job postings (#35), and fix the salary period bug
+Purpose of AI Use: Code generation and debugging
+AI-Suggested Content:
+•	Edit routes that reuse the existing creation form in "edit mode", pre-filled with the posting's data.
+•	An ownership check so a recruiter can only edit their own postings.
+•	Pointed out that the job creation code never saved the salary period, and suggested the one-line fix.
+Validation: Tested editing, saving, empty required fields, a second recruiter opening the edit link, and creating a job with a salary period. Checked every diff in GitHub Desktop before committing.
+Final decision: After a teammate warned that replacing whole files could overwrite others' work, I only added code to existing files instead of replacing them.
+Reflection: Small, additive changes make merges easier and keep the commit history clear.
+
+Task 2.3: Implement Feature 6, application status tracking (US 6.2 #46, US 6.3 #68)
+Purpose of AI Use: Code generation and requirements analysis
+AI-Suggested Content:
+•	Identified that US 6.1 and 6.4 were already covered by existing pages (Mark's My Applications page and my My Job Postings page).
+•	A route for recruiters to change an applicant's status (Applied, Under Review, Interview, Offered, Rejected), limited to their own job postings.
+•	A visual progress tracker on the job seeker's My Applications page, with a 30-second automatic refresh.
+Validation: Tested with a recruiter and a job seeker logged in at the same time: status changes appeared on the tracker, and Rejected showed the "not selected" message. Diffs showed only added lines.
+Final decision: Kept the code as suggested, and linked US 6.1 and 6.4 to the existing pages in their issues.
+Reflection: Checking what teammates had already built avoided duplicating work.
+
+Appendix: Prompts used (Sprint 2)
+All prompts were sent in a single conversation.
+Prompt 1: help with feature 3, break it down on what needs to be done
+Prompt 2: (Asked to write US 3.5, then US 3.3, as code to add to the existing files.)
+Prompt 3: help with feature 6 without causing any conflicts
+

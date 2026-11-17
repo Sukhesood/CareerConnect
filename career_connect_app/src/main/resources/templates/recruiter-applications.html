@@ -96,33 +96,13 @@
                     <a class="resume-link" th:if="${jobApplication.hasCoverLetter()}" th:href="@{/recruiter/applications/{id}/cover-letter(id=${jobApplication.id})}">Download cover letter</a>
                     <p class="date" th:if="${jobApplication.submittedAt != null}">Submitted <span th:text="${#temporals.format(jobApplication.submittedAt, 'MMMM d, yyyy')}">January 1, 2026</span></p>
                     <p class="date" th:unless="${jobApplication.submittedAt != null}">Submission date unavailable</p>
-					<!-- Update application status -->
-					<form class="status-form"
-					      th:action="@{/recruiter/applications/{id}/status(id=${jobApplication.id})}"
-					      method="post">
-
-					    <label th:for="${'status-' + jobApplication.id}">
-					        Status
-					    </label>
-
-					    <select name="status"
-					            th:id="${'status-' + jobApplication.id}">
-					        <option th:each="s : ${applicationStatuses}"
-					                th:value="${s}"
-					                th:text="${s}"
-					                th:selected="${s == jobApplication.status}">
-					            Applied
-					        </option>
-					    </select>
-
-					    <button type="submit">Update status</button>
-					</form>
-					<a class="resume-link"
-					   th:href="@{/recruiter/applications/{id}/interview(id=${jobApplication.id})}">
-					    Invite to interview
-					</a>
-					
-					</article>
+                    <form class="status-form" th:action="@{/recruiter/applications/{id}/status(id=${jobApplication.id})}" method="post">
+                        <label th:for="${'status-' + jobApplication.id}">Status</label>
+                        <select name="status" th:id="${'status-' + jobApplication.id}">
+                            <option th:each="s : ${applicationStatuses}" th:value="${s}" th:text="${s}" th:selected="${s == jobApplication.status}">Applied</option>
+                        </select>
+                        <button type="submit">Update status</button>
+                    </form>
                 </article>
             </div>
         </section>
