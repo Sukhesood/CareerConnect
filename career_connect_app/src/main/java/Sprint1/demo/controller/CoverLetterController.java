@@ -54,7 +54,7 @@ public class CoverLetterController {
 
         // 3. Build the prompt, ask for the draft, and send the text back
         try {
-            String prompt = promptBuilder.build(job.get(), applicant.get());
+           String prompt = promptBuilder.buildPrompt(applicant.get(), job.get(), null);
             return ResponseEntity.ok(coverLetterService.generateDraft(prompt));
         } catch (RuntimeException exception) {
               exception.printStackTrace();
