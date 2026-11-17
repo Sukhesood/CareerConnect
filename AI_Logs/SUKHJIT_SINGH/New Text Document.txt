@@ -488,3 +488,118 @@ AI Tool Used: ChatGPT (OpenAI)
 Project: CareerConnect – SOEN 341, Sprint 2
 
 What I learn: It helps me to learn more interact with JMS and more management techniques in MVC Model.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#######Sprint 3#################
+# AI Usage Log – Sprint 3: Notifications and Reminders
+
+**AI Tool Used:** ChatGPT (OpenAI)  
+**Project:** CareerConnect – SOEN 341  
+**Feature:** Notifications and Reminders (User Stories 8.1–8.4)  
+**GitHub Issues:** #121, #122, #123, #124
+
+### 1. Notification System Implementation
+
+**What I asked AI:**
+
+How can I implement an in-app notification system using Java, Spring Boot, Hibernate, and MySQL to notify job seekers when recruiters update their application status?
+
+**What AI provided:**
+
+ChatGPT provided guidance and Java code for creating the Notification model, NotificationRepository, NotificationService, and NotificationController. It explained how to store notifications in MySQL and associate each notification with the correct user.
+
+### 2. Real-Time Notifications and Email
+
+**What I asked AI:**
+
+How can I make notifications appear in real time without requiring users to refresh the page? How can I also send email notifications?
+
+**What AI provided:**
+
+ChatGPT suggested using Server-Sent Events (SSE) for real-time notifications and Spring Boot email functionality for sending emails. It provided example implementations for NotificationEventStream and NotificationEmailService and explained how they could be integrated into the existing application.
+
+### 3. Interview Invitation Notifications
+
+**What I asked AI:**
+
+How can recruiters send interview invitations to job seekers and automatically generate notifications containing the interview date, time, and location?
+
+**What AI provided:**
+
+ChatGPT helped with the InterviewInvitation model, repository, controller, and service logic. It also provided guidance on connecting interview invitations to job applications and generating notifications for the invited job seeker.
+
+### 4. Application Deadline Reminders
+
+**What I asked AI:**
+
+How can I automatically send reminders to job seekers before the application deadlines of saved jobs using Spring Boot?
+
+**What AI provided:**
+
+ChatGPT suggested using Spring Boot's `@Scheduled` annotation to run a background reminder service. It provided code for ReminderService to check upcoming deadlines, generate reminders, and prevent duplicate notifications using unique reminder keys.
+
+### 5. Notification Management
+
+**What I asked AI:**
+
+How can I add a notification bell to the application header, display unread notification counts, and allow users to mark notifications as read?
+
+**What AI provided:**
+
+ChatGPT provided guidance for updating the Thymeleaf templates and implementing notification management methods in the service and controller. It also explained how to restrict access so users can only view and update their own notifications.
+
+### 6. Debugging and Error Handling
+
+**What I asked AI:**
+
+How can I fix errors related to Thymeleaf expressions, missing repository methods, and Server-Sent Events connections in my notification and interview functionality?
+
+**What AI provided:**
+
+ChatGPT helped identify problems with Thymeleaf model attribute names, repository methods, and notification stream exceptions. It suggested changes to the affected classes and explained the causes of the errors.
+
+### 7. JUnit Testing
+
+**What I asked AI:**
+
+How can I create JUnit and Mockito tests for NotificationService and ReminderService to verify notification generation, application status changes, duplicate prevention, and deadline reminders?
+
+**What AI provided:**
+
+ChatGPT generated unit test classes and explained how to use Mockito to test service methods without connecting to MySQL. It also helped resolve Eclipse package configuration errors.
+
+**Validation:** After correcting the test classes, I successfully executed 11 JUnit tests in Eclipse, with 11 passed, 0 failures, and 0 errors.
+
+### What I Learned
+
+Using ChatGPT helped me understand how to implement notifications using the Spring Boot MVC architecture. I learned about real-time communication using SSE, scheduled tasks using `@Scheduled`, email integration, database relationships, and duplicate notification prevention.
+
+I also improved my understanding of JUnit, Mockito, and debugging Java Spring Boot applications in Eclipse.
+
+AI was used as a learning and development assistant. I reviewed and adjusted the suggested code to fit the existing CareerConnect project and tested the unit-level functionality.
+
+**Related GitHub Issues:**
+- #121 – Application Status Change Notifications
+- #122 – Interview Invitation Notifications
+- #123 – Application Deadline Reminders
+- #124 – View and Manage Notifications
+
