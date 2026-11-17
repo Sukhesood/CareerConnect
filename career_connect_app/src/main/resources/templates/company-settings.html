@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CareerConnect - Company Profile</title><link rel="stylesheet" th:href="@{/css/feature3.css}"></head>
+<body><header th:replace="~{fragments :: header-recruiter}"></header>
+<main class="feature-container"><h1>Company Profile</h1><p class="feature-lead">Edit the company linked to your recruiter account.</p>
+<div class="feature-card"><form class="feature-form" th:action="@{/recruiter/company}" th:object="${company}" method="post">
+    <label for="name">Company Name</label><input id="name" type="text" th:field="*{name}" required>
+    <label for="contactEmail">Company Contact Email</label><input id="contactEmail" type="email" th:field="*{contactEmail}" required>
+    <label for="website">Website</label><input id="website" type="text" th:field="*{website}">
+    <label for="description">Description</label><textarea id="description" th:field="*{description}" rows="5"></textarea>
+    <button class="feature-button" type="submit">Save Company</button>
+</form></div></main><footer th:replace="~{fragments :: footer}"></footer></body></html>

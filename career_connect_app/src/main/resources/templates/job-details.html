@@ -60,7 +60,15 @@
             <label th:if="${job.coverLetterRequired}" for="coverLetter">Upload cover letter (PDF or DOCX, max 4 MB)</label>
             <input th:if="${job.coverLetterRequired}" id="coverLetter" name="coverLetter" type="file" accept=".pdf,.docx" required>
             <button class="apply-button" type="submit">Submit application</button>
-        </form></section>
+        </form>
+		<form th:action="@{/saved-jobs/{id}/save(id=${job.id})}"
+		      method="post">
+
+		    <button type="submit">
+		        Save Job and Enable Reminders
+		    </button>
+
+		</form></section>
     </article>
 </main>
 </body>

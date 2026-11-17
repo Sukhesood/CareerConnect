@@ -1,12 +1,9 @@
+
 package Sprint1.demo.controller;
 
 import Sprint1.demo.model.*;
-import Sprint1.demo.repository.ApplicationSummaryRepository;
-import Sprint1.demo.repository.JobApplicationRepository;
-import Sprint1.demo.repository.JobRepository;
-import Sprint1.demo.service.JobPostingService;
-import Sprint1.demo.service.UserService;
-import Sprint1.demo.service.ResumeService;
+import Sprint1.demo.repository.*;
+import Sprint1.demo.service.*;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -21,42 +18,46 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+
 import java.time.LocalDate;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
 public class MainController {
 	 private final UserService userService ;
+     private final NotificationService notificationService;
      private final ResumeService resumeService;
      private final JobPostingService jobPostingService;
 	 private final JobApplicationRepository jobApplicationRepository;
      private final JobRepository jobRepository;
      private final ApplicationSummaryRepository applicationSummaryRepository;
-	   public MainController(UserService userService, JobPostingService jobPostingService, JobApplicationRepository jobApplicationRepository,
-                             JobRepository jobRepository, ResumeService resumeService, ApplicationSummaryRepository applicationSummaryRepository) {
+	   public MainController(UserService userService,
+                             JobPostingService jobPostingService,
+                             JobApplicationRepository jobApplicationRepository,
+                             JobRepository jobRepository,
+                             ResumeService resumeService,
+                             ApplicationSummaryRepository applicationSummaryRepository,
+                             NotificationService notificationService
+                             ) {
+
 	       this.userService = userService;
            this.jobPostingService=jobPostingService;
 	       this.jobApplicationRepository = jobApplicationRepository;
            this.jobRepository=jobRepository;
            this.resumeService=resumeService;
            this.applicationSummaryRepository=applicationSummaryRepository;
-	   }
+           this.notificationService = notificationService;
+
+       }
+
     private boolean isAuth(HttpSession session) {
         return (null != session.getAttribute("loggedInUserEmail"));
     }
@@ -214,6 +215,7 @@ public class MainController {
                     email);
 
             return "redirect:/dashboard";
+
         } else {
 
             model.addAttribute(
@@ -254,6 +256,7 @@ public class MainController {
             }
         }
 
+        user.ifPresent(value -> model.addAttribute("user", value));
         model.addAttribute("statusCount", statusCount);
         model.addAttribute("totalApplications", total);
 
@@ -273,6 +276,17 @@ public class MainController {
 
 
         return "job-postings";
+    }
+
+    @GetMapping("/applications")
+    public String showSubmittedApplications(HttpSession session, Model model) {
+        if (!isAuth(session)) return "redirect:/login";
+        if (isRecruiter(session)) return "redirect:/dashboard";
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+        model.addAttribute("applications", jobApplicationRepository.findByApplicant_EmailOrderBySubmittedAtDesc(email));
+        model.addAttribute("applicationStatuses", APPLICATION_STATUSES);
+        return "submitted-applications";
     }
 
     @GetMapping("/job_postings/{jobId}")
@@ -347,15 +361,11 @@ public class MainController {
                 return "redirect:/job_postings";
             }
         }
-
-
         jobApplicationRepository.save(application);
         redirect.addFlashAttribute("success", "Your application was submitted.");
-
         ApplicationSummary applicationSummary = createApplicationSummary(application, jobListing, session);
-
         applicationSummaryRepository.save(applicationSummary);
-
+        notificationService.newApplicationSubmitted(application);
 
         return "redirect:/job_postings";
     }
@@ -548,6 +558,34 @@ public class MainController {
 
                 });
 
+/*
+        JobApplication selectedApplication = application.get();
+
+        // Remember the previous status
+        String previousStatus = selectedApplication.getStatus();
+
+        // Update the application
+        selectedApplication.setStatus(status);
+
+        // Save changes
+        jobApplicationRepository.save(selectedApplication);
+
+        // Notify the job seeker only if the status changed
+        notificationService.applicationStatusChanged(
+                selectedApplication,
+                previousStatus
+        );
+       */ //from sukh's version, need review
+
+
+
+
+
+
+
+
+
+
         if (application.isEmpty()) {
             redirect.addFlashAttribute("error", "That application could not be found.");
             return "redirect:/recruiter/applications";
@@ -648,9 +686,6 @@ public class MainController {
         model.addAttribute("user", new User());
         return "register";
     }
-
-
-
 
     @PostMapping("/register")
     public String registerUser(

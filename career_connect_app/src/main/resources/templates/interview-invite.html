@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invite to Interview - CareerConnect</title>
+    <link rel="stylesheet" th:href="@{/css/feature3.css}">
+</head>
+
+<body>
+    <!-- Your existing recruiter header -->
+    <header th:replace="~{fragments :: header-recruiter}"></header>
+
+    <main class="feature-container">
+        <h1>Invite to Interview</h1>
+        <p>Schedule an interview for the selected applicant.</p>
+
+        <div class="feature-card">
+			<h2 th:text="${jobApplication.jobListing.title}">
+			    Job title
+			</h2>
+
+			<!-- Applicant name -->
+			<p th:text="${jobApplication.applicant.firstName + ' ' + jobApplication.applicant.lastName}">
+			    Applicant name
+			</p>
+
+			<!-- Interview invitation form -->
+			<form class="feature-form"
+			      th:action="@{/recruiter/applications/{id}/interview(id=${jobApplication.id})}"
+			      method="post">
+
+                <label for="scheduledAt">Interview date and time</label>
+                <input type="datetime-local"
+                       name="scheduledAt"
+                       id="scheduledAt"
+                       required>
+
+                <label for="locationOrLink">Location or meeting link</label>
+                <input type="text"
+                       name="locationOrLink"
+                       id="locationOrLink"
+                       maxlength="500"
+                       required>
+
+                <label for="note">Additional notes</label>
+                <textarea name="note"
+                          id="note"
+                          rows="4"
+                          maxlength="1000"></textarea>
+
+                <button type="submit" class="feature-button">
+                    Send Interview Invitation
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

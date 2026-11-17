@@ -1,6 +1,7 @@
 package Sprint1.demo.repository;
 
 import java.util.List;
+import java.time.LocalDate;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,8 +18,9 @@ import Sprint1.demo.model.JobListing;
 @Repository
 public interface JobRepository extends JpaRepository<JobListing, Long> {
     // Spring Data JPA gives you findAll(), save(), findById(), etc. out of the box!
-
-//Asking the data base
+	List<JobListing> findByDeadlineAndDeletedFalse(
+	        LocalDate deadline);
+    //Asking the database
     @Query("""
              SELECT j FROM JobListing j 
             WHERE j.deleted = false

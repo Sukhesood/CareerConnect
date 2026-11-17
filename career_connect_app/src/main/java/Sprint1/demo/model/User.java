@@ -137,5 +137,15 @@
          this.resumeData = resumeData;
      }
  
-   
+     @ManyToOne(fetch = FetchType.LAZY)
+     @JoinColumn(name = "company_id")
+     private Company company;
+
+     public Company getCompany() {
+         return company;
+     }
+
+     public void setCompany(Company company) {
+         this.company = company;
+     }
  }

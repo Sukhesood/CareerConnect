@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CareerConnect - Saved Jobs</title><link rel="stylesheet" th:href="@{/css/feature3.css}"></head>
+<body>
+<header th:replace="~{fragments :: header-seeker}"></header>
+<main class="feature-container">
+    <h1>My Saved Jobs</h1><p class="feature-lead">Receive deadline reminders 3 days and 1 day before a saved job closes.</p>
+    <p class="feature-empty" th:if="${#lists.isEmpty(savedJobs)}">No saved jobs yet. <a th:href="@{/jobs}" class="feature-link">Browse jobs</a>.</p>
+    <article class="feature-card" th:each="saved : ${savedJobs}">
+        <h2 th:text="${saved.jobListing.title}">Job title</h2><p th:text="${saved.jobListing.companyName}">Company</p>
+        <p class="feature-muted">Deadline: <span th:text="${saved.jobListing.deadline != null ? saved.jobListing.deadline : 'Not specified'}">Date</span></p>
+        <form th:action="@{/saved-jobs/{id}/remove(id=${saved.jobListing.id})}" method="post"><button class="feature-button" type="submit">Remove Saved Job</button></form>
+    </article>
+</main><footer th:replace="~{fragments :: footer}"></footer>
+</body></html>

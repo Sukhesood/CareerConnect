@@ -1,3 +1,4 @@
+
 package Sprint1.demo.config;
 
 import org.springframework.context.annotation.Bean;
@@ -7,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class PasswordConfig {
-    //bean file
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

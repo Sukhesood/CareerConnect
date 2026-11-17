@@ -20,16 +20,21 @@
         <nav class="header-nav"
              th:if="${session.loggedInUserEmail != null}">
 
-            <a th:href="@{/job_posting_creation}" class="nav-link">Create</a>
             <a th:href="@{/my_job_postings}" class="nav-link">My Job Postings</a>
             <a th:href="@{/recruiter/applications}" class="nav-link">Applications</a>
 
-
+			<a class="nav-link" th:href="@{/recruiter/company}">
+			    Company Profile
+			</a>
             <a th:href="@{/dashboard}"
                class="nav-link">
                 Dashboard
             </a>
-
+			<a class="nav-link notification-nav-link" th:href="@{/notifications}" aria-label="Notifications">
+			                Notifications <span class="notification-badge" hidden
+			                    th:attr="data-count-url=@{/notifications/api/unread-count},data-stream-url=@{/notifications/stream},data-notifications-url=@{/notifications}"
+			                    aria-label="unread notifications">0</span>
+			            </a>
 
             <a th:href="@{/profile}"
                class="nav-link">
@@ -41,6 +46,49 @@
                 Sign Out
             </a>
         </nav>
+		<script th:src="@{/js/notifications-live.js}" defer></script>
+</header>
+
+
+<header th:fragment="header-seeker">
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <div class="header-inner">
+        <a class="header-brand" th:href="@{/}" aria-label="CareerConnect home">
+            <img th:src="@{/images/logo-mark.png}" alt="">
+            <span>CareerConnect</span>
+        </a>
+    </div>
+    <!-- Show navigation only when logged in -->
+    <nav class="header-nav"
+         th:if="${session.loggedInUserEmail != null}">
+
+        <a th:href="@{/jobs}" class="nav-link">Browse Jobs</a>
+        <a th:href="@{/applications}" class="nav-link">My Applications</a>
+		<a th:href="@{/saved-jobs}" class="nav-link">Saved Jobs</a>
+        <a th:href="@{/interviews}" class="nav-link">My Interviews</a>
+
+        <a th:href="@{/dashboard}"
+           class="nav-link">
+            Dashboard
+        </a>
+
+        <a th:href="@{/profile}"
+           class="nav-link">
+            My Profile
+        </a>
+		<a class="nav-link notification-nav-link" th:href="@{/notifications}" aria-label="Notifications">
+		                Notifications <span class="notification-badge" hidden
+		                    th:attr="data-count-url=@{/notifications/api/unread-count},data-stream-url=@{/notifications/stream},data-notifications-url=@{/notifications}"
+		                    aria-label="unread notifications">0</span>
+		            </a>
+
+        <a th:href="@{/logout}"
+           class="logout-btn">
+            Sign Out
+        </a>
+    </nav>
+	  <script th:src="@{/js/notifications-live.js}" defer></script>
+
 </header>
 
 
