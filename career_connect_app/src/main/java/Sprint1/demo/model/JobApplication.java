@@ -44,6 +44,11 @@ public class JobApplication {
     @Column(columnDefinition = "LONGBLOB")
     private byte[] coverLetterData;
 
+    // US 10.1 (#136): cover letter written in the apply form (AI draft or the seeker's own text)
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String coverLetterText;
+
     public JobApplication() { }
 
     @PrePersist
@@ -69,4 +74,7 @@ public class JobApplication {
     public byte[] getCoverLetterData() { return coverLetterData; }
     public void setCoverLetterData(byte[] coverLetterData) { this.coverLetterData = coverLetterData; }
     public boolean hasCoverLetter() { return coverLetterData != null && coverLetterData.length > 0; }
+    public String getCoverLetterText() { return coverLetterText; }
+    public void setCoverLetterText(String coverLetterText) { this.coverLetterText = coverLetterText; }
+    public boolean hasCoverLetterText() { return coverLetterText != null && !coverLetterText.isBlank(); }
 }
