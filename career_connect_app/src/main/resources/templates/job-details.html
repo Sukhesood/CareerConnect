@@ -73,11 +73,34 @@
 <label for="coverLetterText">Cover letter</label>
 <p class="hint">Optional. Write your own or let the AI draft one.</p>
 <textarea id="coverLetterText" name="coverLetterText" rows="10" placeholder="Click Write with AI to get a draft, or write your own"></textarea>
-<button type="button" id="generateLetterBtn" class="ai-button">Write with AI</button>
+<button type="button" id="generateLetterBtn" class="ai-button"
+        th:attr="data-url=@{/job_postings/{id}/cover-letter/draft(id=${job.id})}">Write with AI</button>
 <p id="letterStatus" class="letter-status" style="display:none;">Generating...</p>
             <button class="apply-button" type="submit">Submit application</button>
         </form></section>
     </article>
 </main>
+<body>
+<script>
+    // When "Write with AI" is clicked, ask the server for a draft and put it in the box
+    document.getElementById("generateLetterBtn").addEventListener("click", async function () {
+        const status = document.getElementById("letterStatus");
+        const box = document.getElementById("coverLetterText");
+
+        status.textContent = "Generating...";
+        status.style.display = "block";
+
+        try {
+            const response = await fetch(this.dataset.url);
+            if (!response.ok) {
+                throw new Error("Request failed");
+            }
+            box.value = await response.text();
+            status.style.display = "none";
+        } catch (error) {
+            status.textContent = "Could not generate a letter. Please try again.";
+        }
+    });
+    </script>
 </body>
 </html>
