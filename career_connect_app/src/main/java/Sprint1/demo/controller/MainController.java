@@ -278,16 +278,6 @@ public class MainController {
         return "job-postings";
     }
 
-    @GetMapping("/applications")
-    public String showSubmittedApplications(HttpSession session, Model model) {
-        if (!isAuth(session)) return "redirect:/login";
-        if (isRecruiter(session)) return "redirect:/dashboard";
-
-        String email = (String) session.getAttribute("loggedInUserEmail");
-        model.addAttribute("applications", jobApplicationRepository.findByApplicant_EmailOrderBySubmittedAtDesc(email));
-        model.addAttribute("applicationStatuses", APPLICATION_STATUSES);
-        return "submitted-applications";
-    }
 
     @GetMapping("/job_postings/{jobId}")
     public String showJobDetails(@PathVariable Long jobId, HttpSession session, Model model,
@@ -315,6 +305,7 @@ public class MainController {
     public String applyToJob(@PathVariable Long jobId,
                              @RequestParam(value = "resumeId", required = false) Long resumeId,
                              @RequestParam(value = "coverLetter", required = false) MultipartFile coverLetter,
+                             @RequestParam(value = "coverLetterText", required = false) String coverLetterText,
                              HttpSession session, RedirectAttributes redirect) {
         if (!isAuth(session)) return "redirect:/login";
         if (isRecruiter(session)) return "redirect:/dashboard";
@@ -349,6 +340,15 @@ public class MainController {
         application.setApplicant(applicant.get());
         application.setJobListing(jobListing.get());
         application.setSelectedResume(selectedResume.get());
+                // US 10.2 (#142): save the cover letter the seeker wrote or edited in the text box
+                if (coverLetterText != null && !coverLetterText.isBlank()) {
+                    String letter = coverLetterText.trim();
+                    if (letter.length() > 10000) {
+                        redirect.addFlashAttribute("error", "Your cover letter is too long. Please keep it under 10,000 characters.");
+                        return "redirect:/job_postings";
+                    }
+                    application.setCoverLetterText(letter);
+                }
         if (jobListing.get().isCoverLetterRequired()) {
             try {
                 ResumeService.UploadedDocument uploadedLetter =
