@@ -1,0 +1,22 @@
+/* Feature 3 pages, matching existing CareerConnect colors. Shared header remains in layout.css */
+.feature-container { max-width: 980px; margin: 38px auto; padding: 0 22px 64px; width: 100%; }
+.feature-container h1 { color: #2f5f96; margin-bottom: 8px; }
+.feature-lead { color: #5f6368; margin-bottom: 26px; }
+.feature-card { background: white; padding: 23px; margin: 15px 0; border: 1px solid #d3deec; border-radius: 10px; }
+.feature-card.unread { border-left: 5px solid #2f5f96; background: #f0f6ff; }
+.feature-card h2,.feature-card h3 { margin: 0 0 8px; color: #2f5f96; }
+.feature-card p { line-height: 1.6; }
+.feature-form { display: grid; gap: 12px; max-width: 570px; }
+.feature-form label { font-weight: 650; color: #475569; }
+.feature-form input,.feature-form textarea { border: 1px solid #d3deec; border-radius: 6px; padding: 10px; font: inherit; width: 100%; }
+.feature-button { background: #2f5f96; color: white; font: inherit; border: 0; border-radius: 6px; padding: 10px 14px; cursor: pointer; }
+.feature-button:hover { background: #244b77; }
+.feature-link { color: #2f5f96; font-weight: 600; text-decoration: none; }
+.feature-link:hover { text-decoration: underline; }
+.feature-tabs { display:flex; flex-wrap:wrap; gap:10px; margin:15px 0; }
+.feature-tabs a { border:1px solid #d3deec; border-radius:6px; padding:9px 13px; background:white; color:#2f5f96; text-decoration:none; }
+.feature-tabs a.active { background:#2f5f96; color:white; }
+.feature-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+.feature-empty { text-align:center; padding:34px; background:white; border:1px dashed #d3deec; border-radius:8px; color:#5f6368; }
+.feature-muted { color:#5f6368; font-size:14px; }
+.feature-alert { background:#fef3c7; color:#92400e; padding:12px; border-radius:6px; }

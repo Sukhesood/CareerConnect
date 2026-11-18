@@ -46,7 +46,17 @@ public class JobListing {
     protected void onCreate() {
         this.postedDate = LocalDate.now();
     }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private Company company;
 
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
+    }
     // Constructors
     public JobListing() {
     }

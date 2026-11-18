@@ -8,6 +8,7 @@ import Sprint1.demo.repository.ApplicationSummaryRepository;
 import Sprint1.demo.repository.JobApplicationRepository;
 import Sprint1.demo.repository.JobRepository;
 import Sprint1.demo.service.JobPostingService;
+import Sprint1.demo.service.NotificationService;
 import Sprint1.demo.service.ResumeService;
 import Sprint1.demo.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -43,12 +44,13 @@ class MainControllerTest {
     @Mock private HttpSession session;
     @Mock private RedirectAttributes redirectAttributes;
     @Mock private ApplicationSummaryRepository applicationSummaryRepository;
+    @Mock private NotificationService notificationService;
 
     private MainController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new MainController(userService, jobPostingService, jobApplicationRepository, jobRepository, resumeService, applicationSummaryRepository);
+        controller = new MainController(userService, jobPostingService, jobApplicationRepository, jobRepository, resumeService, applicationSummaryRepository, notificationService);
         User recruiter = new User();
         recruiter.setRole("RECRUITER");
         when(session.getAttribute("loggedInUserEmail")).thenReturn("recruiter@example.com");

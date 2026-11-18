@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CareerConnect - Notifications</title>
+    <link rel="stylesheet" th:href="@{/css/feature3.css}">
+</head>
+<body>
+<th:block th:if="${isRecruiter}"><header th:replace="~{fragments :: header-recruiter}"></header></th:block>
+<th:block th:unless="${isRecruiter}"><header th:replace="~{fragments :: header-seeker}"></header></th:block>
+<main class="feature-container">
+    <h1>Notification Center</h1>
+    <p class="feature-lead">Application updates, interview invitations and upcoming deadlines.</p>
+    <p class="feature-muted"><strong th:text="${unreadCount}">0</strong> unread notifications</p>
+    <nav class="feature-tabs" aria-label="Notification filters">
+        <a th:href="@{/notifications(filter='all')}" th:classappend="${filter == 'all'} ? 'active'">All (<span th:text="${totalCount}">0</span>)</a>
+        <a th:href="@{/notifications(filter='unread')}" th:classappend="${filter == 'unread'} ? 'active'">Unread (<span th:text="${unreadCount}">0</span>)</a>
+        <a th:href="@{/notifications(filter='read')}" th:classappend="${filter == 'read'} ? 'active'">Read</a>
+    </nav>
+    <form th:if="${unreadCount > 0}" th:action="@{/notifications/read-all}" method="post">
+        <button class="feature-button" type="submit">Mark All as Read</button>
+    </form>
+    <p class="feature-empty" th:if="${#lists.isEmpty(notifications)}">No notifications in this category.</p>
+    <article th:each="notification : ${notifications}" class="feature-card"
+             th:classappend="${!notification.readFlag} ? 'unread'">
+        <div class="feature-actions">
+            <strong th:text="${#strings.replace(notification.type.name(), '_', ' ')}">NOTIFICATION</strong>
+            <span class="feature-muted" th:text="${notification.readFlag} ? 'Read' : 'Unread'">Unread</span>
+        </div>
+        <p th:text="${notification.message}">Notification message</p>
+        <p class="feature-muted" th:text="${#temporals.format(notification.createdAt, 'MMM d, yyyy h:mm a')}">Date</p>
+        <div class="feature-actions">
+            <a class="feature-link" th:if="${notification.targetUrl != null}" th:href="${notification.targetUrl}">View Details</a>
+            <form th:if="${!notification.readFlag}" th:action="@{/notifications/{id}/read(id=${notification.id})}" method="post">
+                <button class="feature-button" type="submit">Mark as Read</button>
+            </form>
+        </div>
+    </article>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

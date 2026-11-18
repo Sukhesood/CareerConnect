@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CareerConnect - Interviews</title><link rel="stylesheet" th:href="@{/css/feature3.css}"></head>
+<body><header th:replace="~{fragments :: header-seeker}"></header>
+<main class="feature-container">
+    <h1>My Interview Invitations</h1><p class="feature-lead">Interviews scheduled by recruiters.</p>
+    <p class="feature-empty" th:if="${#lists.isEmpty(interviews)}">No interviews scheduled.</p>
+    <article class="feature-card" th:each="interview : ${interviews}">
+        <h2 th:text="${interview.jobApplication.jobListing.title}">Job title</h2>
+        <p class="feature-muted">When: <span th:text="${#temporals.format(interview.scheduledAt, 'MMM d, yyyy h:mm a')}">Date</span></p>
+        <p>Location or meeting link: <span th:text="${interview.locationOrLink}">Location</span></p>
+        <p th:if="${interview.note != null and !#strings.isEmpty(interview.note)}" th:text="${interview.note}">Notes</p>
+    </article>
+</main><footer th:replace="~{fragments :: footer}"></footer></body></html>

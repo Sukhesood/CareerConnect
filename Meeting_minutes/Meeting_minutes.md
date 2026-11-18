@@ -173,4 +173,65 @@ Short check-in to finalize each member's features and plan the merging before th
 | AI logs and Sprint 2 report | All | Oct 26 |
 
 ### Next meeting
+**Date:** Nov 8
+
+
+---
+
+## Meeting 2026-11-08
+
+**Attendees:** Elouan, Rabih, Maria, Mark, Sukhjit
+
+**Absent:** None
+
+### Purpose
+Review everyone's progress at the start of Sprint 3 and confirm the Sprint 3 feature split.
+
+### Output
+- Confirmed the Sprint 3 feature split (agreed on Discord on Nov 3):
+  - Mark: Recruiter dashboard and posting management (feature 1), and helping with the AI feature
+  - Elouan: Application analytics and history dashboard (feature 2), and helping with the AI feature
+  - Sukhjit: Notifications and reminders (feature 3)
+  - Rabih and Maria: AI feature (feature 4), started in Sprint 3 and completed in Sprint 4
+- Progress updates:
+  - Elouan: implemented the shared header and footer for all pages
+  - Mark: progress on application management on the recruiter side
+- Everyone is creating and updating their Sprint 3 user stories on GitHub
+
+### Next steps
+| Task | Assigned to | Due date |
+|------|-------------|----------|
+| Recruiter dashboard and posting management | Mark | Sprint 3 delivery |
+| Application analytics and history dashboard | Elouan | Sprint 3 delivery |
+| Notifications and reminders | Sukhjit | Sprint 3 delivery |
+| AI feature (Feature 10) | Rabih, Maria | Sprint 3 delivery |
+| Create and update Sprint 3 user stories and tasks | All | Sprint 3 delivery |
+
+### Next meeting
+**Date:** Nov 12
+
+## Meeting 2026-11-12
+
+**Attendees:** Elouan, Rabih, Maria, Mark, Sukhjit
+
+**Absent:** None
+
+### Purpose
+Check-in to continue progress on the Sprint 3 features.
+
+### Output
+- Each member gave an update and continued working on their assigned Sprint 3 features
+- Feature 10 (AI-generated cover letter) tasks are split between Rabih (backend) and Maria (apply page)
+
+### Next steps
+| Task | Assigned to | Due date |
+|------|-------------|----------|
+| Recruiter dashboard and posting management | Mark | Sprint 3 delivery |
+| Application analytics and history dashboard | Elouan | Sprint 3 delivery |
+| Notifications and reminders | Sukhjit | Sprint 3 delivery |
+| Feature 10: cover letter field, AI prompt, AI service, saving and access to letters | Rabih | Sprint 3 delivery |
+| Feature 10: apply page, AI draft display and editing | Maria | Sprint 3 delivery |
+| Unit tests for Feature 10 user stories | Rabih, Maria | Sprint 3 delivery |
+
+### Next meeting
 **Date:** TBD

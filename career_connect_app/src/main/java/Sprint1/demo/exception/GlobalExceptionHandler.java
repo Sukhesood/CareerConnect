@@ -3,16 +3,20 @@ package Sprint1.demo.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
+import org.springframework.web.bind.annotation.ResponseBody;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -35,6 +39,16 @@ public class GlobalExceptionHandler {
         return page;
     }
 
+
+@ExceptionHandler(AsyncRequestNotUsableException.class)
+@ResponseBody
+public void handleDisconnectedSseClient(
+        AsyncRequestNotUsableException ex) {
+
+    // The browser has disconnected from the SSE stream.
+    // Do not try to render an HTML error page.
+    // EventSource will normally reconnect automatically.
+}
     @ExceptionHandler(IllegalArgumentException.class)
     public ModelAndView handleInvalidInput(
             IllegalArgumentException ex) {
@@ -43,6 +57,12 @@ public class GlobalExceptionHandler {
                 400,
                 "Invalid Request",
                 "The information provided is invalid.");
+    }
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Void> handleNoResourceFound(
+            NoResourceFoundException ex) {
+
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
