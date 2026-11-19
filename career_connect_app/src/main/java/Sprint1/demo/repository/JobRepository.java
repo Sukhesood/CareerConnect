@@ -24,6 +24,7 @@ public interface JobRepository extends JpaRepository<JobListing, Long> {
     @Query("""
              SELECT j FROM JobListing j 
             WHERE j.deleted = false
+              AND (j.deadline IS NULL OR j.deadline >= CURRENT_DATE)
               AND (:keyword = '' 
                    OR LOWER(j.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
                    OR LOWER(j.companyName) LIKE LOWER(CONCAT('%', :keyword, '%'))
@@ -61,6 +62,6 @@ public interface JobRepository extends JpaRepository<JobListing, Long> {
 
     Optional<JobListing> findByIdAndDeletedFalse(Long id);
 
-    @Query("SELECT job FROM JobListing job WHERE job.deleted = false AND NOT EXISTS (SELECT application FROM JobApplication application WHERE application.jobListing = job AND application.applicant.email = :email) ORDER BY job.postedDate DESC, job.id DESC")
+    @Query("SELECT job FROM JobListing job WHERE job.deleted = false AND (job.deadline IS NULL OR job.deadline >= CURRENT_DATE) AND NOT EXISTS (SELECT application FROM JobApplication application WHERE application.jobListing = job AND application.applicant.email = :email) ORDER BY job.postedDate DESC, job.id DESC")
     List<JobListing> findAvailableForApplicant(@Param("email") String email);
 }
