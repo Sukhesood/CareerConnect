@@ -36,6 +36,14 @@ public class Resume {
     @Column(nullable = false)
     private LocalDateTime uploadedAt;
 
+    /*
+     * A resume may be attached to a submitted application.  Keep that document
+     * available for the application's record when a job seeker removes it from
+     * their profile.
+     */
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean deleted = false;
+
     protected Resume() {
     }
 
@@ -76,5 +84,13 @@ public class Resume {
 
     public LocalDateTime getUploadedAt() {
         return uploadedAt;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

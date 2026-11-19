@@ -10,15 +10,15 @@ import java.util.Optional;
 public interface ResumeRepository
         extends JpaRepository<Resume, Long> {
 
-    List<Resume> findByUser_IdOrderByUploadedAtDesc(
+    List<Resume> findByUser_IdAndDeletedFalseOrderByUploadedAtDesc(
             Long userId
     );
 
-    Optional<Resume> findByIdAndUser_Id(
+    Optional<Resume> findByIdAndUser_IdAndDeletedFalse(
             Long id, Long userId
     );
 
     // Count resumes belonging to a user
-    long countByUser_Id(Long userId);
+    long countByUser_IdAndDeletedFalse(Long userId);
 }
 
