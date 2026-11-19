@@ -60,7 +60,6 @@
             <p class="cover-letter-required" th:if="${job.coverLetterRequired}">Cover letter required to apply</p>
             <form th:action="@{/job_postings/{id}/apply(id=${job.id})}" method="post" enctype="multipart/form-data">
                 <label th:if="${!#lists.isEmpty(resumes)}" th:for="${'resume-' + job.id}" class="resume-label">Choose resume to send</label>
-                <label th:if="${!#lists.isEmpty(resumes)}" th:for="${'resume-' + job.id}" class="cover-letter-required">Choose resume to send</label>
                 <select th:if="${!#lists.isEmpty(resumes)}" th:id="${'resume-' + job.id}" name="resumeId" required>
                     <option value="">Choose a resume</option>
                     <option th:each="resume : ${resumes}" th:value="${resume.id}" th:text="${resume.filename}">Resume.pdf</option>

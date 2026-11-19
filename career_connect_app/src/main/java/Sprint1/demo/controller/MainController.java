@@ -278,17 +278,6 @@ public class MainController {
         return "job-postings";
     }
 
-    @GetMapping("/applications")
-    public String showSubmittedApplications(HttpSession session, Model model) {
-        if (!isAuth(session)) return "redirect:/login";
-        if (isRecruiter(session)) return "redirect:/dashboard";
-
-        String email = (String) session.getAttribute("loggedInUserEmail");
-        model.addAttribute("applications", jobApplicationRepository.findByApplicant_EmailOrderBySubmittedAtDesc(email));
-        model.addAttribute("applicationStatuses", APPLICATION_STATUSES);
-        return "submitted-applications";
-    }
-
     @GetMapping("/job_postings/{jobId}")
     public String showJobDetails(@PathVariable Long jobId, HttpSession session, Model model,
                                  RedirectAttributes redirect) {
@@ -546,18 +535,6 @@ public class MainController {
 
         String email = (String) session.getAttribute("loggedInUserEmail");
         Optional<JobApplication> application = jobApplicationRepository.findByIdAndJobListing_Recruiter_Email(applicationId, email);
-        applicationSummaryRepository.findByApplicationId(applicationId).ifPresent(
-                applicationSummary -> {
-                    if (status.equals("Rejected")) {
-                        applicationSummary.setState("Closed");
-                    }
-                    else{
-                        applicationSummary.setStatus(status);
-                        applicationSummaryRepository.save(applicationSummary);
-                    }
-
-                });
-
 /*
         JobApplication selectedApplication = application.get();
 
@@ -597,6 +574,11 @@ public class MainController {
 
         application.get().setStatus(status);
         jobApplicationRepository.save(application.get());
+        applicationSummaryRepository.findByApplicationId(applicationId).ifPresent(applicationSummary -> {
+            applicationSummary.setStatus(status);
+            applicationSummary.setState("Rejected".equals(status) ? "Closed" : "Active");
+            applicationSummaryRepository.save(applicationSummary);
+        });
         redirect.addFlashAttribute("success", "Status updated to \"" + status + "\".");
         return "redirect:/recruiter/applications";
     }
