@@ -2,6 +2,7 @@ package Sprint1.demo.controller;
 
 import Sprint1.demo.model.JobApplication;
 import Sprint1.demo.model.JobListing;
+import Sprint1.demo.model.JobListingForm;
 import Sprint1.demo.model.Resume;
 import Sprint1.demo.model.User;
 import Sprint1.demo.repository.ApplicationSummaryRepository;
@@ -19,6 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
 import org.springframework.ui.ExtendedModelMap;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
@@ -31,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -110,6 +114,22 @@ class MainControllerTest {
         assertEquals("Interview", application.getStatus());
         verify(jobApplicationRepository).save(application);
         verify(redirectAttributes).addFlashAttribute("success", "Status updated to \"Interview\".");
+    }
+
+    @Test
+    void recruiterCannotCreatePostingWhenMinimumSalaryExceedsMaximumSalary() {
+        JobListingForm form = new JobListingForm();
+        form.setSalaryMin(25);
+        form.setSalaryMax(20);
+        BindingResult result = new BeanPropertyBindingResult(form, "jobListing");
+
+        String view = controller.submitJobPosting(form, result, session, redirectAttributes);
+
+        assertEquals("job_posting_creation", view);
+        assertTrue(result.hasFieldErrors("salaryMax"));
+        assertEquals("Maximum salary must be greater than or equal to the minimum salary.",
+                result.getFieldError("salaryMax").getDefaultMessage());
+        verifyNoInteractions(jobPostingService);
     }
 
     @Test
