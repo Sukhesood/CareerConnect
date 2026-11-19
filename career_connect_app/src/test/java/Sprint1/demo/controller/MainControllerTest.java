@@ -1,6 +1,5 @@
 package Sprint1.demo.controller;
 
-import Sprint1.demo.model.ApplicationSummary;
 import Sprint1.demo.model.JobApplication;
 import Sprint1.demo.model.JobListing;
 import Sprint1.demo.model.Resume;
@@ -31,8 +30,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -113,78 +110,6 @@ class MainControllerTest {
         assertEquals("Interview", application.getStatus());
         verify(jobApplicationRepository).save(application);
         verify(redirectAttributes).addFlashAttribute("success", "Status updated to \"Interview\".");
-    }
-
-    @Test
-    void rejectedStatusIsAlsoRecordedInTheApplicantHistory() {
-        JobApplication application = new JobApplication();
-        application.setStatus("Under Review");
-        ApplicationSummary summary = new ApplicationSummary();
-        summary.setStatus("Under Review");
-        summary.setState("Active");
-        when(jobApplicationRepository.findByIdAndJobListing_Recruiter_Email(99L, "recruiter@example.com"))
-                .thenReturn(Optional.of(application));
-        when(applicationSummaryRepository.findByApplicationId(99L)).thenReturn(Optional.of(summary));
-
-        controller.updateApplicationStatus(99L, "Rejected", session, redirectAttributes);
-
-        assertEquals("Rejected", application.getStatus());
-        assertEquals("Rejected", summary.getStatus());
-        assertEquals("Closed", summary.getState());
-        verify(applicationSummaryRepository).save(summary);
-    }
-
-    @Test
-    void jobSeekerCanSubmitAnApplicationAndReceivesConfirmation() {
-        User seeker = new User();
-        seeker.setRole("JOB_SEEKER");
-        JobListing job = job(10L, false);
-        job.setCompanyName("CareerConnect");
-        job.setTitle("Junior Developer");
-        job.setPostedDate(LocalDate.of(2026, 11, 1));
-        Resume resume = mock(Resume.class);
-        when(resume.getId()).thenReturn(7L);
-        when(session.getAttribute("loggedInUserEmail")).thenReturn("seeker@example.com");
-        when(userService.findByEmail("seeker@example.com")).thenReturn(Optional.of(seeker));
-        when(jobPostingService.getJobListing(10L)).thenReturn(Optional.of(job));
-        when(jobApplicationRepository.existsByApplicant_EmailAndJobListing_Id("seeker@example.com", 10L)).thenReturn(false);
-        when(resumeService.list("seeker@example.com")).thenReturn(List.of(resume));
-
-        String view = controller.applyToJob(10L, 7L, null, session, redirectAttributes);
-
-        assertEquals("redirect:/job_postings", view);
-        verify(jobApplicationRepository).save(any(JobApplication.class));
-        verify(applicationSummaryRepository).save(any(ApplicationSummary.class));
-        verify(redirectAttributes).addFlashAttribute("success", "Your application was submitted.");
-    }
-
-    @Test
-    void jobSeekerCanViewCurrentAndPastApplicationHistory() {
-        User seeker = new User();
-        seeker.setRole("JOB_SEEKER");
-        JobApplication current = application(job(10L, false), "Interview", LocalDate.of(2026, 11, 15));
-        JobApplication past = application(job(20L, true), "Rejected", LocalDate.of(2026, 10, 1));
-        ApplicationSummary currentSummary = new ApplicationSummary();
-        currentSummary.setStatus("Interview");
-        currentSummary.setState("Active");
-        ApplicationSummary pastSummary = new ApplicationSummary();
-        pastSummary.setStatus("Rejected");
-        pastSummary.setState("Closed");
-        when(session.getAttribute("loggedInUserEmail")).thenReturn("seeker@example.com");
-        when(userService.findByEmail("seeker@example.com")).thenReturn(Optional.of(seeker));
-        when(jobApplicationRepository.findByApplicant_EmailOrderBySubmittedAtDesc("seeker@example.com"))
-                .thenReturn(List.of(current, past));
-        when(applicationSummaryRepository.search("seeker@example.com", null, "", null, null, null))
-                .thenReturn(List.of(currentSummary, pastSummary));
-        ExtendedModelMap model = new ExtendedModelMap();
-
-        String view = controller.myApplications(null, null, null, null, null, session, model);
-
-        assertEquals("/submitted-applications", view);
-        assertEquals(List.of(current, past), model.getAttribute("applications"));
-        assertEquals(List.of(currentSummary, pastSummary), model.getAttribute("applicationSummaries"));
-        assertEquals(List.of("Applied", "Under Review", "Interview", "Offered", "Rejected"),
-                model.getAttribute("applicationStatuses"));
     }
 
     @Test

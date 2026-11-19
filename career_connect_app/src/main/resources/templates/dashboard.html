@@ -206,6 +206,89 @@
             </a>
 
         </div>
+        <div class="card"  th:if="${!isRecruiter}">
+            <h2 style="justify-content: flex-start">
+                Application backlog
+            </h2>
+
+            <div class="stats-strip">
+
+                <div class="stat stat-total">
+                    <span class="stat-num" th:text="${totalApplications}">0</span>
+                    <span class="stat-label">All applications</span>
+                </div>
+
+                <div class="stat" th:each="entry : ${statusCount}">
+                    <span class="stat-num" th:text="${entry.value}">0</span>
+                    <span class="stat-label" th:text="${entry.key}">Status</span>
+                </div>
+
+            </div>
+
+
+
+
+            <div id="sankey" style="width:100%; height:400px;"></div>
+            <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+            <script>
+                fetch('/graph/applications')
+                    .then(r => r.json())
+                    .then(links => {
+                        if (links.length === 0) {
+                            document.getElementById('sankey').textContent = 'No applications yet.';
+                            return;
+                        }
+                        const ids = [...new Set(links.flatMap(l => [l.source, l.target]))];
+                        const idx = Object.fromEntries(ids.map((n, i) => [n, i]));
+
+                        const labels = ids.map(id =>
+                            id.startsWith('closed:') ? 'Closed' :
+                                id.startsWith('active:') ? 'Active' :
+                                    id.substring(id.indexOf(':') + 1));
+
+                        const colors = ids.map(id =>
+                            id.startsWith('closed:') ? '#c0392b' :
+                                id.startsWith('active:') ? '#27ae60' : '#2e86c1');
+
+                        const STAGES = ['Applied', 'Under Review', 'Interview', 'Offered'];  // same order as in the controller
+                        const cols = STAGES.length;                       // last stage's Active/Closed get one extra column
+                        const colX = c => 0.01 + c * (0.98 / cols);       // x must stay between 0 and 1 (exclusive)
+
+                        const nodeX = [];
+                        const nodeY = [];
+                        ids.forEach(id => {
+                            const name = id.substring(id.indexOf(':') + 1);
+                            const i = STAGES.indexOf(name);
+                            if (id.startsWith('stage:')) {
+                                nodeX.push(colX(i));
+                                nodeY.push(0.3);                          // main row, near the top
+                            } else {
+                                nodeX.push(colX(i + 1));                  // column after its stage
+                                nodeY.push(id.startsWith('closed:') ? 0.85 : 0.65);   // below the main row
+                            }
+                        });
+
+                        Plotly.newPlot('sankey', [{
+                            type: 'sankey',
+                            orientation: 'h',
+                            arrangement: 'snap',                          // uses x/y as a starting point, nudges nodes apart if they collide
+                            node: { label: labels, color: colors, pad: 20, thickness: 20, x: nodeX, y: nodeY,
+                                hovertemplate:'%{value}<extra></extra>'},
+                            link: {
+                                source: links.map(l => idx[l.source]),
+                                target: links.map(l => idx[l.target]),
+                                value:  links.map(l => l.value),
+                                hovertemplate: '%{value}<extra></extra>',
+                                color:  links.map(l =>
+                                    l.target.startsWith('closed:') ? 'rgba(192,57,43,0.35)' :
+                                        l.target.startsWith('active:') ? 'rgba(39,174,96,0.35)' :
+                                            'rgba(46,134,193,0.35)')
+                            }
+                            }], { margin: { l: 10, r: 10, t: 10, b: 10 } },
+                            { displayModeBar: false });
+                    });
+            </script>
+        </div>
     </main>
 
     <!-- COMMON FOOTER -->
