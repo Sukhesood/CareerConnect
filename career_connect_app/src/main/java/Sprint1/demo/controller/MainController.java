@@ -278,16 +278,6 @@ public class MainController {
         return "job-postings";
     }
 
-    @GetMapping("/applications")
-    public String showSubmittedApplications(HttpSession session, Model model) {
-        if (!isAuth(session)) return "redirect:/login";
-        if (isRecruiter(session)) return "redirect:/dashboard";
-
-        String email = (String) session.getAttribute("loggedInUserEmail");
-        model.addAttribute("applications", jobApplicationRepository.findByApplicant_EmailOrderBySubmittedAtDesc(email));
-        model.addAttribute("applicationStatuses", APPLICATION_STATUSES);
-        return "submitted-applications";
-    }
 
     @GetMapping("/job_postings/{jobId}")
     public String showJobDetails(@PathVariable Long jobId, HttpSession session, Model model,
