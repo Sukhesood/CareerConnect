@@ -160,7 +160,7 @@ class MainControllerTest {
         });
 
         String view = controller.applyToJob(10L, 7L, null, null, session, redirectAttributes);
-        
+
         assertEquals("redirect:/job_postings", view);
         verify(jobApplicationRepository).save(any(JobApplication.class));
         verify(applicationSummaryRepository).save(any(ApplicationSummary.class));
@@ -211,6 +211,108 @@ class MainControllerTest {
         assertTrue(downloadedLetter != null && downloadedLetter.exists());
         assertFalse(downloadedLetter.contentLength() == 0);
     }
+
+        // ---------- US 10.2 (#144): saving and viewing the written cover letter ----------
+
+        @Test
+        void applicationSavesTheWrittenCoverLetter() {
+            seekerReadyToApply();
+            when(jobApplicationRepository.save(any(JobApplication.class))).thenAnswer(invocation -> {
+                JobApplication saved = invocation.getArgument(0);
+                ReflectionTestUtils.setField(saved, "id", 1L);
+                return saved;
+            });
+    
+            String view = controller.applyToJob(10L, 7L, null, "  Dear Hiring Manager, I am excited to apply.  ", session, redirectAttributes);
+    
+            assertEquals("redirect:/job_postings", view);
+            org.mockito.ArgumentCaptor<JobApplication> saved = org.mockito.ArgumentCaptor.forClass(JobApplication.class);
+            verify(jobApplicationRepository).save(saved.capture());
+            assertEquals("Dear Hiring Manager, I am excited to apply.", saved.getValue().getCoverLetterText());
+        }
+    
+        @Test
+        void tooLongCoverLetterIsRejected() {
+            seekerReadyToApply();
+    
+            String view = controller.applyToJob(10L, 7L, null, "a".repeat(10001), session, redirectAttributes);
+    
+            assertEquals("redirect:/job_postings", view);
+            verify(redirectAttributes).addFlashAttribute("error", "Your cover letter is too long. Please keep it under 10,000 characters.");
+            verify(jobApplicationRepository, org.mockito.Mockito.never()).save(any(JobApplication.class));
+        }
+    
+        @Test
+        void applicantCanReadTheirOwnCoverLetter() {
+            loggedInAsSeeker();
+            when(jobApplicationRepository.findByIdAndApplicant_Email(8L, "seeker@example.com"))
+                    .thenReturn(Optional.of(applicationWithLetter("My cover letter")));
+    
+            var response = controller.viewCoverLetterText(8L, session);
+    
+            assertEquals(200, response.getStatusCode().value());
+            assertEquals("My cover letter", response.getBody());
+        }
+    
+        @Test
+        void recruiterWhoOwnsTheJobCanReadTheCoverLetter() {
+            // setUp() already logs in as recruiter@example.com
+            when(jobApplicationRepository.findByIdAndJobListing_Recruiter_Email(8L, "recruiter@example.com"))
+                    .thenReturn(Optional.of(applicationWithLetter("My cover letter")));
+    
+            var response = controller.viewCoverLetterText(8L, session);
+    
+            assertEquals(200, response.getStatusCode().value());
+            assertEquals("My cover letter", response.getBody());
+        }
+    
+        @Test
+        void otherUsersCannotReadSomeoneElsesCoverLetter() {
+            loggedInAsSeeker();
+            when(jobApplicationRepository.findByIdAndApplicant_Email(8L, "seeker@example.com"))
+                    .thenReturn(Optional.empty());
+    
+            var response = controller.viewCoverLetterText(8L, session);
+    
+            assertEquals(404, response.getStatusCode().value());
+            assertEquals("Cover letter not found.", response.getBody());
+        }
+    
+        @Test
+        void loggedOutVisitorsCannotReadACoverLetter() {
+            when(session.getAttribute("loggedInUserEmail")).thenReturn(null);
+    
+            var response = controller.viewCoverLetterText(8L, session);
+    
+            assertEquals(401, response.getStatusCode().value());
+            verifyNoInteractions(jobApplicationRepository);
+        }
+    
+        private void loggedInAsSeeker() {
+            User seeker = new User();
+            seeker.setRole("JOB_SEEKER");
+            when(session.getAttribute("loggedInUserEmail")).thenReturn("seeker@example.com");
+            when(userService.findByEmail("seeker@example.com")).thenReturn(Optional.of(seeker));
+        }
+    
+        private void seekerReadyToApply() {
+            loggedInAsSeeker();
+            JobListing job = job(10L, false);
+            job.setCompanyName("CareerConnect");
+            job.setTitle("Junior Developer");
+            job.setPostedDate(LocalDate.of(2026, 11, 1));
+            Resume resume = mock(Resume.class);
+            when(resume.getId()).thenReturn(7L);
+            when(jobPostingService.getJobListing(10L)).thenReturn(Optional.of(job));
+            when(jobApplicationRepository.existsByApplicant_EmailAndJobListing_Id("seeker@example.com", 10L)).thenReturn(false);
+            when(resumeService.list("seeker@example.com")).thenReturn(List.of(resume));
+        }
+    
+        private JobApplication applicationWithLetter(String letter) {
+            JobApplication application = new JobApplication();
+            application.setCoverLetterText(letter);
+            return application;
+        }
 
     private JobListing job(Long id, boolean deleted) {
         JobListing job = new JobListing();
