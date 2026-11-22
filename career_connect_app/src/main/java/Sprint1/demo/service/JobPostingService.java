@@ -6,6 +6,7 @@ import Sprint1.demo.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -112,7 +113,10 @@ public class JobPostingService {
         }
 
         return jobRepository
-                .findAvailableForApplicant(applicantEmail);
+                .findAvailableForApplicant(applicantEmail)
+                .stream()
+                .filter(job -> job.getDeadline() == null || !job.getDeadline().isBefore(LocalDate.now()))
+                .toList();
     }
 
     // ==================================================
@@ -121,7 +125,8 @@ public class JobPostingService {
 
     public Optional<JobListing> getJobListing(Long jobId) {
 
-        return jobRepository.findByIdAndDeletedFalse(jobId);
+        return jobRepository.findByIdAndDeletedFalse(jobId)
+                .filter(job -> job.getDeadline() == null || !job.getDeadline().isBefore(LocalDate.now()));
     }
 
     // ==================================================

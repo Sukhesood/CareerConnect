@@ -57,7 +57,7 @@ public class ResumeService {
         User user = currentUser(email);
 
         return resumeRepository
-                .findByUser_IdOrderByUploadedAtDesc(
+                .findByUser_IdAndDeletedFalseOrderByUploadedAtDesc(
                         user.getId());
     }
 
@@ -70,7 +70,7 @@ public class ResumeService {
         User user = currentUser(email);
 
 long resumeCount =
-        resumeRepository.countByUser_Id(user.getId());
+        resumeRepository.countByUser_IdAndDeletedFalse(user.getId());
 
 if (resumeCount >= MAX_RESUMES) {
     throw new IllegalArgumentException(
@@ -258,7 +258,7 @@ if (resumeCount >= MAX_RESUMES) {
         User user = currentUser(email);
 
         return resumeRepository
-                .findByIdAndUser_Id(
+                .findByIdAndUser_IdAndDeletedFalse(
                         id, user.getId())
                 .orElseThrow(() ->
                     new ResponseStatusException(
@@ -266,12 +266,13 @@ if (resumeCount >= MAX_RESUMES) {
                         "Resume not found."));
     }
 
-    // Delete one selected resume
+    // Remove one selected resume from the profile while preserving it for past applications.
     @Transactional
     public void delete(String email, Long id) {
 
         Resume resume = getOwned(email, id);
 
-        resumeRepository.delete(resume);
+        resume.setDeleted(true);
+        resumeRepository.save(resume);
     }
 }

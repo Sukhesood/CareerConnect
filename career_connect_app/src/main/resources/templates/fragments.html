@@ -92,38 +92,6 @@
 </header>
 
 
-<header th:fragment="header-seeker">
-    <link rel="stylesheet" th:href="@{/css/layout.css}">
-    <div class="header-inner">
-        <a class="header-brand" th:href="@{/}" aria-label="CareerConnect home">
-            <img th:src="@{/images/logo-mark.png}" alt="">
-            <span>CareerConnect</span>
-        </a>
-    </div>
-    <!-- Show navigation only when logged in -->
-    <nav class="header-nav"
-         th:if="${session.loggedInUserEmail != null}">
-
-        <a th:href="@{/jobs}" class="nav-link">Browse Jobs</a>
-        <a th:href="@{/applications}" class="nav-link">My Applications</a>
-
-
-        <a th:href="@{/dashboard}"
-           class="nav-link">
-            Dashboard
-        </a>
-
-        <a th:href="@{/profile}"
-           class="nav-link">
-            My Profile
-        </a>
-
-        <a th:href="@{/logout}"
-           class="logout-btn">
-            Sign Out
-        </a>
-    </nav>
-</header>
 
 <!-- COMMON FOOTER -->
 

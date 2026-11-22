@@ -91,4 +91,19 @@ class JobPostingServiceTest {
         assertTrue(form.isCoverLetterRequired());
         assertEquals(LocalDate.of(2026, 12, 31), form.getDeadline());
     }
+
+    @Test
+    void expiredPostingsAreHiddenFromJobSeekersButRemainForRecruiterManagement() {
+        JobListing openJob = new JobListing();
+        openJob.setDeadline(LocalDate.now());
+        JobListing noDeadlineJob = new JobListing();
+        JobListing expiredJob = new JobListing();
+        expiredJob.setDeadline(LocalDate.now().minusDays(1));
+        when(jobRepository.findAvailableForApplicant("seeker@example.com"))
+                .thenReturn(List.of(openJob, noDeadlineJob, expiredJob));
+
+        List<JobListing> available = jobPostingService.getAvailableJobListings("seeker@example.com");
+
+        assertEquals(List.of(openJob, noDeadlineJob), available);
+    }
 }

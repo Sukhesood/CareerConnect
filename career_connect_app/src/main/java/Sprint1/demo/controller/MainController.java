@@ -96,6 +96,7 @@ public class MainController {
         if (!isRecruiter(session)) return "redirect:/dashboard";
 
 
+        validateSalaryRange(form, result);
         if (result.hasErrors()) {
             return "job_posting_creation";
         }
@@ -164,6 +165,7 @@ public class MainController {
             return "redirect:/my_job_postings";
         }
 
+        validateSalaryRange(form, result);
         if (result.hasErrors()) {
             model.addAttribute("editingJobId", id);
             return "job_posting_creation";
@@ -172,6 +174,14 @@ public class MainController {
         jobPostingService.updateJobListing(job.get(), form);
         redirect.addFlashAttribute("success", "Your job posting was updated.");
         return "redirect:/my_job_postings";
+    }
+
+    private void validateSalaryRange(JobListingForm form, BindingResult result) {
+        if (form.getSalaryMin() != null && form.getSalaryMax() != null
+                && form.getSalaryMin() > form.getSalaryMax()) {
+            result.rejectValue("salaryMax", "salary.range.invalid",
+                    "Maximum salary must be greater than or equal to the minimum salary.");
+        }
     }
 
     @PostMapping("/job_posting/{id}/delete")
