@@ -38,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -158,8 +159,8 @@ class MainControllerTest {
             return saved;
         });
 
-        String view = controller.applyToJob(10L, 7L, null, session, redirectAttributes);
-
+        String view = controller.applyToJob(10L, 7L, null, null, session, redirectAttributes);
+        
         assertEquals("redirect:/job_postings", view);
         verify(jobApplicationRepository).save(any(JobApplication.class));
         verify(applicationSummaryRepository).save(any(ApplicationSummary.class));
