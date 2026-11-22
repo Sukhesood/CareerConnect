@@ -19,4 +19,7 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
     List<JobApplication> findByJobListing_Recruiter_EmailOrderBySubmittedAtDesc(String email);
     @EntityGraph(attributePaths = {"applicant", "jobListing", "selectedResume"})
     Optional<JobApplication> findByIdAndJobListing_Recruiter_Email(Long id, String email);
+
+     // US 10.2.3 (#143): lets a job seeker load only their own application
+    Optional<JobApplication> findByIdAndApplicant_Email(Long id, String email);
 }

@@ -94,6 +94,7 @@
                     <a class="resume-link" th:if="${jobApplication.selectedResume != null}" th:href="@{/recruiter/applications/{id}/resume(id=${jobApplication.id})}">Download selected resume</a>
                     <p class="no-resume" th:unless="${jobApplication.selectedResume != null}">No resume was selected for this application.</p>
                     <a class="resume-link" th:if="${jobApplication.hasCoverLetter()}" th:href="@{/recruiter/applications/{id}/cover-letter(id=${jobApplication.id})}">Download cover letter</a>
+                                        <a class="resume-link" th:if="${jobApplication.hasCoverLetterText()}" th:href="@{/applications/{id}/cover-letter-text(id=${jobApplication.id})}" target="_blank">View written cover letter</a>
                     <p class="date" th:if="${jobApplication.submittedAt != null}">Submitted <span th:text="${#temporals.format(jobApplication.submittedAt, 'MMMM d, yyyy')}">January 1, 2026</span></p>
                     <p class="date" th:unless="${jobApplication.submittedAt != null}">Submission date unavailable</p>
                     <form class="status-form" th:action="@{/recruiter/applications/{id}/status(id=${jobApplication.id})}" method="post">

@@ -638,6 +638,23 @@ public class MainController {
                         "attachment; filename=\"" + application.get().getCoverLetterFilename() + "\"")
                 .body(coverLetter);
     }
+
+        // US 10.2.3 (#143): only the applicant or the recruiter who owns the job can read a written cover letter
+        @GetMapping("/applications/{applicationId}/cover-letter-text")
+        public ResponseEntity<String> viewCoverLetterText(@PathVariable Long applicationId, HttpSession session) {
+            if (!isAuth(session)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please log in first.");
+    
+            String email = (String) session.getAttribute("loggedInUserEmail");
+            Optional<JobApplication> application = isRecruiter(session)
+                    ? jobApplicationRepository.findByIdAndJobListing_Recruiter_Email(applicationId, email)
+                    : jobApplicationRepository.findByIdAndApplicant_Email(applicationId, email);
+            if (application.isEmpty() || !application.get().hasCoverLetterText()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cover letter not found.");
+            }
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE, "text/plain; charset=UTF-8")
+                    .body(application.get().getCoverLetterText());
+        }
     // Updated profile page
     @GetMapping("/profile")
     public String showProfile(HttpSession session, Model model) {

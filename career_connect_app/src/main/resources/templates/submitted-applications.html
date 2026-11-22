@@ -108,6 +108,7 @@
             <div class="application-header"><div><h2 th:text="${jobApplication.jobListing.title}">Job title</h2><p class="company" th:text="${jobApplication.jobListing.companyName}">Company</p></div><span class="status" th:classappend="${jobApplication.status == 'Rejected'} ? 'status-rejected'" th:text="${jobApplication.status}">Applied</span></div>
             <p class="date" th:if="${jobApplication.submittedAt != null}">Applied <span th:text="${#temporals.format(jobApplication.submittedAt, 'MMMM d, yyyy')}">January 1, 2026</span></p>
             <p class="date" th:unless="${jobApplication.submittedAt != null}">Application date unavailable</p>
+            <a class="resume-link" th:if="${jobApplication.hasCoverLetterText()}" th:href="@{/applications/{id}/cover-letter-text(id=${jobApplication.id})}" target="_blank">View my cover letter</a>
             <ol class="tracker" aria-label="Application progress" th:classappend="${jobApplication.status == 'Rejected'} ? 'rejected'"
                 th:with="steps=${applicationStatuses}, current=${steps.indexOf(jobApplication.status)}">
                 <li th:each="step, it : ${steps}" th:text="${step}"
