@@ -16,11 +16,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      - name: Set up Java 25
+      - name: Set up Java 21
         uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: '21'
           cache: maven
           cache-dependency-path: career_connect_app/pom.xml
 
@@ -28,6 +28,13 @@ jobs:
         working-directory: career_connect_app
         run: mvn --batch-mode test
 
-      - name: Build application
+      - name: Build application and generate PMD report
         working-directory: career_connect_app
-        run: mvn --batch-mode package -DskipTests
+        run: mvn --batch-mode verify -DskipTests
+
+      - name: Upload static-analysis report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pmd-static-analysis-report
+          path: career_connect_app/target/pmd.xml
+          if-no-files-found: error
