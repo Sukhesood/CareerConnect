@@ -1,17 +1,14 @@
 package Sprint1.demo.repository;
 
-import java.util.List;
 import java.time.LocalDate;
-
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import Sprint1.demo.model.JobListing;
 
@@ -61,6 +58,12 @@ public interface JobRepository extends JpaRepository<JobListing, Long> {
     Optional<JobListing> findByIdAndRecruiter_EmailAndDeletedFalse(Long id, String email);
 
     Optional<JobListing> findByIdAndDeletedFalse(Long id);
+
+    // An expired job cannot pass the normal @FutureOrPresent validation when it
+    // is saved again. Archive it with a direct update instead.
+    @Modifying
+    @Query("UPDATE JobListing j SET j.deleted = true WHERE j.id = :id")
+    int archiveById(@Param("id") Long id);
 
     @Query("SELECT job FROM JobListing job WHERE job.deleted = false AND (job.deadline IS NULL OR job.deadline >= CURRENT_DATE) AND NOT EXISTS (SELECT application FROM JobApplication application WHERE application.jobListing = job AND application.applicant.email = :email) ORDER BY job.postedDate DESC, job.id DESC")
     List<JobListing> findAvailableForApplicant(@Param("email") String email);

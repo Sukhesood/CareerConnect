@@ -197,7 +197,7 @@ public class MainController {
         }
 
         jobPostingService.deleteJobListing(job.get());
-        redirect.addFlashAttribute("success", "The job posting was deleted. Existing applications were marked as Rejected.");
+        redirect.addFlashAttribute("success", "The job posting was deleted. Existing applications are still available for review.");
         return "redirect:/my_job_postings";
     }
 
@@ -546,46 +546,6 @@ public class MainController {
 
         String email = (String) session.getAttribute("loggedInUserEmail");
         Optional<JobApplication> application = jobApplicationRepository.findByIdAndJobListing_Recruiter_Email(applicationId, email);
-        applicationSummaryRepository.findByApplicationId(applicationId).ifPresent(
-                applicationSummary -> {
-                    if (status.equals("Rejected")) {
-                        applicationSummary.setState("Closed");
-                    }
-                    else{
-                        applicationSummary.setStatus(status);
-                        applicationSummaryRepository.save(applicationSummary);
-                    }
-
-                });
-
-/*
-        JobApplication selectedApplication = application.get();
-
-        // Remember the previous status
-        String previousStatus = selectedApplication.getStatus();
-
-        // Update the application
-        selectedApplication.setStatus(status);
-
-        // Save changes
-        jobApplicationRepository.save(selectedApplication);
-
-        // Notify the job seeker only if the status changed
-        notificationService.applicationStatusChanged(
-                selectedApplication,
-                previousStatus
-        );
-       */ //from sukh's version, need review
-
-
-
-
-
-
-
-
-
-
         if (application.isEmpty()) {
             redirect.addFlashAttribute("error", "That application could not be found.");
             return "redirect:/recruiter/applications";
@@ -597,6 +557,11 @@ public class MainController {
 
         application.get().setStatus(status);
         jobApplicationRepository.save(application.get());
+        applicationSummaryRepository.findByApplicationId(applicationId).ifPresent(applicationSummary -> {
+            applicationSummary.setStatus(status);
+            applicationSummary.setState("Rejected".equals(status) ? "Closed" : "Active");
+            applicationSummaryRepository.save(applicationSummary);
+        });
         redirect.addFlashAttribute("success", "Status updated to \"" + status + "\".");
         return "redirect:/recruiter/applications";
     }

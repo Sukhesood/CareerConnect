@@ -85,12 +85,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa-test</artifactId>
 			<scope>test</scope>
@@ -129,50 +123,24 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
+			<!-- Sprint 4: generate a PMD static-analysis report during Maven verify. -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.28.0</version>
+				<configuration>
+					<failOnViolation>false</failOnViolation>
+					<linkXRef>false</linkXRef>
+				</configuration>
 				<executions>
-
 					<execution>
-						<id>default-compile</id>
-						<phase>compile</phase>
-
+						<id>pmd-static-analysis</id>
+						<phase>verify</phase>
 						<goals>
-							<goal>compile</goal>
+							<goal>pmd</goal>
 						</goals>
-
-						<configuration>
-							<annotationProcessorPaths>
-								<path>
-									<groupId>org.projectlombok</groupId>
-									<artifactId>lombok</artifactId>
-								</path>
-							</annotationProcessorPaths>
-						</configuration>
 					</execution>
-
-					<execution>
-						<id>default-testCompile</id>
-						<phase>test-compile</phase>
-
-						<goals>
-							<goal>testCompile</goal>
-						</goals>
-
-						<configuration>
-							<annotationProcessorPaths>
-								<path>
-									<groupId>org.projectlombok</groupId>
-									<artifactId>lombok</artifactId>
-								</path>
-							</annotationProcessorPaths>
-						</configuration>
-					</execution>
-
 				</executions>
-
 			</plugin>
 
 		</plugins>

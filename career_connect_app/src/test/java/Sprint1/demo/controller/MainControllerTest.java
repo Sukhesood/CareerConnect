@@ -1,5 +1,6 @@
 package Sprint1.demo.controller;
 
+import Sprint1.demo.model.ApplicationSummary;
 import Sprint1.demo.model.JobApplication;
 import Sprint1.demo.model.JobListing;
 import Sprint1.demo.model.JobListingForm;
@@ -20,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
 import org.springframework.ui.ExtendedModelMap;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -36,6 +38,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class MainControllerTest {
@@ -57,8 +62,8 @@ class MainControllerTest {
         controller = new MainController(userService, jobPostingService, jobApplicationRepository, jobRepository, resumeService, applicationSummaryRepository, notificationService);
         User recruiter = new User();
         recruiter.setRole("RECRUITER");
-        when(session.getAttribute("loggedInUserEmail")).thenReturn("recruiter@example.com");
-        when(userService.findByEmail("recruiter@example.com")).thenReturn(Optional.of(recruiter));
+        lenient().when(session.getAttribute("loggedInUserEmail")).thenReturn("recruiter@example.com");
+        lenient().when(userService.findByEmail("recruiter@example.com")).thenReturn(Optional.of(recruiter));
     }
 
     @Test
@@ -117,6 +122,27 @@ class MainControllerTest {
     }
 
     @Test
+    void recruiterRejectingAnApplicationClosesAndSavesItsHistorySummary() {
+        JobApplication application = new JobApplication();
+        application.setStatus("Under Review");
+        ApplicationSummary summary = new ApplicationSummary();
+        summary.setStatus("Under Review");
+        summary.setState("Active");
+        when(jobApplicationRepository.findByIdAndJobListing_Recruiter_Email(99L, "recruiter@example.com"))
+                .thenReturn(Optional.of(application));
+        when(applicationSummaryRepository.findByApplicationId(99L)).thenReturn(Optional.of(summary));
+
+        String view = controller.updateApplicationStatus(99L, "Rejected", session, redirectAttributes);
+
+        assertEquals("redirect:/recruiter/applications", view);
+        assertEquals("Rejected", application.getStatus());
+        assertEquals("Rejected", summary.getStatus());
+        assertEquals("Closed", summary.getState());
+        verify(jobApplicationRepository).save(application);
+        verify(applicationSummaryRepository).save(summary);
+    }
+
+    @Test
     void recruiterCannotCreatePostingWhenMinimumSalaryExceedsMaximumSalary() {
         JobListingForm form = new JobListingForm();
         form.setSalaryMin(25);
@@ -130,6 +156,62 @@ class MainControllerTest {
         assertEquals("Maximum salary must be greater than or equal to the minimum salary.",
                 result.getFieldError("salaryMax").getDefaultMessage());
         verifyNoInteractions(jobPostingService);
+    }
+
+    @Test
+    void jobSeekerCanSubmitAnApplicationAndReceivesConfirmation() {
+        User seeker = new User();
+        seeker.setRole("JOB_SEEKER");
+        JobListing job = job(10L, false);
+        job.setCompanyName("CareerConnect");
+        job.setTitle("Junior Developer");
+        job.setPostedDate(LocalDate.of(2026, 11, 1));
+        Resume resume = mock(Resume.class);
+        when(resume.getId()).thenReturn(7L);
+        when(session.getAttribute("loggedInUserEmail")).thenReturn("seeker@example.com");
+        when(userService.findByEmail("seeker@example.com")).thenReturn(Optional.of(seeker));
+        when(jobPostingService.getJobListing(10L)).thenReturn(Optional.of(job));
+        when(jobApplicationRepository.existsByApplicant_EmailAndJobListing_Id("seeker@example.com", 10L)).thenReturn(false);
+        when(resumeService.list("seeker@example.com")).thenReturn(List.of(resume));
+        when(jobApplicationRepository.save(any(JobApplication.class))).thenAnswer(invocation -> {
+            JobApplication saved = invocation.getArgument(0);
+            ReflectionTestUtils.setField(saved, "id", 1L);
+            return saved;
+        });
+
+        String view = controller.applyToJob(10L, 7L, null, session, redirectAttributes);
+
+        assertEquals("redirect:/job_postings", view);
+        verify(jobApplicationRepository).save(any(JobApplication.class));
+        verify(applicationSummaryRepository).save(any(ApplicationSummary.class));
+        verify(redirectAttributes).addFlashAttribute("success", "Your application was submitted.");
+    }
+
+    @Test
+    void jobSeekerCanViewCurrentAndPastApplicationHistory() {
+        User seeker = new User();
+        seeker.setRole("JOB_SEEKER");
+        JobApplication current = application(job(10L, false), "Interview", LocalDate.of(2026, 11, 15));
+        JobApplication past = application(job(20L, true), "Rejected", LocalDate.of(2026, 10, 1));
+        ApplicationSummary currentSummary = new ApplicationSummary();
+        currentSummary.setStatus("Interview");
+        currentSummary.setState("Active");
+        ApplicationSummary pastSummary = new ApplicationSummary();
+        pastSummary.setStatus("Rejected");
+        pastSummary.setState("Closed");
+        when(session.getAttribute("loggedInUserEmail")).thenReturn("seeker@example.com");
+        when(userService.findByEmail("seeker@example.com")).thenReturn(Optional.of(seeker));
+        when(jobApplicationRepository.findByApplicant_EmailOrderBySubmittedAtDesc("seeker@example.com"))
+                .thenReturn(List.of(current, past));
+        when(applicationSummaryRepository.search("seeker@example.com", null, "", null, null, null))
+                .thenReturn(List.of(currentSummary, pastSummary));
+        ExtendedModelMap model = new ExtendedModelMap();
+
+        String view = controller.myApplications(null, null, null, null, null, session, model);
+
+        assertEquals("/submitted-applications", view);
+        assertEquals(List.of(current, past), model.getAttribute("applications"));
+        assertEquals(List.of(currentSummary, pastSummary), model.getAttribute("applicationSummaries"));
     }
 
     @Test
