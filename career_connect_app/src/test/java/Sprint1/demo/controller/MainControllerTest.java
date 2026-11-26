@@ -41,6 +41,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class MainControllerTest {
@@ -137,6 +138,19 @@ class MainControllerTest {
         assertEquals("Interview", application.getStatus());
         verify(jobApplicationRepository).save(application);
         verify(redirectAttributes).addFlashAttribute("success", "Status updated to \"Interview\".");
+    }
+
+    @Test
+    void recruiterCannotUpdateAnApplicationOwnedBySomeoneElse() {
+        when(jobApplicationRepository.findByIdAndJobListing_Recruiter_Email(99L, "recruiter@example.com"))
+                .thenReturn(Optional.empty());
+
+        String view = controller.updateApplicationStatus(99L, "Interview", session, redirectAttributes);
+
+        assertEquals("redirect:/recruiter/applications", view);
+        verify(jobApplicationRepository, never()).save(any(JobApplication.class));
+        verifyNoInteractions(applicationSummaryRepository);
+        verify(redirectAttributes).addFlashAttribute("error", "That application could not be found.");
     }
 
     @Test
