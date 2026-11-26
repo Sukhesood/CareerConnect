@@ -122,6 +122,27 @@ class MainControllerTest {
     }
 
     @Test
+    void recruiterRejectingAnApplicationClosesAndSavesItsHistorySummary() {
+        JobApplication application = new JobApplication();
+        application.setStatus("Under Review");
+        ApplicationSummary summary = new ApplicationSummary();
+        summary.setStatus("Under Review");
+        summary.setState("Active");
+        when(jobApplicationRepository.findByIdAndJobListing_Recruiter_Email(99L, "recruiter@example.com"))
+                .thenReturn(Optional.of(application));
+        when(applicationSummaryRepository.findByApplicationId(99L)).thenReturn(Optional.of(summary));
+
+        String view = controller.updateApplicationStatus(99L, "Rejected", session, redirectAttributes);
+
+        assertEquals("redirect:/recruiter/applications", view);
+        assertEquals("Rejected", application.getStatus());
+        assertEquals("Rejected", summary.getStatus());
+        assertEquals("Closed", summary.getState());
+        verify(jobApplicationRepository).save(application);
+        verify(applicationSummaryRepository).save(summary);
+    }
+
+    @Test
     void recruiterCannotCreatePostingWhenMinimumSalaryExceedsMaximumSalary() {
         JobListingForm form = new JobListingForm();
         form.setSalaryMin(25);
