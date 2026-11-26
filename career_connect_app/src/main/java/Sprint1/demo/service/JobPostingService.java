@@ -216,19 +216,9 @@ public class JobPostingService {
 
     @Transactional
     public void deleteJobListing(JobListing job) {
-
-        // Find applications submitted for this job
-        List<JobApplication> applications = jobApplicationRepository.findByJobListing_Id(job.getId());
-        // Reject all applications
-        for (JobApplication application : applications) {
-            application.setStatus("Rejected");
-        }
-
-        // Save updated application statuses
-        jobApplicationRepository.saveAll(applications);
-
-        // Soft delete the job
-        job.setDeleted(true);
-        jobRepository.save(job);
+        // Archive the posting instead of physically deleting it.  Applications
+        // continue to reference the posting, so the recruiter can still review
+        // their submitted candidates after a posting has closed or been removed.
+        jobRepository.archiveById(job.getId());
     }
 }

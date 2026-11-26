@@ -18,6 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,24 +37,21 @@ class JobPostingServiceTest {
     private JobPostingService jobPostingService;
 
     @Test
-    void deletingAPostingArchivesItAndRejectsItsApplications() {
+    void deletingAnExpiredPostingArchivesItAndKeepsItsApplicationsUntouched() {
         JobListing job = new JobListing();
         job.setId(42L);
+        job.setDeadline(LocalDate.now().minusDays(1));
         JobApplication firstApplication = new JobApplication();
         firstApplication.setStatus("Applied");
         JobApplication secondApplication = new JobApplication();
         secondApplication.setStatus("Under Review");
-        List<JobApplication> applications = List.of(firstApplication, secondApplication);
-
-        when(jobApplicationRepository.findByJobListing_Id(42L)).thenReturn(applications);
 
         jobPostingService.deleteJobListing(job);
 
-        assertTrue(job.isDeleted());
-        assertEquals("Rejected", firstApplication.getStatus());
-        assertEquals("Rejected", secondApplication.getStatus());
-        verify(jobApplicationRepository).saveAll(applications);
-        verify(jobRepository).save(job);
+        assertTrue("Applied".equals(firstApplication.getStatus()));
+        assertTrue("Under Review".equals(secondApplication.getStatus()));
+        verifyNoInteractions(jobApplicationRepository);
+        verify(jobRepository).archiveById(42L);
     }
 
     @Test

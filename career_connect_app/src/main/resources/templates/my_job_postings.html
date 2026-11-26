@@ -270,7 +270,7 @@
                     <a class="btn btn-secondary btn-small" th:href="@{/recruiter/applications(jobId=${job.id})}" th:text="${applicationCounts.get(job.id) + ' application(s)'}">0 application(s)</a>
                     <a class="btn btn-secondary btn-small" th:href="@{/job_posting/{id}/edit(id=${job.id})}">Edit</a>
                     <form th:action="@{/job_posting/{id}/delete(id=${job.id})}" method="post" style="margin: 0;"
-                          onsubmit="return confirm('Delete this job posting? Existing applications will be marked as Rejected.');">
+                          onsubmit="return confirm('Delete this job posting? Existing applications will remain available for review.');">
                         <button class="btn btn-danger btn-small" type="submit">Delete</button>
                     </form>
                 </div>
