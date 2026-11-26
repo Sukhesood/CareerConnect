@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +58,7 @@ public class MainController {
        }
 
     private boolean isAuth(HttpSession session) {
-        return (null != session.getAttribute("loggedInUserEmail"));
+        return null != session.getAttribute("loggedInUserEmail");
     }
 
     private boolean isRecruiter(HttpSession session) {
@@ -100,7 +99,7 @@ public class MainController {
         if (result.hasErrors()) {
             return "job_posting_creation";
         }
-        String email = (String) session.getAttribute(("loggedInUserEmail"));
+        String email = (String) session.getAttribute("loggedInUserEmail");
         if (email == null) {
             return "redirect:/login";
         }
