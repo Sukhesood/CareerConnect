@@ -325,6 +325,7 @@ public class MainController {
             redirect.addFlashAttribute("error", "The job posting could not be found.");
             return "redirect:/job_postings";
         }
+        JobListing selectedJobListing = jobListing.get();
         if (jobApplicationRepository.existsByApplicant_EmailAndJobListing_Id(email, jobId)) {
             redirect.addFlashAttribute("error", "You have already applied to this job.");
             return "redirect:/job_postings";
@@ -339,16 +340,16 @@ public class MainController {
                     : "Please choose one of your uploaded resumes before applying.");
             return "redirect:/job_postings";
         }
-        if (jobListing.get().isCoverLetterRequired() && (coverLetter == null || coverLetter.isEmpty())) {
+        if (selectedJobListing.isCoverLetterRequired() && (coverLetter == null || coverLetter.isEmpty())) {
             redirect.addFlashAttribute("error", "This job requires a cover letter. Please choose a PDF or DOCX file.");
             return "redirect:/job_postings";
         }
 
         JobApplication application = new JobApplication();
         application.setApplicant(applicant.get());
-        application.setJobListing(jobListing.get());
+        application.setJobListing(selectedJobListing);
         application.setSelectedResume(selectedResume.get());
-        if (jobListing.get().isCoverLetterRequired()) {
+        if (selectedJobListing.isCoverLetterRequired()) {
             try {
                 ResumeService.UploadedDocument uploadedLetter =
                         resumeService.prepareApplicationDocument(coverLetter, "cover letter");
@@ -362,29 +363,29 @@ public class MainController {
         }
         jobApplicationRepository.save(application);
         redirect.addFlashAttribute("success", "Your application was submitted.");
-        ApplicationSummary applicationSummary = createApplicationSummary(application, jobListing, session);
+        ApplicationSummary applicationSummary = createApplicationSummary(application, selectedJobListing, session);
         applicationSummaryRepository.save(applicationSummary);
         notificationService.newApplicationSubmitted(application);
 
         return "redirect:/job_postings";
     }
 
-    private static @NonNull ApplicationSummary createApplicationSummary(JobApplication application, Optional<JobListing> jobListing, HttpSession session) {
+    private static @NonNull ApplicationSummary createApplicationSummary(JobApplication application, JobListing jobListing, HttpSession session) {
         String email = (String) session.getAttribute("loggedInUserEmail");
         LocalDate date;
-        if (jobListing.get().getDeadline()==null){
+        if (jobListing.getDeadline()==null){
             date= LocalDate.of(0, 1, 1);
         }
         else {
-            date=jobListing.get().getDeadline();
+            date=jobListing.getDeadline();
         }
 
         ApplicationSummary applicationSummary = new ApplicationSummary();
         applicationSummary.setAppliedDate(application.getSubmittedAt());
         applicationSummary.setClosingDate(date);
-        applicationSummary.setCompany(jobListing.get().getCompanyName());
-        applicationSummary.setCreationDate(jobListing.get().getPostedDate());
-        applicationSummary.setTitle(jobListing.get().getTitle());
+        applicationSummary.setCompany(jobListing.getCompanyName());
+        applicationSummary.setCreationDate(jobListing.getPostedDate());
+        applicationSummary.setTitle(jobListing.getTitle());
         applicationSummary.setStatus(application.getStatus());
         applicationSummary.setId_application(application.getId());
         applicationSummary.setEmail(email);
