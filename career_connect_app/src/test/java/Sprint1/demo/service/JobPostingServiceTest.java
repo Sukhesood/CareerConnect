@@ -3,6 +3,7 @@ package Sprint1.demo.service;
 import Sprint1.demo.model.JobApplication;
 import Sprint1.demo.model.JobListing;
 import Sprint1.demo.model.JobListingForm;
+import Sprint1.demo.model.User;
 import Sprint1.demo.repository.JobApplicationRepository;
 import Sprint1.demo.repository.JobRepository;
 import Sprint1.demo.repository.UserRepository;
@@ -14,9 +15,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,6 +28,9 @@ class JobPostingServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private UserService userService;
 
     @Mock
     private JobRepository jobRepository;
@@ -105,5 +111,51 @@ class JobPostingServiceTest {
         List<JobListing> available = jobPostingService.getAvailableJobListings("seeker@example.com");
 
         assertEquals(List.of(openJob, noDeadlineJob), available);
+    }
+
+
+    @Test
+    void formToJobPostingTest() {
+        JobListingForm form = new JobListingForm();
+
+        form.setTitle("QA Automation Intern");
+        form.setCompanyName("CareerConnect Labs");
+        form.setLocation("Montreal");
+        form.setWorkMode("Hybrid");
+        form.setJobType("Internship");
+        form.setDescription("Create automated tests.");
+        form.setRequirement("Basic Java knowledge");
+        form.setSkills("Java, JUnit");
+        form.setSalaryMin(20);
+        form.setSalaryMax(25);
+        form.setSalaryPeriod("hourly");
+        form.setApplyUrl("https://example.com/apply");
+        form.setCoverLetterRequired(true);
+        form.setDeadline(LocalDate.of(2026, 12, 31));
+
+        User user = new User();
+        user.setEmail("user@gmail.com");
+        user.setRole("RECRUITER");
+
+        when(userRepository.findByEmail("user@gmail.com")).thenReturn(Optional.of(user));
+        when(jobRepository.save(any(JobListing.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        JobListing job = jobPostingService.createJobListing(form, "user@gmail.com");
+
+        assertEquals("QA Automation Intern", job.getTitle());
+        assertEquals("CareerConnect Labs", job.getCompanyName());
+        assertEquals("Montreal", job.getLocation());
+        assertEquals("Hybrid", job.getWorkMode());
+        assertEquals("Internship", job.getJobType());
+        assertEquals("Create automated tests.", job.getDescription());
+        assertEquals("Basic Java knowledge", job.getRequirement());
+        assertEquals("Java, JUnit", job.getSkills());
+        assertEquals(20, job.getSalaryMin());
+        assertEquals(25, job.getSalaryMax());
+        assertEquals("hourly", job.getSalaryPeriod());
+        assertEquals("https://example.com/apply", job.getApplyUrl());
+        assertTrue(job.isCoverLetterRequired());
+        assertEquals(LocalDate.of(2026, 12, 31), job.getDeadline());
+        assertSame(user, job.getRecruiter());
     }
 }
