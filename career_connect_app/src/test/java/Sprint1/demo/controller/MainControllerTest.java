@@ -107,6 +107,24 @@ class MainControllerTest {
     }
 
     @Test
+    void recruiterApplicationFilterRejectsAnInvalidSubmittedDateRange() {
+        JobListing activeJob = job(10L, false);
+        JobApplication application = application(activeJob, "Applied", LocalDate.of(2026, 11, 15));
+        when(jobApplicationRepository.findByJobListing_Recruiter_EmailOrderBySubmittedAtDesc("recruiter@example.com"))
+                .thenReturn(List.of(application));
+        when(jobPostingService.getJobListingsForRecruiter("recruiter@example.com")).thenReturn(List.of(activeJob));
+        ExtendedModelMap model = new ExtendedModelMap();
+
+        String view = controller.showRecruiterApplications("", null,
+                LocalDate.of(2026, 11, 20), LocalDate.of(2026, 11, 15), session, model);
+
+        assertEquals("recruiter-applications", view);
+        assertEquals(0, model.getAttribute("displayedApplications"));
+        assertTrue(((Map<?, ?>) model.getAttribute("applicationsByJob")).isEmpty());
+        assertEquals("The start date must be on or before the end date.", model.getAttribute("filterError"));
+    }
+
+    @Test
     void recruiterCanUpdateAnOwnedApplicationStatus() {
         JobApplication application = new JobApplication();
         application.setStatus("Applied");
